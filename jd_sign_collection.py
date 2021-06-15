@@ -9,7 +9,7 @@ import json
 import asyncio
 import re
 import time
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 import aiohttp
 from rich.console import Console
@@ -622,6 +622,399 @@ class JdSignCollection:
                 'message': '程序异常出错',
             })
 
+    async def jd_jr_doll(self, session, name='', body=''):
+
+        url = 'https://nu.jr.jd.com/gw/generic/jrm/h5/m/process'
+        session.headers.add('Content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
+        try:
+            response = await session.post(url=url, data=body)
+            text = await response.text()
+            data = json.loads(text)
+            logger.info('{}, 数据:{}'.format(name, data))
+            if 'resultCode' in data and data['resultCode'] == 0:
+                self._result.append({
+                    'name': name,
+                    'status': self.status_success,
+                    'message': ''
+                })
+            else:
+                self._result.append({
+                    'name': name,
+                    'status': self.status_fail,
+                    'message': data['resultMsg']
+                })
+        except Exception as e:
+            logger.info('{}, 异常:{}'.format(name, e.args))
+            self._result.append({
+                'name': name,
+                'status': self.status_fail,
+                'message': '程序异常出错',
+            })
+
+    async def jd_jr_doll_one(self, session):
+        body = 'reqData=%7B%22actCode%22%3A%224D25A6F482%22%2C%22type%22%3A3%7D'
+        name = '京东金融-签壹'
+        await self.jd_jr_doll(session, name, body)
+
+    async def jd_jr_doll_two(self, session):
+        """
+        京东金融-签贰
+        :param session:
+        :return:
+        """
+        body = 'reqData=%7B%22actCode%22%3A%223A3E839252%22%2C%22type%22%3A3%7D'
+        name = '京东金融-签贰'
+        await self.jd_jr_doll(session, name, body)
+
+    async def jd_jr_doll_three(self, session):
+        """
+        京东金融-签叁
+        :param session:
+        :return:
+        """
+        name = '京东金融-签叁'
+        body = 'reqData=%7B%22actCode%22%3A%2269F5EC743C%22%2C%22type%22%3A3%7D'
+        await self.jd_jr_doll(session, name, body)
+
+    async def jd_jr_doll_four(self, session):
+        """
+        京东金融-签肆
+        :return:
+        """
+        name = '京东金融-签肆'
+        body = 'reqData=%7B%22actCode%22%3A%2230C4F86264%22%2C%22type%22%3A3%7D'
+        await self.jd_jr_doll(session, name, body)
+
+    async def jd_jr_doll_five(self, session):
+        """
+        京东金融-签伍
+        :param session:
+        :return:
+        """
+        name = '京东金融-签伍'
+        body = 'reqData=%7B%22actCode%22%3A%221D06AA3B0F%22%2C%22type%22%3A3%7D'
+        await self.jd_jr_doll(session, name, body)
+
+    async def jd_jr_doll_cash_double(self, session):
+        """
+        金融现金-双签
+        :param session:
+        :return:
+        """
+        name = '金融现金-双签'
+        body = 'reqData=%7B%22actCode%22%3A%221DF13833F7%22%2C%22type%22%3A3%2C%22' \
+               'frontParam%22%3A%7B%22channel%22%3A%22JR%22%2C%22belong%22%3A4%7D%7D'
+        await self.jd_jr_doll(session, name, body)
+
+    async def jd_jr_bean_double(self, session):
+        """
+        金融京豆-双签
+        :param session:
+        :return:
+        """
+        name = '金融京豆-双签'
+        body = 'reqData=%7B%22actCode%22%3A%22F68B2C3E71' \
+               '%22%2C%22type%22%3A3%2C%22frontParam%22%3A%7B%22belong%22%3A%22jingdou%22%7D%7D'
+        await self.jd_jr_doll(session, name, body)
+
+    async def jd_jr_doll_subsidy_double(self, session):
+        """
+        京东金贴-双签
+        :return:
+        """
+        name = '京东金贴-双签'
+        body = 'reqData=%7B%22actCode%22%3A%221DF13833F7%22%2C%22type%22%3A3%2C%22frontParam%22%3A%7B%22channel%22%3A' \
+               '%22JR%22%2C%22belong%22%3A4%7D%7D'
+        await self.jd_jr_doll(session=session, name=name, body=body)
+
+    async def jd_shop_sign(self, session, name, body=''):
+        """
+        :param session:
+        :param name:
+        :param body:
+        :return:
+        """
+        url = 'https://api.m.jd.com/client.action?functionId=userSign'
+        body = 'body={}&client=wh5'.format(quote(body))
+        session.headers.add('Content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
+        try:
+            response = await session.post(url=url, data=body)
+            text = await response.text()
+            data = json.loads(text)
+            logger.info('{}, 数据:{}'.format(name, data))
+            console.print(data)
+        except Exception as e:
+            logger.info('{}, 异常:{}'.format(name, e.args))
+            self._result.append({
+                'name': name,
+                'status': self.status_fail,
+                'message': '程序异常出错',
+            })
+
+    async def jd_shop(self, session, name='', body=''):
+        """
+         京东商城签到
+        :param body:
+        :param name:
+        :param session:
+        :return:
+        """
+        url = 'https://api.m.jd.com/?client=wh5&functionId=qryH5BabelFloors'
+        session.headers.add('Content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
+        try:
+            response = await session.post(url=url, data=body)
+            text = await response.text()
+            data = json.loads(text)
+            sign_params = None
+            turn_table_id = None
+
+            if 'qxTid' in data and data['qxTid']:
+                turn_table_id = data['qxTid']
+
+            if 'floorList' in data and data['floorList']:
+                for floor in data['floorList']:
+                    if 'boardParams' in floor and 'turnTableId' in floor['boardParams']:
+                        turn_table_id = floor['boardParams']['turnTableId']
+
+            if 'qxAct' in data:
+                sign_params = data['qxAct']
+
+            if 'floatLayerList' in data and data['floatLayerList']:
+                float_layer_text = json.dumps(data['floatLayerList'])
+                if len(re.findall('enActK', float_layer_text)) > 0:
+                    console.print('在float_layer_list中找到签到数据:{}'.format(data['floatLayerList']))
+                    logger.info('在float_layer_list中找到签到数据:{}'.format(data['floatLayerList']))
+
+            if 'floorList' in data and data['floorList']:
+                for floor in data['floorList']:
+                    if floor['template'] == 'signIn':
+                        sign_info = floor['signInfos']
+                        if sign_info['signStat'] == '1':
+                            self._result.append({
+                                'name': name,
+                                'status': self.status_signed,
+                                'message': '请勿重复签到!'
+                            })
+                            return
+                        sign_params = sign_info['params']  # 签到数据
+
+            if not sign_params and not turn_table_id:
+                self._result.append({
+                    'name': name,
+                    'status': self.status_fail,
+                    'message': '活动查找异常!'
+                })
+                return
+
+            if turn_table_id:  # 关注店铺
+                console.print(turn_table_id)
+
+            if sign_params:  # 去签到
+                console.print(sign_params)
+                await self.jd_shop_sign(session, name, sign_params)
+
+            logger.info('{}, 数据:{}'.format(name, data))
+            # console.print(data)
+        except Exception as e:
+            logger.info('{}, 异常:{}'.format(name, e.args))
+            self._result.append({
+                'name': name,
+                'status': self.status_fail,
+                'message': '程序异常出错',
+            })
+
+    async def jd_shop_card(self, session):
+        """
+        京东商城-卡包
+        :param session:
+        :return:
+        """
+        code = 'body=%7B%22activityId%22%3A%227e5fRnma6RBATV9wNrGXJwihzcD%22%7D'
+        name = '京东商城-卡包'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_undies(self, session):
+        """
+        京东商城-内衣
+        :return:
+        """
+        name = '京东商城-内衣'
+        code = '4PgpL1xqPSW1sVXCJ3xopDbB1f69'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_gaming(self, session):
+        """
+        京东商城-电竞
+        :return:
+        """
+        name = '京东商城-电竞'
+        code = 'CHdHQhA5AYDXXQN9FLt3QUAPRsB'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_suitcase(self, session):
+        """
+        京东商城-箱包
+        :param session:
+        :return:
+        """
+        name = '京东商城-箱包'
+        code = 'ZrH7gGAcEkY2gH8wXqyAPoQgk6t'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_clothing(self, session):
+        """
+        京东商城-服饰
+        :param session:
+        :return:
+        """
+        name = '京东商城-服饰'
+        code = '4RBT3H9jmgYg1k2kBnHF8NAHm7m8'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_school(self, session):
+        """
+        京东商城-校园
+        :param session:
+        :return:
+        """
+        name = '京东商城-校园'
+        code = '2QUxWHx5BSCNtnBDjtt5gZTq7zdZ'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_health(self, session):
+        """
+        京东商城-健康
+        :param session:
+        :return:
+        """
+        name = '京东商城-健康'
+        code = 'w2oeK5yLdHqHvwef7SMMy4PL8LF'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_shoes(self, session):
+        """
+        京东商城-鞋靴
+        :param session:
+        :return:
+        """
+        name = '京东商城-鞋靴'
+        code = '4RXyb1W4Y986LJW8ToqMK14BdTD'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_child(self, session):
+        name = '京东商城-童装'
+        code = '3Af6mZNcf5m795T8dtDVfDwWVNhJ'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_baby(self, session):
+        """
+        京东商城-母婴
+        :param session:
+        :return:
+        """
+        name = '京东商城-母婴'
+        code = '3BbAVGQPDd6vTyHYjmAutXrKAos6'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_3c(self, session):
+        """
+        京东商城-数码
+        :param session:
+        :return:
+        """
+        name = '京东商城-数码'
+        code = '4SWjnZSCTHPYjE5T7j35rxxuMTb6'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_women(self, session):
+        """
+        京东商城-女装
+        :param session:
+        :return:
+        """
+        name = '京东商城-女装'
+        code = 'DpSh7ma8JV7QAxSE2gJNro8Q2h9'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_book(self, session):
+        """
+        京东商城-图书
+        :param session:
+        :return:
+        """
+        name = '京东商城-图书'
+        code = '3SC6rw5iBg66qrXPGmZMqFDwcyXi'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_second_hand(self, session):
+        """
+        京东拍拍-二手
+        :param session:
+        :return:
+        """
+        name = '京东拍拍-二手'
+        code = '3S28janPLYmtFxypu37AYAGgivfp'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_food_market(self, session):
+        """
+        京东商城-菜场
+        :param session:
+        :return:
+        """
+        name = '京东商城-菜场'
+        code = 'Wcu2LVCFMkBP3HraRvb7pgSpt64'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_accompany(self, session):
+        """
+        京东商城-陪伴
+        :param session:
+        :return:
+        """
+        name = '京东商城-陪伴'
+        code = 'kPM3Xedz1PBiGQjY4ZYGmeVvrts'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_live(self, session):
+        """
+        京东智能-生活
+        :param session:
+        :return:
+        """
+        name = '京东智能-生活'
+        code = 'KcfFqWvhb5hHtaQkS4SD1UU6RcQ'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_clean(self, session):
+        """
+        京东商城-清洁
+        :return:
+        """
+        name = '京东商城-清洁'
+        code = '2Tjm6ay1ZbZ3v7UbriTj6kHy9dn6'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_care(self, session):
+        """
+        京东商城-个护
+        :param session:
+        :return:
+        """
+        name = '京东商城-个护'
+        code = '2tZssTgnQsiUqhmg5ooLSHY9XSeN'
+        await self.jd_shop(session, name, code)
+
+    async def jd_shop_jewelry(self, session):
+        """
+        京东商城-珠宝
+        :param session:
+        :return:
+        """
+        name = '京东商城-珠宝'
+        code = 'zHUHpTHNTaztSRfNBFNVZscyFZU'
+        await self.jd_shop(session, name, code)
+
     async def get_total_steel(self, session):
         """
         获取总钢镚
@@ -812,6 +1205,20 @@ class JdSignCollection:
             await self.jd_killing(session)  # 京东秒杀, API提示没有权限
             await self.jd_wonderful(session)  # 京东精彩
             await self.jd_car(session)  # 京东汽车
+            await self.jd_jr_doll_one(session)  # 京东金融-签壹
+            await self.jd_jr_doll_two(session)  # 京东金融-签贰
+            await self.jd_jr_doll_three(session)  # 京东金融-签叁
+            await self.jd_jr_doll_four(session)   # 京东金融-签肆
+            await self.jd_jr_doll_five(session)   # 京东金融-签伍
+            await self.jd_jr_doll_cash_double(session)  # 金融现金-双签
+            await self.jd_jr_doll_subsidy_double(session)  # 京东金贴-双签
+            await self.jd_jr_bean_double(session)  # 金融京豆-双签
+            # await self.jd_shop_card(session)
+            # await self.jd_shop_live(session)
+            # await self.jd_shop_3c(session)
+            # await self.jd_shop_baby(session)
+            # await self.jd_shop_jewelry(session)
+            # await self.jd_shop_women(session)
             await self.get_total_steel(session)  # 总钢镚查询
             await self.get_total_bean(session)  # 总金豆查询
             await self.get_total_cash(session)  # 红包查询
