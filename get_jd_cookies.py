@@ -9,7 +9,9 @@ import time
 import qrcode
 import requests
 from log import get_logger
+from rich.console import Console
 
+console = Console()
 logger = get_logger('get_jd_cookies')
 ANDROID_PLATFORM = 'android'
 IOS_PLATFORM = 'ios'
@@ -71,15 +73,15 @@ class JDCookies:
         扫描登录入口，先获取s_token
         :return:
         """
-        logger.info("正在获取s_token")
         url = 'https://plogin.m.jd.com/cgi-bin/mm/new_login_entrance?lang=chs&appid=300&returnurl=https://wq.jd.com' \
               '/passport/LoginRedirect?state={}&returnurl=https://home.m.jd.com ' \
               '/myJd/newhome.action?sceneval=2&ufc=&/myJd/home.action&source=wq_passport'.format(get_timestamp())
         try:
             response = self._http.get(url)
+            logger.info("获取s_token， 数据:{}".format(response.json()))
             return response.json()['s_token']
         except requests.RequestException as e:
-            logger.info("获取s_token失败, 网络异常: {}".format(e.args))
+            logger.info("获取s_token失败, 原因: {}".format(e.args))
 
     def __generate_qr_code(self, s_token=''):
         """
@@ -87,7 +89,6 @@ class JDCookies:
         :param s_token:
         :return:
         """
-        logger.info("正在获取登录二维码")
         url = 'https://plogin.m.jd.com/cgi-bin/m/tmauthreflogurl?s_token={}&v={}&remember=true'.format(s_token,
                                                                                                        get_timestamp())
         body = 'lang=chs&appid=300&source=wq_passport&returnurl=https://wqlogin2.jd.com/passport/LoginRedirect?state' \
@@ -97,6 +98,7 @@ class JDCookies:
         try:
             response = self._http.post(url, body)
             data = response.json()
+            logger.info("获取二维码, 数据:{}".format(data))
             token = data['token']
             qr_code_url = 'https://plogin.m.jd.com/cgi-bin/m/tmauth?appid=300&client_type=m&token=' + token
             qr = qrcode.QRCode(
@@ -107,16 +109,18 @@ class JDCookies:
             )
             qr.add_data(qr_code_url)
             qr.make(fit=True)
+
+            console.print('请扫描二维码登录, 有效期三分钟...', style="bold white")
+
             img = qr.make_image(fill_color="black", back_color="white")
             img.save('./qrcode.png')
             img.show()
-            logger.info("请扫描二维码登录, 3分钟内有效")
             return token
 
         except requests.RequestException as e:
             logger.info("获取二维码失败, 网络异常: {}".format(e.args))
 
-    def check_login(self, token=''):
+    def __check_login(self, token=''):
         """
         检查登录状态
         :param token:
@@ -131,29 +135,43 @@ class JDCookies:
                'newhome.action?sceneval=2&ufc=&/myJd/home.action'.format(get_timestamp())
         start_time = int(time.time())
 
+        console.print("等待扫码中...", style='bold yellow')
         while True:
             time.sleep(1)
             try:
                 response = self._http.post(url, body)
                 data = response.json()
+                logger.info("获取扫描状态, 数据:{}".format(data))
                 if data['errcode'] == 0:
                     pt_pin = self._http.cookies.get('pt_pin')
                     pt_key = self._http.cookies.get('pt_key')
-                    logger.info("成功获取CK: pt_pin={};pt_key={} 退出程序".format(pt_pin, pt_key))
+                    logger.info("成功获取cookie: pt_pin={};pt_key={};".format(pt_pin, pt_key))
+                    console.print("成功获取cookie, 如下:", style='bold green')
+                    console.print("pt_pin={};pt_key={};".format(pt_pin, pt_key), style='bold green')
+                    break
+                elif data['errcode'] == 176:
+                    console.print('获取cookie失败, 请扫码登录...', style='bold red')
+                else:
+                    console.print("获取cookie失败, 原因:{}".format(data['message']), style='bold red')
                     break
             except requests.RequestException as e:
-                logger.info("获取登录状态失败")
+                console.print("获取登录状态失败, 网络异常...", style='bold red')
+                logger.info("获取登录状态失败, 原因:{}".format(e.args))
+                break
             if int(time.time()) - start_time > 60 * 3:
-                logger.info("超过三分钟仍未扫码, 退出程序")
-                sys.exit(0)
+                logger.info("超过三分钟仍未扫码...")
+                console.print("超过三分钟未扫码...", style='bold red')
+                break
 
     def start(self):
         """
         :return:
         """
+        console.print("获取cookie脚本开始执行...", style='bold blue')
         s_token = self.__login_entrance()
         token = self.__generate_qr_code(s_token)
-        self.check_login(token)
+        self.__check_login(token)
+        console.print("获取cookie脚本执行完毕...", style='bold green')
 
 
 if __name__ == '__main__':
