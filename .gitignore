@@ -116,3 +116,4 @@ dmypy.json
 *.png
 .idea/
 logs/
+conf/config.yaml

@@ -1,0 +1,18 @@
+# conf/config.yaml
+
+debug: true
+
+# jd cookies配置
+jd_cookies:
+  - pt_pin=jd_1;pt_key=AAJgwFk;   # 账号1
+  - pt_pin=jd_2;pt_key=AAJgwFk;   # 账号2
+
+# 请求头, 非必填, 如需要配置的可以同JD APP或网页版抓包获取。
+user_agent:
+
+# 消息通知配置
+notify:
+  # TG机器人消息通知, TG机器人token:tg_bot_token, TG用户id: tg_user_id！
+  tg_bot_token:
+  tg_user_id:
+

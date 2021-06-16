@@ -5,16 +5,13 @@
 # @Project : jd_scripts
 # @Desc    : 京东扫描登录获取cookies
 import time
-import json
 import qrcode
 import requests
 from utils.logger import get_logger
 from utils.console import println
+from config import USER_AGENT
 
 logger = get_logger('get_jd_cookies')
-ANDROID_PLATFORM = 'android'
-IOS_PLATFORM = 'ios'
-WINDOWS_PLATFORM = 'windows'
 
 
 def get_timestamp():
@@ -25,47 +22,32 @@ def get_timestamp():
     return int(time.time() * 1000)
 
 
+def get_headers():
+    """
+    获取请求头
+    :return:
+    """
+    headers = {
+        'Connection': 'Keep-Alive',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'zh-cn',
+        'Referer': 'https://plogin.m.jd.com/login/login?appid=300&returnurl=https://wq.jd.com/passport'
+                   '/LoginRedirect?state={}&returnurl=https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc'
+                   '=&/myJd/home.action&source=wq_passport'.format(get_timestamp()),
+        'User-Agent': USER_AGENT,
+        'Host': 'plogin.m.jd.com'
+    }
+    return headers
+
+
 class JDCookies:
-
-    def __init__(self, device_platform=ANDROID_PLATFORM, *args, **kwargs):
-        """
-        :param platform:
-        """
-        self._platform = device_platform
-
+    """
+    通过扫码登录获取JD Cookies
+    """
+    def __init__(self):
         self._http = requests.Session()
-        self._http.headers = self.__get_headers()
-
-    def __get_headers(self):
-        """
-        获取请求头
-        :return:
-        """
-        if self._platform == ANDROID_PLATFORM:
-            user_agent = 'Mozilla/5.0 (Linux; Android 10; ELS-TN00; HMSCore 5.1.0.309) AppleWebKit/537.36 (KHTML, ' \
-                         'like Gecko) Chrome/78.0.3904.108 HuaweiBrowser/11.0.2.306 Mobile Safari/537.36'
-        elif self._platform == IOS_PLATFORM:
-            user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, ' \
-                         'like Gecko) Mobile/16D57'
-        elif self._platform == WINDOWS_PLATFORM:
-            user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)' \
-                         'Chrome/71.0.1047.55 Safari/537.36'
-        else:
-            user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko)' \
-                         'Chrome/63.0.3239.84 Safari/537.36'
-
-        headers = {
-            'Connection': 'Keep-Alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'zh-cn',
-            'Referer': 'https://plogin.m.jd.com/login/login?appid=300&returnurl=https://wq.jd.com/passport'
-                       '/LoginRedirect?state={}&returnurl=https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc'
-                       '=&/myJd/home.action&source=wq_passport'.format(get_timestamp()),
-            'User-Agent': user_agent,
-            'Host': 'plogin.m.jd.com'
-        }
-        return headers
+        self._http.headers = get_headers()
 
     def __login_entrance(self):
         """
@@ -145,14 +127,8 @@ class JDCookies:
                     pt_pin = self._http.cookies.get('pt_pin')
                     pt_key = self._http.cookies.get('pt_key')
                     logger.info("成功获取cookie: pt_pin={};pt_key={};".format(pt_pin, pt_key))
-                    println("成功获取cookie...", style='bold green')
-                    println("环境变量格式如下:")
+                    println("成功获取cookie, 如下:", style='bold green')
                     println("pt_pin={};pt_key={};".format(pt_pin, pt_key), style='bold green')
-                    println("配置文件格式如下:", style='bold blue')
-                    println(json.dumps({
-                        'pt_pin': pt_pin,
-                        'pt_key': pt_key
-                    }))
                     break
                 elif data['errcode'] == 176:
                     println('获取cookie失败, 请扫码登录...', style='bold red')

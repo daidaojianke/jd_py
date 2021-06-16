@@ -26,12 +26,14 @@ with open('conf/config.yaml', 'r') as f:
 JD_DEBUG = cfg.get('JD_DEBUG', True)
 
 # JD COOKIES
-JD_COOKIES = [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.search('pt_pin=(.*?);', i).group(1)}
+JD_COOKIES = [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.search('pt_key=(.*?);', i).group(1)}
               for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)]
 
+# 请求头
+USER_AGENT = cfg.get('user_agent', 'okhttp/3.12.1;jdmall;android;version/10.0.4;build/88623;screen/1080x2293;os/11'
+                                   ';network/wifi;')
 
 # TG 用户ID
-TG_USER_ID = cfg.get('TG_USER_ID', None)
+TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token
-TG_BOT_TOKEN = cfg.get('TG_BOT_TOKEN', None)
-
+TG_BOT_TOKEN = cfg.get('notify', dict()).get('tg_bot_token', None)

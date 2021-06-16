@@ -14,10 +14,9 @@ import multiprocessing
 import aiohttp
 
 from utils.notify import push_message_to_tg
-from conf import JD_COOKIES
+from config import JD_COOKIES
 from utils.logger import get_logger
 from utils.console import println
-
 
 logger = get_logger('jd_sign_collection')
 
@@ -45,7 +44,7 @@ class JdSignCollection:
         :param session:
         :return:
         """
-        url = 'https://plogin.m.jd.com/cgi-bin/ml/islogin?time={}'.format(int(time.time()*1000))
+        url = 'https://plogin.m.jd.com/cgi-bin/ml/islogin?time={}'.format(int(time.time() * 1000))
         try:
             response = await session.get(url=url)
             text = await response.text()
@@ -335,9 +334,10 @@ class JdSignCollection:
         :return:
         """
         name = '京东小魔方-查询'
-        url = 'https://api.m.jd.com/client.action?functionId=getNewsInteractionInfo&appid=smfe&body={}'.format(urlencode({
-            'sign': '2'
-        }))
+        url = 'https://api.m.jd.com/client.action?functionId=getNewsInteractionInfo&appid=smfe&body={}'.format(
+            urlencode({
+                'sign': '2'
+            }))
         try:
             response = await session.get(url)
             text = await response.text()
@@ -382,7 +382,7 @@ class JdSignCollection:
                 self._result.append({
                     'name': name,
                     'status': self.status_success,
-                    'message': '金贴: {}'.format(amount_str+'元' if amount > 0 else '无')
+                    'message': '金贴: {}'.format(amount_str + '元' if amount > 0 else '无')
                 })
             else:
                 self._result.append({
@@ -1252,10 +1252,10 @@ class JdSignCollection:
         println(start_line, style='bold blue')
         for i in range(len(self._result)):
             res = self._result[i]
-            println("\t{}.{}: {}! {}".format(i+1, res['name'], self.status_msg[res['status']], res['message']),
-                          style='bold green')
+            println("\t{}.{}: {}! {}".format(i + 1, res['name'], self.status_msg[res['status']], res['message']),
+                    style='bold green')
 
-        println('=' * (len(start_line)+2), style='bold blue')
+        println('=' * (len(start_line) + 2), style='bold blue')
         println('\n')
 
     async def start(self):
@@ -1274,7 +1274,7 @@ class JdSignCollection:
             await self.jd_bean(session)  # 京东京豆
             await self.jd_store(session)  # 京东超市
             await self.jr_steel(session)  # 金融钢镚
-            await self.jd_turn(session)   # 京东转盘
+            await self.jd_turn(session)  # 京东转盘
             await self.jd_flash_sale(session)  # 京东闪购
             await self.jd_cash(session)  # 京东现金红包
             await self.jd_magic_cube(session)  # 京东小魔方
@@ -1287,13 +1287,13 @@ class JdSignCollection:
             await self.jd_jr_doll_one(session)  # 京东金融-签壹
             await self.jd_jr_doll_two(session)  # 京东金融-签贰
             await self.jd_jr_doll_three(session)  # 京东金融-签叁
-            await self.jd_jr_doll_four(session)   # 京东金融-签肆
-            await self.jd_jr_doll_five(session)   # 京东金融-签伍
+            await self.jd_jr_doll_four(session)  # 京东金融-签肆
+            await self.jd_jr_doll_five(session)  # 京东金融-签伍
             await self.jd_jr_doll_cash_double(session)  # 金融现金-双签
             await self.jd_jr_doll_subsidy_double(session)  # 京东金贴-双签
             await self.jd_jr_bean_double(session)  # 金融京豆-双签
             await self.jd_shop_card(session)  # 京东商城-卡包
-            await self.jd_shop_3c(session)   # 京东商城-数码
+            await self.jd_shop_3c(session)  # 京东商城-数码
             await self.jd_shop_baby(session)  # 京东商城-母婴
             await self.jd_shop_women(session)  # 京东商城-女装
             await self.jd_shop_jewelry(session)  # 京东商城-珠宝
@@ -1308,7 +1308,7 @@ class JdSignCollection:
             await self.jd_shop_live(session)  # 京东商城-生活
             await self.jd_shop_clothing(session)  # 京东商城-服饰
             await self.jd_shop_health(session)  # 京东商城-健康
-            await self.jd_shop_child(session)   # 京东商城-童装
+            await self.jd_shop_child(session)  # 京东商城-童装
             await self.jd_shop_second_hand(session)  # 京东拍拍-二手
             await self.jd_shop_gaming(session)  # 京东商城-电竞
             await self.jd_shop_school(session)  # 京东商城-校园
@@ -1330,7 +1330,7 @@ class JdSignCollection:
 
         for i in range(len(self._result)):
             res = self._result[i]
-            line = "\t{}.{}: {}! {}\n".format(i+1, res['name'], self.status_msg[res['status']], res['message'])
+            line = "\t{}.{}: {}! {}\n".format(i + 1, res['name'], self.status_msg[res['status']], res['message'])
             message += line
 
         push_message_to_tg(message)
@@ -1356,7 +1356,7 @@ if __name__ == '__main__':
     for jd_cookie in JD_COOKIES:
         pool.apply_async(start, args=(jd_cookie['pt_pin'], jd_cookie['pt_key']))
         println("账号:{}, 正在签到...".format(jd_cookie['pt_pin']),
-                      style=random.choice(['bold yellow', 'bold red', 'bold yellow', 'bold white']))
+                style=random.choice(['bold yellow', 'bold red', 'bold yellow', 'bold white']))
     pool.close()
     pool.join()
     println("京东签到合集执行完毕...", style='bold yellow')
