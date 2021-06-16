@@ -117,3 +117,5 @@ dmypy.json
 .idea/
 logs/
 conf/config.yaml
+
+jd_docker/
