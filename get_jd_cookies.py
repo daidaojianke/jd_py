@@ -8,10 +8,9 @@ import time
 import json
 import qrcode
 import requests
-from log import get_logger
-from rich.console import Console
+from logger import get_logger
+from console import println
 
-console = Console()
 logger = get_logger('get_jd_cookies')
 ANDROID_PLATFORM = 'android'
 IOS_PLATFORM = 'ios'
@@ -110,7 +109,7 @@ class JDCookies:
             qr.add_data(qr_code_url)
             qr.make(fit=True)
 
-            console.print('请扫描二维码登录, 有效期三分钟...', style="bold white")
+            println('请扫描二维码登录, 有效期三分钟...', style="bold white")
 
             img = qr.make_image(fill_color="black", back_color="white")
             img.save('./qrcode.png')
@@ -135,7 +134,7 @@ class JDCookies:
                'newhome.action?sceneval=2&ufc=&/myJd/home.action'.format(get_timestamp())
         start_time = int(time.time())
 
-        console.print("等待扫码中...", style='bold yellow')
+        println("等待扫码中...", style='bold yellow')
         while True:
             time.sleep(1)
             try:
@@ -146,38 +145,38 @@ class JDCookies:
                     pt_pin = self._http.cookies.get('pt_pin')
                     pt_key = self._http.cookies.get('pt_key')
                     logger.info("成功获取cookie: pt_pin={};pt_key={};".format(pt_pin, pt_key))
-                    console.print("成功获取cookie...", style='bold green')
-                    console.print("环境变量格式如下:")
-                    console.print("pt_pin={};pt_key={};".format(pt_pin, pt_key), style='bold green')
-                    console.print("配置文件格式如下:", style='bold blue')
-                    console.print(json.dumps({
+                    println("成功获取cookie...", style='bold green')
+                    println("环境变量格式如下:")
+                    println("pt_pin={};pt_key={};".format(pt_pin, pt_key), style='bold green')
+                    println("配置文件格式如下:", style='bold blue')
+                    println(json.dumps({
                         'pt_pin': pt_pin,
                         'pt_key': pt_key
                     }))
                     break
                 elif data['errcode'] == 176:
-                    console.print('获取cookie失败, 请扫码登录...', style='bold red')
+                    println('获取cookie失败, 请扫码登录...', style='bold red')
                 else:
-                    console.print("获取cookie失败, 原因:{}".format(data['message']), style='bold red')
+                    println("获取cookie失败, 原因:{}".format(data['message']), style='bold red')
                     break
             except requests.RequestException as e:
-                console.print("获取登录状态失败, 网络异常...", style='bold red')
+                println("获取登录状态失败, 网络异常...", style='bold red')
                 logger.info("获取登录状态失败, 原因:{}".format(e.args))
                 break
             if int(time.time()) - start_time > 60 * 3:
                 logger.info("超过三分钟仍未扫码...")
-                console.print("超过三分钟未扫码...", style='bold red')
+                println("超过三分钟未扫码...", style='bold red')
                 break
 
     def start(self):
         """
         :return:
         """
-        console.print("获取cookie脚本开始执行...", style='bold blue')
+        println("获取cookie脚本开始执行...", style='bold blue')
         s_token = self.__login_entrance()
         token = self.__generate_qr_code(s_token)
         self.__check_login(token)
-        console.print("获取cookie脚本执行完毕...", style='bold green')
+        println("获取cookie脚本执行完毕...", style='bold green')
 
 
 if __name__ == '__main__':

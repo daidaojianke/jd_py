@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/6/14 15:12
-# @File    : log.py
+# @File    : logger.py
 # @Project : jd_scripts
 import os
 from loguru import logger
