@@ -3,9 +3,9 @@
 # @Time    : 2021/6/14 9:57
 # @File    : get_jd_cookies.py
 # @Project : jd_scripts
-# @Desc    : 京东扫描登录获取cookies
-import sys
+# @Desc    : 京东扫描登录获取cookiesfggg
 import time
+import json
 import qrcode
 import requests
 from log import get_logger
@@ -146,8 +146,14 @@ class JDCookies:
                     pt_pin = self._http.cookies.get('pt_pin')
                     pt_key = self._http.cookies.get('pt_key')
                     logger.info("成功获取cookie: pt_pin={};pt_key={};".format(pt_pin, pt_key))
-                    console.print("成功获取cookie, 如下:", style='bold green')
+                    console.print("成功获取cookie...", style='bold green')
+                    console.print("环境变量格式如下:")
                     console.print("pt_pin={};pt_key={};".format(pt_pin, pt_key), style='bold green')
+                    console.print("配置文件格式如下:", style='bold blue')
+                    console.print(json.dumps({
+                        'pt_pin': pt_pin,
+                        'pt_key': pt_key
+                    }))
                     break
                 elif data['errcode'] == 176:
                     console.print('获取cookie失败, 请扫码登录...', style='bold red')

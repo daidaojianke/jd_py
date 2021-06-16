@@ -3,16 +3,15 @@
 # @Time    : 2021/6/14 15:12
 # @File    : log.py
 # @Project : jd_scripts
-import sys
 import os
 from loguru import logger
-from rich.logging import RichHandler
 
 LOG_DIR = os.getenv('LOG_DIR', 'logs')
 
 
 def get_logger(log_name=None):
     """
+    获取日志实例
     :return:
     """
     if not log_name:
