@@ -27,7 +27,8 @@ JD_DEBUG = cfg.get('JD_DEBUG', True)
 
 # JD COOKIES
 JD_COOKIES = [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.search('pt_key=(.*?);', i).group(1)}
-              for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)]
+              for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)
+              or re.search('pt_key=(.*?);pt_pin=(.*?);', i)]
 
 # 请求头
 USER_AGENT = cfg.get('user_agent', 'okhttp/3.12.1;jdmall;android;version/10.0.4;build/88623;screen/1080x2293;os/11'

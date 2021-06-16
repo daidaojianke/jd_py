@@ -8,8 +8,9 @@ ENV REPO_URL=git@gitee.com:ClassmateLin/jd_scripts.git \
     REPO_BRANCH=master
 
 RUN yum update -y \
-    && yum install -y python3 python3-devel python3-pip bash tzdata git vim curl openssh-client cronie \
+    && yum install -y python3 python3-devel python3-pip bash tzdata git vim curl openssh-client cronie util-linux-user \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && chsh -s /bin/bash \
     && echo "Asia/Shanghai" > /etc/timezone \
     && LANG="zh_CN.UTF-8" \
     && mkdir -p /root/.ssh \
@@ -32,5 +33,5 @@ RUN yum update -y \
 
 
 WORKDIR $CODE_DIR
-ENTRYPOINT 'docker_entrypoint'
+ENTRYPOINT '/usr/bin/docker_entrypoint'
 CMD ['source', '/etc/profile']

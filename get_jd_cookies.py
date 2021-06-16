@@ -83,7 +83,7 @@ class JDCookies:
             token = data['token']
             qr_code_url = 'https://plogin.m.jd.com/cgi-bin/m/tmauth?appid=300&client_type=m&token=' + token
             qr = qrcode.QRCode(
-                version=1,
+                version=None,
                 error_correction=qrcode.constants.ERROR_CORRECT_L,
                 box_size=4,
                 border=1,
@@ -92,10 +92,14 @@ class JDCookies:
             qr.make(fit=True)
 
             println('请扫描二维码登录, 有效期三分钟...', style="bold white")
-
-            img = qr.make_image(fill_color="black", back_color="white")
-            img.save('./qrcode.png')
-            img.show()
+            try:
+                img = qr.make_image(fill_color="black", back_color="white")
+                img.save('./qrcode.png')
+                img.show()
+                qr.print_ascii(invert=True)
+            except Exception as e:
+                logger.info("显示二维码异常:{}".format(e.args))
+                # qr.print_ascii(invert=True)
             return token
 
         except requests.RequestException as e:
