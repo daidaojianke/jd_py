@@ -27,11 +27,11 @@ RUN yum update -y \
     && virtualenv $CODE_DIR/venv \
     && echo -e "\nsource $CODE_DIR/venv/bin/activate" >> /etc/profile \
     && source /etc/profile \
-    && cp $CODE_DIR/docker/docker_entrypoint.sh /usr/bin/docker_entrypoint \
-    && chmod +x /usr/bin/docker_entrypoint \
+    && chmod +x $CODE_DIR/docker/docker_entrypoint.sh \
+    && $CODE_DIR/docker/docker_entrypoint.sh \
     && pip install -r $CODE_DIR/requirements.txt
 
 
 WORKDIR $CODE_DIR
-ENTRYPOINT '/usr/bin/docker_entrypoint'
-CMD ['source', '/etc/profile']
+
+CMD ["bash"]
