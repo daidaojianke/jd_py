@@ -8,7 +8,7 @@ ENV REPO_URL=git@gitee.com:ClassmateLin/jd_scripts.git \
     REPO_BRANCH=master
 
 RUN yum update -y \
-    && yum install -y python3 python3-devel python3-pip bash tzdata git vim curl openssh-client crond \
+    && yum install -y python3 python3-devel python3-pip bash tzdata git vim curl openssh-client cronie \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "Asia/Shanghai" > /etc/timezone \
     && LANG="zh_CN.UTF-8" \
@@ -26,12 +26,13 @@ RUN yum update -y \
     && virtualenv $CODE_DIR/venv \
     && echo -e "\nsource $CODE_DIR/venv/bin/activate" >> /etc/profile \
     && source /etc/profile \
-    && cp $CODE_DIR/docker/docker_entrypoint.sh /usr/local/bin \
+    && cp $CODE_DIR/docker/docker_entrypoint.sh /usr/bin/docker_entrypoint \
+    && chmod +x /usr/bin/docker_entrypoint \
     && pip install -r $CODE_DIR/requirements.txt
 
 
 WORKDIR $CODE_DIR
 
-ENTRYPOINT ["docker_entrypoint.sh"]
+ENTRYPOINT ['docker_entrypoint']
 
-CMD ["crond"]
+CMD ['source', '/etc/profile']
