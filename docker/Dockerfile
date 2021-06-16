@@ -32,7 +32,5 @@ RUN yum update -y \
 
 
 WORKDIR $CODE_DIR
-
-ENTRYPOINT ['docker_entrypoint']
-
+ENTRYPOINT 'docker_entrypoint'
 CMD ['source', '/etc/profile']
