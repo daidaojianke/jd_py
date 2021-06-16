@@ -4,10 +4,7 @@
 # @File    : console.py
 # @Project : jd_scripts
 # @Desc    :
-from rich.console import Console, JustifyMethod, OverflowMethod
-from typing import Union, Any
-from rich.console import Optional
-from rich.style import Style
+from rich.console import Console
 from config import JD_DEBUG
 
 __all__ = ('println',)

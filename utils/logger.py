@@ -5,8 +5,7 @@
 # @Project : jd_scripts
 import os
 from loguru import logger
-
-LOG_DIR = os.getenv('LOG_DIR', 'logs')
+from config import LOG_DIR
 
 
 def get_logger(log_name=None):

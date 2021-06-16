@@ -3,13 +3,13 @@
 # @Time    : 2021/6/14 9:57
 # @File    : get_jd_cookies.py
 # @Project : jd_scripts
-# @Desc    : 京东扫描登录获取cookiesfggg
+# @Desc    : 京东扫描登录获取cookies
 import time
 import json
 import qrcode
 import requests
-from logger import get_logger
-from console import println
+from utils.logger import get_logger
+from utils.console import println
 
 logger = get_logger('get_jd_cookies')
 ANDROID_PLATFORM = 'android'

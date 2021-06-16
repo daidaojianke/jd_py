@@ -1,0 +1,13 @@
+# conf/config.yaml
+
+debug: true
+
+jd_cookies:
+  - pt_pin=jd_xxx;pt_key=AxxI;
+
+user_agent: okhttp/3.12.1;jdmall;android;version/10.0.4;build/88623;screen/1080x2293;os/11;network/wifi;
+
+notify:
+  tg:
+    tg_bot_token: dgdg
+    tg_user_id: 15113

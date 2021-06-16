@@ -1,29 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/6/16 11:31 上午
-# @File    : config.py
+# @File    : conf.py
 # @Project : jd_scripts
 # @Desc    : 脚本配置文件
 import os
+import sys
 import re
+import yaml
+
+# 项目根目录
+BASE_DIR = os.path.abspath(os.path.splitdrive(sys.argv[0])[0])
+
+# 日志目录
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+
+# 配置文件路径
+CONF_PATH = os.path.join(BASE_DIR, 'conf/config.yaml')
+
+# 加载配置文件
+with open('conf/config.yaml', 'r') as f:
+    cfg = yaml.safe_load(f)
 
 # 是否开启调试模式, 关闭不会显示控制台输出
-JD_DEBUG = os.getenv('JD_DEBUG', True)
+JD_DEBUG = cfg.get('JD_DEBUG', True)
 
-# 环境变量中读取JD_COOKIES.
-JD_COOKIES = [{'pt_pin': re.findall('pt_pin=(.*?);', i).pop() if re.match('pt_pin=(.*?);', i) is not None else '',
-               'pt_key': re.findall('pt_key=(.*?);', i).pop() if re.findall('pt_key=(.*?);', i) is not None else ''}
-              for i in os.getenv('JD_COOKIES', '').split('&') if
-              re.match('pt_pin=(.*?);pt_key=(.*?);', i) is not None] + [
-    # 配置COOKIES
-    {
-        "pt_pin": "",
-        "pt_key": ""
-    },
-    # 配置COOKIES
-]
+# JD COOKIES
+JD_COOKIES = [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.search('pt_pin=(.*?);', i).group(1)}
+              for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)]
 
-JD_COOKIES = [i for i in JD_COOKIES if 'pt_pin' in i and 'pt_key' in i and i['pt_pin'] and i['pt_key']]
 
-TG_USER_ID = os.getenv('TG_USER_ID', '1807924672')
-TG_BOT_TOKEN = os.getenv('TG_BOT_TOKEN', '1791422745:AAHVmR8dwzrGGh0wa7skWUte7ns9IXZ3aEM')
+# TG 用户ID
+TG_USER_ID = cfg.get('TG_USER_ID', None)
+# TG 机器人Token
+TG_BOT_TOKEN = cfg.get('TG_BOT_TOKEN', None)
+

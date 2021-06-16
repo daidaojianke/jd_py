@@ -13,10 +13,10 @@ from urllib.parse import urlencode, quote
 import multiprocessing
 import aiohttp
 
-from notify import push_message_to_tg
-from config import JD_COOKIES
-from logger import get_logger
-from console import println
+from utils.notify import push_message_to_tg
+from conf import JD_COOKIES
+from utils.logger import get_logger
+from utils.console import println
 
 
 logger = get_logger('jd_sign_collection')
