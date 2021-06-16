@@ -26,6 +26,8 @@ RUN yum update -y \
     && pip3 install virtualenv \
     && virtualenv $CODE_DIR/venv \
     && echo -e "\nsource $CODE_DIR/venv/bin/activate" >> /etc/profile \
+    && echo -e "\nsource /jd_scripts/venv/bin/activate" >> /root/.bashrc \
+    && echo -e "\nif [ -t 1 ]; then\n    exec bash\nfi" >> /etc/profile \
     && source /etc/profile \
     && chmod +x $CODE_DIR/docker/docker_entrypoint.sh \
     && $CODE_DIR/docker/docker_entrypoint.sh \
@@ -34,4 +36,4 @@ RUN yum update -y \
 
 WORKDIR $CODE_DIR
 
-CMD ["bash"]
+CMD ["/bin/bash"]
