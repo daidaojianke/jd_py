@@ -122,7 +122,6 @@ class JDCookies:
 
         println("等待扫码中...", style='bold yellow')
         while True:
-            time.sleep(1)
             try:
                 response = self._http.post(url, body)
                 data = response.json()
@@ -134,10 +133,10 @@ class JDCookies:
                     println("成功获取cookie, 如下:", style='bold green')
                     println("pt_pin={};pt_key={};".format(pt_pin, pt_key), style='bold green')
                     break
-                elif data['errcode'] == 176:
-                    println('获取cookie失败, 请扫码登录...', style='bold red')
-                else:
-                    println("获取cookie失败, 原因:{}".format(data['message']), style='bold red')
+                elif data['errcode'] == 176:  # 等待扫描
+                    time.sleep(1)
+                else:  # 其他错误
+                    println("未知错误, 退出程序...")
                     break
             except requests.RequestException as e:
                 println("获取登录状态失败, 网络异常...", style='bold red')
