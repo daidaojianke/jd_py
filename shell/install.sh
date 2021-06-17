@@ -25,12 +25,14 @@ echo "######PIP换源######"
 mkdir -p /root/.pip;
 echo -e $PIP_REPO > /root/.pip/pip.conf;
 
-echo "######项目目录######"
+echo "######进入项目目录######"
 cd $CODE_DIR;
 echo "######安装项目依赖#####"
 pip install -r ./requirements.txt;
 echo "######初始化配置#####"
 cp ./conf/.config_example.yaml ./conf/config.yaml
+
+echo "######添加默认定时任务######"
 
 echo "######启动定时任务主进程######"
 crond;
