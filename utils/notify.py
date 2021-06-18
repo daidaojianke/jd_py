@@ -7,9 +7,8 @@
 import telebot
 from config import TG_BOT_TOKEN, TG_USER_ID
 from utils.console import println
-from utils.logger import get_logger
+from utils.logger import logger
 
-logger = get_logger('notify')
 
 def push_message_to_tg(message):
     """

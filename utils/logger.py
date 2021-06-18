@@ -7,20 +7,19 @@ import os
 from loguru import logger
 from config import LOG_DIR
 
+log_path = os.path.join(LOG_DIR, 'logger_{time:YYYY-MM-DD}.log')
 
-def get_logger(log_name=None):
-    """
-    获取日志实例
-    :return:
-    """
-    if not log_name:
-        log_name = __name__
-
-    log_path = LOG_DIR + '/' + log_name + '.log'
-
-    logger.remove()
-    logger.add(log_path, level='INFO', rotation='00:00', retention="3 days", compression="zip",
-               format="[{time:YYYY-MM-DD HH:mm:ss}] | {level} | {message}",
-               encoding="utf-8", enqueue=True)
-
-    return logger
+logger.remove(None)
+logger.add(log_path,
+           level='INFO',
+           rotation='00:00',
+           retention="7 days",
+           compression="zip",
+           format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {file}:{name}:{function}:{line} | {message}",
+           enqueue=True,
+           encoding="utf-8",
+           colorize=True,
+           #  serialize=True,  # 是否转成json
+           backtrace=True,
+           diagnose=True,
+           catch=True)

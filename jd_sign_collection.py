@@ -15,10 +15,8 @@ import aiohttp
 
 from utils.notify import push_message_to_tg
 from config import JD_COOKIES
-from utils.logger import get_logger
+from utils.logger import logger
 from utils.console import println
-
-logger = get_logger('jd_sign_collection')
 
 
 class JdSignCollection:
@@ -264,7 +262,14 @@ class JdSignCollection:
                     'message': data['echo']
                 })
             else:
-                if data['result']['code'] == '2020':
+                if data['result']['code'] == '0':
+                    self._result.append({
+                        'name': name,
+                        'status': self.status_success,
+                        'message': data['result']['signText']
+                    })
+
+                elif data['result']['code'] == '2020':
                     self._result.append({
                         'name': name,
                         'status': self.status_fail,
@@ -273,8 +278,8 @@ class JdSignCollection:
                 else:
                     self._result.append({
                         'name': name,
-                        'status': self.status_success,
-                        'message': data['result']['msg']
+                        'status': self.status_fail,
+                        'message': '未知错误!'
                     })
 
         except Exception as e:
@@ -1245,6 +1250,7 @@ class JdSignCollection:
 
     async def output(self):
         """
+        输出结果
         :return:
         """
         println('\n')
@@ -1269,7 +1275,7 @@ class JdSignCollection:
         async with aiohttp.ClientSession(headers=headers, cookies=cookies) as session:
             is_login = await self.is_login(session)
             if not is_login:
-                println("账号: {}, cookies已过期, 请重新获取...".format(self._pt_pin))
+                println("  账号: {}, cookies已过期, 请重新获取...".format(self._pt_pin), style='bold red')
                 return
             await self.jd_bean(session)  # 京东京豆
             await self.jd_store(session)  # 京东超市
@@ -1351,12 +1357,14 @@ if __name__ == '__main__':
 
     pool = multiprocessing.Pool(process_count)
 
-    println("开始执行京东签到合集...", style='bold yellow')
-    println("共{}个账号...".format(len(JD_COOKIES)), style='bold green')
-    for jd_cookie in JD_COOKIES:
+    println("开始执行京东签到合集, 共{}个账号...\n".format(len(JD_COOKIES)), style='bold green')
+
+    for i in range(len(JD_COOKIES)):
+        jd_cookie = JD_COOKIES[i]
         pool.apply_async(start, args=(jd_cookie['pt_pin'], jd_cookie['pt_key']))
-        println("账号:{}, 正在签到...".format(jd_cookie['pt_pin']),
-                style=random.choice(['bold yellow', 'bold red', 'bold yellow', 'bold white']))
+        println("  {}.账号:{}, 正在签到...".format(i+1, jd_cookie['pt_pin']),
+                style=random.choice(['bold yellow', 'bold green']))
     pool.close()
+    println("\n签到程序正在运行, 请耐心等候...\n", style='bold green')
     pool.join()
-    println("京东签到合集执行完毕...", style='bold yellow')
+    println("\n京东签到合集执行完毕, 退出程序...", style='bold green')

@@ -7,11 +7,8 @@
 import time
 import qrcode
 import requests
-from utils.logger import get_logger
+from utils.logger import logger
 from utils.console import println
-from config import USER_AGENT
-
-logger = get_logger('get_jd_cookies')
 
 
 def get_timestamp():
@@ -35,7 +32,8 @@ def get_headers():
         'Referer': 'https://plogin.m.jd.com/login/login?appid=300&returnurl=https://wq.jd.com/passport'
                    '/LoginRedirect?state={}&returnurl=https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc'
                    '=&/myJd/home.action&source=wq_passport'.format(get_timestamp()),
-        'User-Agent': USER_AGENT,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/86.0.4240.111 Safari/537.36',
         'Host': 'plogin.m.jd.com'
     }
     return headers

@@ -31,8 +31,9 @@ JD_COOKIES = [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.se
               or re.search('pt_key=(.*?);pt_pin=(.*?);', i)]
 
 # 请求头
-USER_AGENT = cfg.get('user_agent', 'okhttp/3.12.1;jdmall;android;version/10.0.4;build/88623;screen/1080x2293;os/11'
-                                   ';network/wifi;')
+USER_AGENT = cfg.get('user_agent', 'jdltapp;iPhone;3.3.2;14.4.1;network/wifi;Mozilla/5.0 (iPhone; CPU iPhone OS '
+                                   '14_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) '
+                                   'Mobile/15E148;supportJDSHWK/1')
 
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
