@@ -1343,28 +1343,16 @@ class JdSignCollection:
 
 
 def start(pt_pin, pt_key):
+    """
+    程序入口
+    :param pt_pin:
+    :param pt_key:
+    :return:
+    """
     app = JdSignCollection(pt_pin, pt_key)
     asyncio.run(app.start())
 
 
 if __name__ == '__main__':
-
-    multiprocessing.freeze_support()
-    process_count = multiprocessing.cpu_count()
-
-    if process_count < 2:
-        process_count = 2
-
-    pool = multiprocessing.Pool(process_count)
-
-    println("开始执行京东签到合集, 共{}个账号...\n".format(len(JD_COOKIES)), style='bold green')
-
-    for i in range(len(JD_COOKIES)):
-        jd_cookie = JD_COOKIES[i]
-        pool.apply_async(start, args=(jd_cookie['pt_pin'], jd_cookie['pt_key']))
-        println("  {}.账号:{}, 正在签到...".format(i+1, jd_cookie['pt_pin']),
-                style=random.choice(['bold yellow', 'bold green']))
-    pool.close()
-    println("\n签到程序正在运行, 请耐心等候...\n", style='bold green')
-    pool.join()
-    println("\n京东签到合集执行完毕, 退出程序...", style='bold green')
+    from utils.process import process_start
+    process_start(start, name='京东签到合集')

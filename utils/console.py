@@ -17,9 +17,12 @@ def println(*args, **kwargs):
     控制台打印数据
     :return:
     """
+    style = kwargs.get('style', 'bold red')
+    kwargs['style'] = style
+
     if JD_DEBUG:
         console.print(*args, **kwargs)
 
 
 if __name__ == '__main__':
-    println('hello world', style='yellow')
+    pass

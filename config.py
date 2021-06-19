@@ -30,10 +30,11 @@ JD_COOKIES = [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.se
               for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)
               or re.search('pt_key=(.*?);pt_pin=(.*?);', i)]
 
+DEFAULT_USER_AGENT = 'jdltapp;iPhone;3.3.2;14.4.1;network/wifi;Mozilla/5.0 (iPhone; CPU iPhone OS 14_4_1 like Mac OS ' \
+                     'X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1'
+
 # 请求头
-USER_AGENT = cfg.get('user_agent', 'jdltapp;iPhone;3.3.2;14.4.1;network/wifi;Mozilla/5.0 (iPhone; CPU iPhone OS '
-                                   '14_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) '
-                                   'Mobile/15E148;supportJDSHWK/1')
+USER_AGENT = cfg.get('user_agent', None) if cfg.get('user_agent', None) else DEFAULT_USER_AGENT
 
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
