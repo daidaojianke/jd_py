@@ -5,16 +5,16 @@
 # @Project : jd_scripts
 # @Desc    : 省钱大赢家翻翻乐
 import asyncio
-import multiprocessing
 import json
 import time
 from urllib.parse import quote
 import aiohttp
 
 
-from config import USER_AGENT, JD_COOKIES
+from config import USER_AGENT
 from utils.logger import logger
 from utils.console import println
+from utils.notify import push_message_to_tg
 
 
 class BigWinner:
@@ -164,6 +164,8 @@ class BigWinner:
                 return
             println("账号:{}, 现金领取成功: {}元现金!".format(self._pt_pin, data['data']['amount']))
 
+            data = data['data']
+
             withdraw_data = {  # 提现参数
                 'businessSource': 'GAMBLE',
                 'base': {
@@ -182,9 +184,12 @@ class BigWinner:
             text = await response.text()
             data = json.loads(text)
             logger.info(data)
+            println(data)
             if data['code'] == 0:
+                push_message_to_tg('账号:{}, 翻翻乐提现成功:{}'.format(self._pt_pin, data['data']))
                 println('账号:{}, 提现成功:{}'.format(self._pt_pin, data['data']))
             else:
+                push_message_to_tg('账号:{}, 翻翻乐提现成功:{}'.format(self._pt_pin, data['data']))
                 println('账号:{}, 提现失败:{}'.format(self._pt_pin, data))
         except Exception as e:
             logger.error('账号:{}, 提现失败, 异常信息:{}'.format(self._pt_pin, e.args))
@@ -219,6 +224,7 @@ class BigWinner:
 
 def start(pt_pin, pt_key):
     """
+    程序入口
     :param pt_pin:
     :param pt_key:
     :return:

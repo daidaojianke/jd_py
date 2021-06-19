@@ -1265,6 +1265,10 @@ class JdSignCollection:
         println('\n')
 
     async def start(self):
+        """
+        开始签到
+        :return:
+        """
         cookies = {
             'pt_pin': self._pt_pin,
             'pt_key': self._pt_key,
