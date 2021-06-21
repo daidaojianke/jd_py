@@ -170,7 +170,7 @@ class BigWinner:
                 'businessSource': 'GAMBLE',
                 'base': {
                     'id': data['id'],
-                    'business': data['redEnvelopeDouble'],
+                    'business': 'redEnvelopeDouble',
                     'poolBaseId': data['poolBaseId'],
                     'prizeGroupId': data['prizeGroupId'],
                     'prizeBaseId': data['prizeBaseId'],
