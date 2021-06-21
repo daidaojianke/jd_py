@@ -7,7 +7,7 @@
 import asyncio
 import json
 import re
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 import aiohttp
 
@@ -32,7 +32,7 @@ class LuckyTurntable:
         :param pt_pin:
         :param pt_key:
         """
-        self._pt_pin = pt_pin
+        self._pt_pin = unquote(pt_pin)
         self._cookies = {
             'pt_pin': pt_pin,
             'pt_key': pt_key,

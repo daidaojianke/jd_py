@@ -4,22 +4,22 @@
 # @File    : jd_sign_collection.py
 # @Project : jd_scripts
 # @Desc    : 京东签到合集
-import random
 import json
 import asyncio
 import re
 import time
-from urllib.parse import urlencode, quote
-import multiprocessing
+from urllib.parse import urlencode, quote, unquote
 import aiohttp
 
 from utils.notify import push_message_to_tg
-from config import JD_COOKIES
 from utils.logger import logger
 from utils.console import println
 
 
 class JdSignCollection:
+    """
+    京东签到合集
+    """
     status_success = 1  # 成功
     status_fail = 2  # 失败
     status_signed = 3  # 已签到
@@ -31,7 +31,7 @@ class JdSignCollection:
     }
 
     def __init__(self, pt_pin='', pt_key=''):
-        self._pt_pin = pt_pin
+        self._pt_pin = unquote(pt_pin)
         self._pt_key = pt_key
         self._result = []
 
