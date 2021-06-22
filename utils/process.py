@@ -3,6 +3,7 @@
 # @Time    : 2021/6/19 9:41
 # @File    : process.py
 # @Project : jd_scripts
+from urllib.parse import unquote
 import multiprocessing
 import random
 from utils.console import println
@@ -29,7 +30,7 @@ def process_start(func, name=''):
     for i in range(len(JD_COOKIES)):
         jd_cookie = JD_COOKIES[i]
         pool.apply_async(func, args=(jd_cookie['pt_pin'], jd_cookie['pt_key']))
-        println("  {}.账号:{}, 正在进行{}...".format(i + 1, jd_cookie['pt_pin'], name),
+        println("  {}.账号:{}, 正在进行{}...".format(i + 1, unquote(jd_cookie['pt_pin']), name),
                 style=random.choice(['bold yellow', 'bold green']))
     pool.close()
     println("\n{}正在运行, 请耐心等候...\n".format(name), style='bold green')

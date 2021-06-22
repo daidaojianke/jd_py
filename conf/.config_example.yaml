@@ -10,6 +10,11 @@ jd_cookies:
 # 请求头, 非必填, 如需要配置的可以同JD APP或网页版抓包获取。
 user_agent:
 
+# 种豆得豆助力码
+jd_planting_code:
+  # 一行一个, 顺序无所谓。
+  - mlrdw3aw26j3x3vxi2qvp7xj5llrsmtd3tde64i
+
 # 消息通知配置
 notify:
   # TG机器人消息通知, TG机器人token:tg_bot_token, TG用户id: tg_user_id！

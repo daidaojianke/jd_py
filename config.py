@@ -19,7 +19,7 @@ LOG_DIR = os.path.join(BASE_DIR, 'logs')
 CONF_PATH = os.path.join(BASE_DIR, 'conf/config.yaml')
 
 # 加载配置文件
-with open('conf/config.yaml', 'r') as f:
+with open('conf/config.yaml', 'r', encoding='utf-8-sig') as f:
     cfg = yaml.safe_load(f)
 
 # 是否开启调试模式, 关闭不会显示控制台输出
@@ -35,6 +35,10 @@ DEFAULT_USER_AGENT = 'jdapp;iPhone;12.0.1;15.1.1;network/wifi;Mozilla/5.0 (iPhon
 
 # 请求头
 USER_AGENT = cfg.get('user_agent', None) if cfg.get('user_agent', None) else DEFAULT_USER_AGENT
+
+JD_PLANTING_CODE = cfg.get('jd_planting_code') if cfg.get('jd_planting_code') else []
+JD_PLANTING_CODE.append('t7obxmpebrxkdnfmcaebbfbrvem3hdr6ej6227y')
+JD_PLANTING_CODE = list(set(JD_PLANTING_CODE))
 
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
