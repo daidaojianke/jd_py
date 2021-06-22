@@ -8,6 +8,7 @@ import asyncio
 import datetime
 import json
 import time
+from functools import wraps
 from urllib.parse import unquote, quote
 
 import aiohttp
@@ -20,9 +21,24 @@ from utils.notify import push_message_to_tg
 from utils.console import println
 from utils.logger import logger
 
-
-
 from config import JD_COOKIES, USER_AGENT
+
+
+def println_task(func=None):
+    """
+    输出任务
+    :param func:
+    :return:
+    """
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        task = args[-1]
+        println('开始做{}任务!'.format(task['taskName']))
+        res = await func(*args, **kwargs)
+        println('已完成{}任务!'.format(task['taskName']))
+        return res
+
+    return wrapper
 
 
 class JdPlantingBean:
@@ -92,7 +108,7 @@ class JdPlantingBean:
             body = {}
 
         try:
-            body["version"] = "9.0.0.1"
+            body["version"] = "9.2.4.0"
             body["monitor_source"] = "plant_app_plant_index"
             body["monitor_refer"] = ""
 
@@ -131,36 +147,131 @@ class JdPlantingBean:
         :param session:
         :return:
         """
+        println('开始收取营养液!')
         data = await self.post(session, 'receiveNutrients',
-                                  {"roundId": self._cur_round_id, "monitor_refer": "plant_receiveNutrients"})
-        println(data)
+                               {"roundId": self._cur_round_id, "monitor_refer": "plant_receiveNutrients"})
+        if 'errorMessage' in data:
+            println(data['errorMessage'])
 
+    @println_task
     async def receive_nutrient_task(self, session, task):
         """
         :param session:
         :param task:
         :return:
         """
-        print(task)
         params = {
-            "monitor_refer": "receiveNutrientsTask",
-            "awardType": task['taskType']
+            "monitor_refer": "plant_receiveNutrientsTask",
+            "awardType": str(task['taskType'])
         }
         data = await self.get(session, 'receiveNutrientsTask', params)
         println(data)
 
+    @println_task
+    async def visit_shop(self, session, task):
+        """
+        浏览店铺任务
+        :param session:
+        :param task:
+        :return:
+        """
+        if (int(task['totalNum']) - int(task['gainedNum'])) == 0:
+            println('{}任务, 已完成!'.format(task['taskName']))
+            return
+
+        shop_data = await self.get(session, 'shopTaskList', {"monitor_refer": "plant_receiveNutrients"})
+        if shop_data['code'] != '0':
+            println('获取{}任务失败!'.format(task['taskName']))
+
+        shop_list = shop_data['data']['goodShopList'] + shop_data['data']['moreShopList']
+        for shop in shop_list:
+            body = {
+                "monitor_refer": "plant_shopNutrientsTask",
+                "shopId": shop["shopId"],
+                "shopTaskId": shop["shopTaskId"]
+            }
+            data = await self.get(session, 'shopNutrientsTask', body)
+
+            if data['code'] == '0' and 'data' in data:
+                println(data['data']['nurtToast'])
+            else:
+                println(data['errorMessage'])
+
+    @println_task
+    async def pick_goods_task(self, session, task):
+        """
+        挑选商品任务
+        :return:
+        """
+        if (int(task['totalNum']) - int(task['gainedNum'])) == 0:
+            println('已完成任务{}!'.format(task['taskName']))
+            return
+        data = await self.get(session, 'productTaskList', {"monitor_refer": "plant_productTaskList"})
+
+        for products in data['data']['productInfoList']:
+            for product in products:
+                body = {
+                    "monitor_refer": "plant_productNutrientsTask",
+                    "productTaskId": product['productTaskId'],
+                    "skuId": product['skuId']
+                }
+                res = await self.get(session, 'productNutrientsTask', body)
+                if 'errorCode' in res:
+                    println(res['errorMessage'])
+                else:
+                    println(res)
+
+                await asyncio.sleep(0.5)
+
+    @println_task
+    async def focus_channel_task(self, session, task):
+        """
+        关注频道任务
+        :param session:
+        :param task:
+        :return:
+        """
+        data = await self.get(session, 'plantChannelTaskList')
+        if data['code'] != '0':
+            println('获取关注频道任务列表失败!')
+            return
+        data = data['data']
+        channel_list = data['goodChannelList'] + data['normalChannelList']
+
+        for channel in channel_list:
+            body = {
+                "channelId": channel['channelId'],
+                "channelTaskId": channel['channelTaskId']
+            }
+            res = await self.get(session, 'plantChannelNutrientsTask', body)
+            println(res)
+
+    async def everyday_gacha(self, session):
+        """
+        天天扭蛋
+        :param session:
+        :return:
+        """
+        data = await self.get(session, 'plantEggLotteryIndex')
+        if data['code'] != '0':
+            println('查询天天扭蛋机会失败!')
+            return
+
     async def do_tasks(self, session):
         """
+        做任务
         :param session:
         :return:
         """
         task_map = {
             1: self.receive_nutrient_task,
+            3: self.visit_shop,
+            5: self.pick_goods_task,
+            10: self.focus_channel_task,
         }
         for task in self._task_list:
-            if task['taskType'] != 1:
+            if task['taskType'] not in task_map:
                 continue
-            println(task['taskType'])
             await task_map[task['taskType']](session, task)
 
     async def run(self):
@@ -169,8 +280,10 @@ class JdPlantingBean:
         """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
             await self.planting_bean_index(session)
-            await self.receive_nutrient(session)
-            await self.do_tasks(session)
+            # await self.receive_nutrient(session)
+            # await self.do_tasks(session)
+            await self.everyday_gacha(session)
+
 
 if __name__ == '__main__':
     for jd_cookie in JD_COOKIES:
