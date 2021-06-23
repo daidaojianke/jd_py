@@ -11,5 +11,7 @@ RUN set -ex \
     && rm -rf ./install.sh
 
 WORKDIR $CODE_DIR
+exec "$@"
+ENTRYPOINT [ "top", "-b" ]
 
 CMD ["/bin/bash"]
