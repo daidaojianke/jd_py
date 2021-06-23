@@ -1,4 +1,3 @@
-
 ###  签到合集, 每天00:00执行 ###
 0 0 * * * /usr/bin/python /jd_scripts/jd_sign_collection.py  >> /jd_scripts/logs/jd_sign_collection.log  2>&1
 

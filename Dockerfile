@@ -12,6 +12,6 @@ RUN set -ex \
 
 WORKDIR $CODE_DIR
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT [ "/docker-entrypoint.sh"]
 
 CMD ["/bin/bash"]

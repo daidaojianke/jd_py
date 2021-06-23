@@ -30,7 +30,8 @@ cd $CODE_DIR;
 echo "######安装项目依赖#####"
 pip install -r ./requirements.txt;
 echo "######初始化配置#####"
-cp $CODE_DIR/conf/.config_example.yaml ./conf/config.yaml
+cp $CODE_DIR/conf/.config_example.yaml $CODE_DIR/conf/config.yaml
+cp $CODE_DIR/conf/.crontab.sh $CODE_DIR/conf/crontab.sh
 echo "######添加docker-entrypoint######"
 chmod a+x $CODE_DIR/shell/docker-entrypoint.sh
 cp $CODE_DIR/shell/docker-entrypoint.sh /
