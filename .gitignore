@@ -117,6 +117,7 @@ dmypy.json
 .idea/
 logs/
 conf/config.yaml
+conf/crontab.sh
 jd_docker/
 jd/
 docker-scripts/
