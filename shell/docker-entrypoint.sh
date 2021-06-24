@@ -5,6 +5,10 @@ cd /jd_scripts;
 if [ -f "/scripts/logs/pull.lock" ]; then
   echo "存在更新锁定文件，跳过git pull操作..."
 else
+  echo "修复时区错误";
+  apk add tzdata;
+  echo "Asia/Shanghai" > /etc/timezone;
+  ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;
   echo "git pull拉取最新代码..."
   git pull
   echo "pip install 安装最新依赖"
@@ -20,6 +24,5 @@ else
   echo "重启crond 服务..."
   pkill -9 crond
   crond -f /etc/crontabs/
-
 fi
 

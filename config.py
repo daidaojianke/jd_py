@@ -10,7 +10,7 @@ import re
 import yaml
 
 # 项目根目录
-BASE_DIR = os.path.abspath(os.path.splitdrive(sys.argv[0])[0])
+BASE_DIR = os.path.split(os.path.abspath(sys.argv[0]))[0]
 
 # 日志目录
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
@@ -19,7 +19,7 @@ LOG_DIR = os.path.join(BASE_DIR, 'logs')
 CONF_PATH = os.path.join(BASE_DIR, 'conf/config.yaml')
 
 # 加载配置文件
-with open('conf/config.yaml', 'r', encoding='utf-8-sig') as f:
+with open(CONF_PATH, 'r', encoding='utf-8-sig') as f:
     cfg = yaml.safe_load(f)
 
 # 是否开启调试模式, 关闭不会显示控制台输出
