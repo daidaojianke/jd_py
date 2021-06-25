@@ -21,11 +21,12 @@ echo "######PIP换源######"
 mkdir -p /root/.pip;
 echo -e $PIP_REPO > /root/.pip/pip.conf;
 
-echo "######进入项目目录######"
-cd $CODE_DIR;
-echo "######安装项目依赖#####"
-pip install -r ./requirements.txt;
+echo "######创建日志目录######";
+touch $CODE_DIR/logs;
 
-echo "######配置docker-entrypoint文件"
-chmod a+x $CODE_DIR/shell/docker-entrypoint.sh
-cp $CODE_DIR/shell/docker-entrypoint.sh /
+echo "######安装项目依赖#####";
+pip install -r $CODE_DIR/requirements.txt;
+
+echo "######配置docker-entrypoint文件";
+chmod a+x $CODE_DIR/shell/docker-entrypoint.sh;
+cp $CODE_DIR/shell/docker-entrypoint.sh /;
