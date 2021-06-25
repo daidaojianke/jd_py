@@ -10,12 +10,8 @@ mkdir -p /root/.ssh;
 echo -e $KEY > /root/.ssh/id_rsa;
 chmod 600 /root/.ssh/id_rsa;
 
-echo "######修改时区######"
-echo "Asia/Shanghai" > /etc/timezone;
-ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;
-
 echo "######修改语言编码######"
-export LANG="zh_CN.UTF-8";
+export LC_ALL="zh_CN.UTF-8";
 
 echo "######拉取项目代码######"
 ssh-keyscan gitee.com > /root/.ssh/known_hosts
@@ -29,9 +25,7 @@ echo "######进入项目目录######"
 cd $CODE_DIR;
 echo "######安装项目依赖#####"
 pip install -r ./requirements.txt;
-echo "######初始化配置#####"
-cp $CODE_DIR/conf/.config_example.yaml $CODE_DIR/conf/config.yaml
-cp $CODE_DIR/conf/.crontab.sh $CODE_DIR/conf/crontab.sh
-echo "######添加docker-entrypoint######"
+
+echo "######配置docker-entrypoint文件"
 chmod a+x $CODE_DIR/shell/docker-entrypoint.sh
 cp $CODE_DIR/shell/docker-entrypoint.sh /
