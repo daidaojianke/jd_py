@@ -4,7 +4,7 @@ COPY ./shell/install.sh /tmp/
 
 RUN set -ex \
     apk update \
-    && apk add --no-cache bash git openssh-client vim gcc python3-dev jpeg-dev zlib-dev musl-dev tzdata libffi-dev \
+    && apk add --no-cache bash git openssh-client vim gcc jpeg-dev zlib-dev musl-dev tzdata libffi-dev \
     && echo "Asia/Shanghai" > /etc/timezone \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && /tmp/install.sh /jd_scripts \
