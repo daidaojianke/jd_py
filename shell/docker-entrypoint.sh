@@ -2,7 +2,6 @@
 
 CODE_DIR='/jd_scripts'
 
-
 if [ -f "$CODE_DIR/logs/pull.lock" ]; then
   echo "存在更新锁定文件，跳过git pull操作..."
 else
@@ -18,9 +17,6 @@ else
   crontab -r
   cat $CODE_DIR/shell/default_crontab.sh >> /etc/crontabs/root
   cat $CODE_DIR/conf/crontab.sh >> /etc/crontabs/root
-  echo "重启crond 服务..."
-  pkill -9 crond
-  crond -f /etc/crontabs/
 fi
 
 if [ -f "$CODE_DIR/logs/conf.lock" ]; then
@@ -31,4 +27,13 @@ else
   cp $CODE_DIR/conf/.crontab.sh $CODE_DIR/conf/crontab.sh
   echo "######添加配置锁定文件######"
   echo "lock" >> $CODE_DIR/logs/conf.lock
+fi
+
+
+PID=`ps -ef |grep myprocess |grep -v grep | awk '{print $2}'`
+if [ "$PID" != "" ]; then
+  echo "######定时任务已存在!######"
+else
+  echo "######启动定时任务######"
+  crond -f /etc/crontabs/;
 fi
