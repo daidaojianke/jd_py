@@ -91,10 +91,10 @@ class JDCookies:
 
             println('请扫描二维码登录, 有效期三分钟...', style="bold white")
             try:
+                qr.print_ascii(invert=True)
                 img = qr.make_image(fill_color="black", back_color="white")
                 img.save('./qrcode.png')
                 img.show()
-                qr.print_ascii(invert=True)
             except Exception as e:
                 logger.info("显示二维码异常:{}".format(e.args))
                 # qr.print_ascii(invert=True)
