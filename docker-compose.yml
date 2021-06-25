@@ -8,6 +8,7 @@ services:
     volumes:
       - ./jd_scripts/conf:/jd_scripts/conf
       - ./jd_scripts/logs:/jd_scripts/logs
+    privileged: true
 
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://www.baidu.com" ]

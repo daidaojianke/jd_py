@@ -10,7 +10,7 @@ import json
 import aiohttp
 from urllib.parse import unquote
 
-from utils.notify import push_message_to_tg
+from utils.notify import notify
 from utils.console import println
 from utils.logger import logger
 from utils.process import process_start
@@ -107,7 +107,7 @@ class JdRankingList:
         for msg in self._msg_list:
             message += msg + '\n'
         message += '总共获得:{}京豆!\n\n#########今日王牌#########\n'.format(self._bean_count)
-        await push_message_to_tg(message)
+        await notify(message)
 
 
 def start(pt_pin, pt_key):

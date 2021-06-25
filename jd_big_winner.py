@@ -14,7 +14,7 @@ import aiohttp
 from config import USER_AGENT
 from utils.logger import logger
 from utils.console import println
-from utils.notify import push_message_to_tg
+from utils.notify import notify
 
 
 class BigWinner:
@@ -186,10 +186,10 @@ class BigWinner:
             logger.info(data)
             println(data)
             if data['code'] == 0:
-                push_message_to_tg('账号:{}, 翻翻乐提现成功:{}'.format(self._pt_pin, data['data']))
+                notify('账号:{}, 翻翻乐提现成功:{}'.format(self._pt_pin, data['data']))
                 println('账号:{}, 提现成功:{}'.format(self._pt_pin, data['data']))
             else:
-                push_message_to_tg('账号:{}, 翻翻乐提现成功:{}'.format(self._pt_pin, data['data']))
+                notify('账号:{}, 翻翻乐提现成功:{}'.format(self._pt_pin, data['data']))
                 println('账号:{}, 提现失败:{}'.format(self._pt_pin, data))
         except Exception as e:
             logger.error('账号:{}, 提现失败, 异常信息:{}'.format(self._pt_pin, e.args))

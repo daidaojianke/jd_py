@@ -11,7 +11,7 @@ import time
 from urllib.parse import urlencode, quote, unquote
 import aiohttp
 
-from utils.notify import push_message_to_tg
+from utils.notify import notify
 from utils.logger import logger
 from utils.console import println
 
@@ -1343,7 +1343,7 @@ class JdSignCollection:
             line = "\t{}.{}: {}! {}\n".format(i + 1, res['name'], self.status_msg[res['status']], res['message'])
             message += line
 
-        push_message_to_tg(message)
+        notify(message)
 
 
 def start(pt_pin, pt_key):

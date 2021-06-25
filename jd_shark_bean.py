@@ -13,7 +13,7 @@ from urllib.parse import quote, unquote, urlencode
 from utils.logger import logger
 from utils.console import println
 from utils.process import process_start
-from utils.notify import push_message_to_tg
+from utils.notify import notify
 
 from config import USER_AGENT
 
@@ -257,7 +257,7 @@ class JdSharkBean:
         else:
             message += '无\n'
 
-        push_message_to_tg(message)
+        notify(message)
         println(message)
 
     async def run(self):

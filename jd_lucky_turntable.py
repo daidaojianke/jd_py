@@ -13,7 +13,7 @@ import aiohttp
 
 from utils.logger import logger
 from utils.console import println
-from utils.notify import push_message_to_tg
+from utils.notify import notify
 from config import USER_AGENT
 
 
@@ -176,7 +176,7 @@ class LuckyTurntable:
         for line in self._result:
             message += ''.join(['  ', line, '\n'])
         message += s
-        push_message_to_tg(message)
+        notify(message)
 
     async def run(self):
         """

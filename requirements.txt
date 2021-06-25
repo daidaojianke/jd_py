@@ -17,7 +17,6 @@ multidict==5.1.0
 orderedmultidict==1.0.1
 Pillow==8.2.0
 pycparser==2.20
-pyee==8.1.0
 Pygments==2.9.0
 pyppeteer==0.2.5
 pyppeteer2==0.2.2

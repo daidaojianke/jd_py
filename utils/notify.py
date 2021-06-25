@@ -10,9 +10,9 @@ from utils.console import println
 from utils.logger import logger
 
 
-def push_message_to_tg(message):
+def notify(message):
     """
-    推送消息到TG机器人
+    消息推送
     :param message:
     :return:
     """
@@ -27,3 +27,4 @@ def push_message_to_tg(message):
     else:
         println("未配置TG_BOT_TOKEN和TG_USER_ID, 不推送TG消息...")
 
+    # 更多推送方式

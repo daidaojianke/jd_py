@@ -13,7 +13,7 @@ from urllib.parse import unquote, quote
 from utils.process import process_start
 from utils.console import println
 from utils.logger import logger
-from utils.notify import push_message_to_tg
+from utils.notify import notify
 from furl import furl
 from config import USER_AGENT
 
@@ -292,7 +292,7 @@ class JrDailyTakeGoose:
         message = '\n【活动名称】天天提鹅\n【京东ID】{}\n【获得鹅蛋】{}\n【获得积分】{}\n【可用鹅蛋】{}\n【可用积分】{}\n'.format(
             self._pt_pin, self._egg_num, self._integral, total_egg, total_integral)
         println(message)
-        push_message_to_tg(message)
+        notify(message)
 
     async def run(self):
         """

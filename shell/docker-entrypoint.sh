@@ -17,7 +17,7 @@ if [ -f "$CODE_DIR/logs/pull.lock" ]; then
   echo "存在更新锁定文件，跳过git pull操作..."
 else
   echo "git pull拉取最新代码..."
-  cd CODE_DIR && git pull
+  cd $CODE_DIR && git pull
   echo "pip install 安装最新依赖"
   pip install -r $CODE_DIR/requirements.txt
   echo "替換更新文件"

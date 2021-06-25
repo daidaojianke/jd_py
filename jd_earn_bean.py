@@ -15,7 +15,7 @@ from urllib.parse import unquote, quote
 
 from config import USER_AGENT
 
-from utils.notify import push_message_to_tg
+from utils.notify import notify
 from utils.logger import logger
 from utils.console import println
 from utils.process import process_start

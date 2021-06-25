@@ -15,7 +15,7 @@ from furl import furl
 from utils.console import println
 from utils.logger import logger
 from utils.process import process_start
-from utils.notify import push_message_to_tg
+from utils.notify import notify
 from config import USER_AGENT, JD_PLANTING_CODE
 
 
@@ -483,7 +483,7 @@ class JdPlantingBean:
         self._message += f'【本期成长值】:{self._cur_round_list["growth"]}\n'
 
         println(self._message)
-        await push_message_to_tg(self._message)
+        await notify(self._message)
 
     async def run(self):
         """
