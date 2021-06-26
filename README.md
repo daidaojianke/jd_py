@@ -52,6 +52,6 @@
 | jr_pet_pig | 京东金融->养猪猪| 0% |
 | jx_factory.py | 京喜APP->京喜工厂 | 0% |
 | jx_farm.py | 京喜APP->京喜农场| 0% |
-
+| jd_bean_lottery.py | 京东APP->签到领京豆->摇金豆->京豆夺宝| 99% |
 
 

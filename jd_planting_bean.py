@@ -354,7 +354,7 @@ class JdPlantingBean:
         :param task:
         :return:
         """
-        data = await self.post(session, 'receiveNutrientsTask', {"awardType": '33'})
+        data = await self.post(session, 'receiveNutrientsTask', {"awardType": '7'})
         println('{}, {}:{}'.format(self._account, task['taskName'], data))
 
     async def get_share_code(self, session):
@@ -413,20 +413,25 @@ class JdPlantingBean:
             1: self.receive_nutrient_task,  # 每日签到
             2: self.help_friend_task,  # 助力好友
             3: self.visit_shop_task,  # 浏览店铺
-            4: self.visit_meeting_place_task,  # 逛逛会场
+            # 4: self.visit_meeting_place_task,  # 逛逛会场
             5: self.pick_goods_task,  # 挑选商品
-            7: self.double_sign_task,  # 金融双签
+            #7: self.double_sign_task,  # 金融双签
             8: self.evaluation_goods_task,  # 评价商品,
             10: self.focus_channel_task,  # 关注频道,
-            33: self.jx_red_packet,  # 京喜红包
-            36: self.free_fruit_task  # 免费水果
+            # 33: self.jx_red_packet,  # 京喜红包
+            # 36: self.free_fruit_task  # 免费水果
 
         }
         for task in self._task_list:
-            if task['taskType'] not in task_map:
+            if task['isFinished'] == 1:
+                println('{}, 任务:{}, 今日已领取过奖励, 不再执行...'.format(self._account, task['taskName']))
                 continue
-            task['account'] = self._account
-            await task_map[task['taskType']](session, task)
+            if task['taskType'] in task_map:
+                task['account'] = self._account
+                await task_map[task['taskType']](session, task)
+            else:
+                data = await self.post(session, 'receiveNutrientsTask', {"awardType": str(task['taskType'])})
+                println('{}, {}:{}'.format(self._account, task['taskName'], data))
 
     async def collect_nutriments(self, session):
         """
