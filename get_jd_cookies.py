@@ -9,6 +9,7 @@ import qrcode
 import requests
 from utils.console import println
 
+
 def get_timestamp():
     """
     获取当前毫秒时间戳

@@ -154,7 +154,7 @@ class JrDailyTakeGoose:
                 continue
 
             println('{}, 正在进行任务:{}, 等待{}s!'.format(self._pt_pin, task['name'], task['real_time']))
-            await asyncio.sleep(task['real_time'])
+            await asyncio.sleep(task['real_time']+1)
 
             res = await self.request_mission(session, 'finishReadMission', {"missionId": str(task['missionId']),
                                                                             "readTime": task['real_time']})
@@ -173,7 +173,7 @@ class JrDailyTakeGoose:
                 "environment": "other"
             }
             res = await self.request(session, 'receiveGooseTaskReward', params)
-
+            await asyncio.sleep(1)
             if not res or res['resultCode'] != 0 or res['resultData']['code'] != '0000':
                 if res['resultCode'] != 0:
                     reason = res['resultMsg']
