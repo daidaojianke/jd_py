@@ -6,7 +6,6 @@
 # @Desc    : 种豆得豆
 import asyncio
 import json
-import os
 from functools import wraps
 from urllib.parse import unquote, quote
 

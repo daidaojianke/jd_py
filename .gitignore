@@ -121,3 +121,6 @@ conf/crontab.sh
 jd_docker/
 jd/
 docker-scripts/
+
+/dist
+/build

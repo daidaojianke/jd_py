@@ -7,9 +7,7 @@
 import time
 import qrcode
 import requests
-from utils.logger import logger
 from utils.console import println
-
 
 def get_timestamp():
     """
@@ -57,10 +55,9 @@ class JDCookies:
               '/myJd/newhome.action?sceneval=2&ufc=&/myJd/home.action&source=wq_passport'.format(get_timestamp())
         try:
             response = self._http.get(url)
-            logger.info("获取s_token， 数据:{}".format(response.json()))
             return response.json()['s_token']
         except requests.RequestException as e:
-            logger.info("获取s_token失败, 原因: {}".format(e.args))
+            println("获取s_token失败, 原因: {}".format(e.args))
 
     def __generate_qr_code(self, s_token=''):
         """
@@ -77,7 +74,6 @@ class JDCookies:
         try:
             response = self._http.post(url, body)
             data = response.json()
-            logger.info("获取二维码, 数据:{}".format(data))
             token = data['token']
             qr_code_url = 'https://plogin.m.jd.com/cgi-bin/m/tmauth?appid=300&client_type=m&token=' + token
             qr = qrcode.QRCode(
@@ -96,12 +92,12 @@ class JDCookies:
                 img.save('./qrcode.png')
                 img.show()
             except Exception as e:
-                logger.info("显示二维码异常:{}".format(e.args))
+                println("显示二维码异常:{}".format(e.args))
                 # qr.print_ascii(invert=True)
             return token
 
         except requests.RequestException as e:
-            logger.info("获取二维码失败, 网络异常: {}".format(e.args))
+            println("获取二维码失败, 网络异常: {}".format(e.args))
 
     def __check_login(self, token=''):
         """
@@ -123,11 +119,9 @@ class JDCookies:
             try:
                 response = self._http.post(url, body)
                 data = response.json()
-                logger.info("获取扫描状态, 数据:{}".format(data))
                 if data['errcode'] == 0:
                     pt_pin = self._http.cookies.get('pt_pin')
                     pt_key = self._http.cookies.get('pt_key')
-                    logger.info("成功获取cookie: pt_pin={};pt_key={};".format(pt_pin, pt_key))
                     println("成功获取cookie, 如下:", style='bold green')
                     println("pt_pin={};pt_key={};".format(pt_pin, pt_key), style='bold green')
                     break
@@ -138,10 +132,8 @@ class JDCookies:
                     break
             except requests.RequestException as e:
                 println("获取登录状态失败, 网络异常...", style='bold red')
-                logger.info("获取登录状态失败, 原因:{}".format(e.args))
                 break
             if int(time.time()) - start_time > 60 * 3:
-                logger.info("超过三分钟仍未扫码...")
                 println("超过三分钟未扫码...", style='bold red')
                 break
 
@@ -156,6 +148,10 @@ class JDCookies:
         println("获取cookie脚本执行完毕...", style='bold green')
 
 
-if __name__ == '__main__':
+def start():
     jd = JDCookies()
     jd.start()
+
+
+if __name__ == '__main__':
+    start()
