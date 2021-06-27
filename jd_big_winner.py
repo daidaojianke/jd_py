@@ -234,5 +234,7 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    from utils.process import process_start
-    process_start(start, '翻翻乐')
+    println('翻翻乐活动已过期...')
+
+    # from utils.process import process_start
+    # process_start(start, '翻翻乐')

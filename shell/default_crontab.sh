@@ -1,8 +1,9 @@
 ###  签到合集, 每天00:00和16:00执行 ###
 0 */16 * * * /usr/local/bin/python /jd_scripts/jd_sign_collection.py  >> /jd_scripts/logs/jd_sign_collection.log  2>&1
 
-### 大赢家翻翻乐 每小时翻一次 ###
-8 */1 * * *  /usr/local/bin/python /jd_scripts/jd_big_winner.py  >> /jd_scripts/logs/jd_big_winner.log  2>&1
+#### 大赢家翻翻乐 每小时翻一次 ###
+# 活动已过期
+# 8 */1 * * *  /usr/local/bin/python /jd_scripts/jd_big_winner.py  >> /jd_scripts/logs/jd_big_winner.log  2>&1
 
 ### 幸运大转盘 每天00:01执行 ###
 1 0 * * * /usr/local/bin/python /jd_scripts/jd_lucky_turntable.py  >> /jd_scripts/logs/jd_lucky_turntable.log  2>&1

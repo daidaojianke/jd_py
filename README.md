@@ -37,7 +37,7 @@
 |:---:|:---:|:---:|
 | get_jd_cookies.py     | 获取京东的COOKIES    | 100%      |
 | jd_beauty.py          | 京东APP->美丽研究院   | 0%        |
-| jd_big_winner.py      | 京东极速版->省钱大赢家翻翻乐 | 100% |
+| jd_big_winner.py      | 京东极速版->省钱大赢家翻翻乐 | 100%（活动已过期） |
 | jd_cute_pet.py        | 京东APP->东东萌宠     | 0%        |
 | jd_esports_manager.py | 京东APP->电竞经理     | 0%        |
 | jd_factory.py         | 京东APP->东东工厂     |  0%       |
@@ -49,9 +49,9 @@
 | jd_shark_bean | 京东APP->摇金豆 | 100%|
 | jd_sign_collection| 京东签到合集 | 100% |
 | jr_daily_task_goose.py| 京东金融->天天提鹅 | 100% |
-| jr_pet_pig | 京东金融->养猪猪| 0% |
+| jr_pet_pig | 京东金融->养猪猪| 000% |
 | jx_factory.py | 京喜APP->京喜工厂 | 0% |
 | jx_farm.py | 京喜APP->京喜农场| 0% |
-| jd_bean_lottery.py | 京东APP->签到领京豆->摇金豆->京豆夺宝| 99% |
+| jd_bean_lottery.py | 京东APP->签到领京豆->摇金豆->京豆夺宝| 100% |
 
 

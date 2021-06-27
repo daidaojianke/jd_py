@@ -195,7 +195,7 @@ class JdPlantingBean:
             if data['code'] == '0' and 'data' in data:
                 println('{}, 浏览店铺结果:{}'.format(self._account, data['data']))
             else:
-                println('{}, 浏览店铺结果'.format(self._account, data['errorMessage']))
+                println('{}, 浏览店铺结果:{}'.format(self._account, data['errorMessage']))
             await asyncio.sleep(1)
 
     @println_task
