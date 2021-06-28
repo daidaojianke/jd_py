@@ -18,6 +18,8 @@ LOG_DIR = os.path.join(BASE_DIR, 'logs')
 # 配置文件路径
 CONF_PATH = os.path.join(BASE_DIR, 'conf/config.yaml')
 
+IMAGES_DIR = os.path.join(BASE_DIR, 'static/images')
+
 # 加载配置文件
 with open(CONF_PATH, 'r', encoding='utf-8-sig') as f:
     cfg = yaml.safe_load(f)
@@ -44,3 +46,5 @@ JD_PLANTING_CODE = list(set(JD_PLANTING_CODE))
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token
 TG_BOT_TOKEN = cfg.get('notify', dict()).get('tg_bot_token', None)
+
+
