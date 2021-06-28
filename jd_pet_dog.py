@@ -61,7 +61,7 @@ class JdPetDog:
             'headless': False,
             'dumpio': True,
             'slowMo': 30,
-            'devtools': True,
+            # 'devtools': True,
             'autoClose': False,
             'handleSIGTERM': True,
             'handleSIGINT': True,
@@ -96,8 +96,8 @@ class JdPetDog:
         await page.setUserAgent(USER_AGENT)  # 设置USER-AGENT
 
         await page.setViewport({
-            'width': 375,
-            'height': 712,
+            'width': 500,
+            'height': 845,
             'isMobile': True
         })
 
@@ -120,42 +120,73 @@ class JdPetDog:
         slider_img_selector = '#man-machine-box > div > div.JDJRV-img-panel.JDJRV-embed > div.JDJRV-img-wrap > ' \
                               'div.JDJRV-smallimg > img'
 
-        println('等待加载拼图验证背景图片...')
-        while not await page.querySelector(bg_img_selector):
+        for i in range(10):
+            println('等待加载拼图验证背景图片...')
+            await page.waitForSelector(bg_img_selector)
+            # while not await page.querySelector(bg_img_selector):
+            #     await asyncio.sleep(1)
+
+            bg_img_ele = await page.querySelector(bg_img_selector)
+
+            println('等待加载拼图验证滑块图片...')
+            await page.waitForSelector(slider_img_selector)
+            # while not await page.querySelector(slider_img_selector):
+            #     await asyncio.sleep(1)
+            slider_img_ele = await page.querySelector(slider_img_selector)
+
+            bg_img_content = await (await bg_img_ele.getProperty('src')).jsonValue()
+            slider_img_content = await (await slider_img_ele.getProperty('src')).jsonValue()
+
+            bg_image_path = os.path.join(IMAGES_DIR, 'jd_pet_dog_bg.png')
+            slider_image_path = os.path.join(IMAGES_DIR, 'jd_pet_dog_slider.png')
+
+            println('保存拼图验证背景图片:{}!'.format(bg_image_path))
+            save_img(bg_img_content, bg_image_path)
+
+            println('保存拼图验证滑块图片:{}!'.format(slider_image_path))
+            save_img(slider_img_content, slider_image_path)
+
+            offset = detect_displacement(slider_image_path, bg_image_path)
+            println('拼图偏移量为:{}'.format(offset))
+
+            slider_btn_selector = '#man-machine-box > div > div.JDJRV-slide-bg > div.JDJRV-slide-inner.JDJRV-slide-btn'
+            ele = await page.querySelector(slider_btn_selector)
+            box = await ele.boundingBox()
+            println('开始拖动拼图滑块...')
+            await page.hover(slider_btn_selector)
+            await page.mouse.down()
+
+            cur_x = box['x']
+            cur_y = box['y']
+
+            while offset > 0:
+                x = random.randint(50, 100)
+                if x > offset:
+                    offset = 0
+                    x = offset
+                else:
+                    offset -= x
+                cur_x += x
+                await page.mouse.move(cur_x, cur_y,
+                                      {'delay': random.randint(500, 2000), 'steps': random.randint(1, 10)})
+
+                num = random.randint(1, 10)  # 随机选择是否抖动
+                if num % 2 == 1:
+                    continue
+                px = random.randint(1, 15)  # 随机选择抖动偏移量
+
+                # 往右拉
+                cur_x += px
+                await page.mouse.move(cur_x, cur_y,
+                                      {'delay': random.randint(500, 2000), 'steps': random.randint(1, 10)})
+                # 往左拉
+                cur_x -= px
+                await page.mouse.move(cur_x, cur_y,
+                                      {'delay': random.randint(500, 2000), 'steps': random.randint(1, 10)})
+
+            await page.mouse.up()
             await asyncio.sleep(1)
-
-        bg_img_ele = await page.querySelector(bg_img_selector)
-
-        println('等待加载拼图验证滑块图片...')
-        while not await page.querySelector(slider_img_selector):
-            await asyncio.sleep(1)
-        slider_img_ele = await page.querySelector(slider_img_selector)
-
-        bg_img_content = await (await bg_img_ele.getProperty('src')).jsonValue()
-        slider_img_content = await (await slider_img_ele.getProperty('src')).jsonValue()
-
-        bg_image_path = os.path.join(IMAGES_DIR, 'jd_pet_dog_bg.png')
-        slider_image_path = os.path.join(IMAGES_DIR, 'jd_pet_dog_slider.png')
-
-        println('保存拼图验证背景图片:{}!'.format(bg_image_path))
-        save_img(bg_img_content, bg_image_path)
-
-        println('保存拼图验证滑块图片:{}!'.format(slider_image_path))
-        save_img(slider_img_content, slider_image_path)
-
-        top_left = detect_displacement(slider_image_path, bg_image_path)
-        println('滑块偏移量:{}'.format(top_left))
-
-        slider_btn_selector = '#man-machine-box > div > div.JDJRV-slide-bg > div.JDJRV-slide-inner.JDJRV-slide-btn'
-        # ele = await page.querySelector(slider_btn_selector)
-        box = await slider_img_ele.boundingBox()
-        println('开启拖动滑块...')
-        await page.hover(slider_btn_selector)
-        await page.mouse.down()
-        await page.mouse.move(top_left, box['y'], {'delay': random.randint(1000, 2000), 'steps': 3})
-        await asyncio.sleep(5)
-        await page.mouse.up()
-        # await self.validate()
+            # await self.validate()
 
     async def run(self):
         cookies = await self.validate()

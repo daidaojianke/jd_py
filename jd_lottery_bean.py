@@ -15,6 +15,13 @@ from utils.process import process_start
 
 
 class LotteryBean:
+
+
+
+
+
+
+
     """
     抽京豆
     """

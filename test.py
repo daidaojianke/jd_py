@@ -5,7 +5,10 @@
 # @Project : jd_scripts
 # @Desc    :
 from utils.image import detect_displacement
+from config import IMAGES_DIR
+import os
 
 if __name__ == '__main__':
-    res = detect_displacement('./slider.png', './bg.png')
+    res = detect_displacement(os.path.join(IMAGES_DIR, 'jd_pet_dog_slider.png'),
+                              os.path.join(IMAGES_DIR, 'jd_pet_dog_bg.png'))
     print(res)

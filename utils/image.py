@@ -7,6 +7,7 @@
 import re
 import base64
 import cv2
+import numpy as np
 
 def save_img(b64_str, img_path=''):
     """
@@ -28,7 +29,7 @@ def _tran_canny(image):
     return cv2.Canny(image, 50, 150)
 
 
-def detect_displacement(img_slider_path, image_background_path, img_slider_dim=(38, 38), img_bg_dim=(105, 270)):
+def detect_displacement(img_slider_path, image_background_path, img_slider_dim=(50, 50), img_bg_dim=(360, 140)):
     """detect displacement"""
     # # 参数0是灰度模式
     image = cv2.imread(img_slider_path, 0)
@@ -39,14 +40,11 @@ def detect_displacement(img_slider_path, image_background_path, img_slider_dim=(
 
     # 寻找最佳匹配
     res = cv2.matchTemplate(_tran_canny(image), _tran_canny(template), cv2.TM_CCOEFF_NORMED)
-    # 最小值，最大值，并得到最小值, 最大值的索引
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
-    top_left = max_loc[0]  # 横坐标
-    # 展示圈出来的区域
-    x, y = max_loc  # 获取x,y位置坐标
+    # 最大值
+    min_val = np.argmax(res)
 
-    w, h = image.shape[::-1]  # 宽高
-    cv2.rectangle(template, (x, y), (x + w, y + h), (7, 249, 151), 2)
-    # show(template)
-    return top_left + 1
+    _, x = np.unravel_index(min_val, res.shape)
+    w, _ = res.shape[::-1]
+
+    return int(x) + int(img_slider_dim[0] / 2)

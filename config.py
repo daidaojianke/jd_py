@@ -8,17 +8,26 @@ import os
 import sys
 import re
 import yaml
+import platform
 
 # 项目根目录
 BASE_DIR = os.path.split(os.path.abspath(sys.argv[0]))[0]
 
 # 日志目录
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
 
 # 配置文件路径
 CONF_PATH = os.path.join(BASE_DIR, 'conf/config.yaml')
 
 IMAGES_DIR = os.path.join(BASE_DIR, 'static/images')
+
+if platform.system() == 'Windows':
+    IMAGES_DIR = IMAGES_DIR.replace('/', '\\')
+
+if not os.path.exists(IMAGES_DIR):
+    os.makedirs(IMAGES_DIR)
 
 # 加载配置文件
 with open(CONF_PATH, 'r', encoding='utf-8-sig') as f:
