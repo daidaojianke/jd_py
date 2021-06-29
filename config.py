@@ -51,6 +51,10 @@ JD_PLANTING_CODE = cfg.get('jd_planting_code') if cfg.get('jd_planting_code') el
 JD_PLANTING_CODE.append('t7obxmpebrxkdnfmcaebbfbrvem3hdr6ej6227y')
 JD_PLANTING_CODE = list(set(JD_PLANTING_CODE))
 
+
+JD_FARM_CODE = cfg.get('jd_farm_code') if cfg.get('jd_farm_code') else []
+JD_FARM_CODE = list(set(JD_FARM_CODE))
+
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token

@@ -8,7 +8,7 @@ ENV KEY="-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAA
 
 RUN set -ex \
     apk update \
-    && apk add --no-cache bash git openssh-client vim gcc jpeg-dev zlib-dev musl-dev tzdata libffi-dev \
+    && apk add --no-cache bash git openssh-client vim gcc cmake jpeg-dev zlib-dev musl-dev tzdata libffi-dev \
     && echo "Asia/Shanghai" > /etc/timezone \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && export LC_ALL="zh_CN.UTF-8" \
