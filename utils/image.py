@@ -9,6 +9,7 @@ import base64
 import cv2
 import numpy as np
 
+
 def save_img(b64_str, img_path=''):
     """
     base64字符串保存为图片
