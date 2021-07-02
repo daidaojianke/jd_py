@@ -6,6 +6,7 @@
 # @Desc    : 京东APP-东东农场
 import asyncio
 import time
+from datetime import datetime
 
 import aiohttp
 import json
@@ -246,8 +247,65 @@ class JdFarm:
             println('{}, 两次水滴雨任务已全部完成!'.format(self._pt_pin))
             return
 
-        if task['lastTime'] and int(time.time()) < task['lastTime'] + 3 * 60 * 60 * 1000:
-            println('s')
+        if task['lastTime'] and int(time.time() * 1000) < task['lastTime'] + 3 * 60 * 60 * 1000:
+            println('{}, 第{}次水滴雨未到时间:{}!'.format(self._pt_pin, task['winTimes'] + 1,
+                                                 datetime.fromtimestamp(int((task['lastTime']
+                                                                             + 3 * 60 * 60 * 1000) / 1000))))
+            return
+
+        for i in range(task['config']['maxLimit']):
+            data = await self.request(session, 'waterRainForFarm')
+            if data['code'] == '0':
+                println('{}, 第{}次水滴雨获得水滴:{}g'.format(self._pt_pin, task['winTimes'] + 1, data['addEnergy']))
+            else:
+                println('{}, 第{}次水滴雨执行错误:{}'.format(self._pt_pin, task['winTimes'] + 1, data))
+
+    async def get_extra_award(self, session):
+        """
+        领取额外奖励
+        :return:
+        """
+        data = await self.request(session, 'masterHelpTaskInitForFarm')
+
+        if 'masterHelpPeoples' not in data or len(data['masterHelpPeoples']) < 5:
+            println('{}, 获取助力信息失败或者助力不满5人, 无法领取额外奖励!'.format(self._pt_pin))
+            return
+
+        award_res = await self.request(session, 'masterGotFinishedTaskForFarm')
+        if award_res['code'] == '0':
+            println('{}, 成功领取好友助力奖励, {}g水滴!'.format(self._pt_pin, award_res['amount']))
+        else:
+            println('{}, 领取好友助力奖励失败, {}'.format(self._pt_pin, award_res))
+
+    async def turntable(self, session):
+        """
+        天天抽奖
+        :return:
+        """
+        data = await self.request(session, 'initForTurntableFarm')
+        if data['code'] != '0':
+            println('{}, 当前无法参与天天抽奖!'.format(self._pt_pin))
+            return
+
+        if not data['timingGotStatus']:
+            if data['sysTime'] > (data['timingLastSysTime'] + 60 * 60 * data['timingIntervalHours'] * 1000):
+                res = await self.request(session, 'timingAwardForTurntableFarm')
+                println('{}, 领取定时奖励结果:{}'.format(self._pt_pin, res))
+                data = await self.request(session, 'initForTurntableFarm')
+            else:
+                println('{}, 免费赠送的抽奖机会未到时间!'.format(self._pt_pin))
+        else:
+            println('{}, 4小时候免费赠送的抽奖机会已领取!'.format(self._pt_pin))
+
+        println(data)
+        if 'turntableBrowserAds' in data and len(data['turntableBrowserAds']) > 0:
+            count = 1
+            for item in data['turntableBrowserAds']:
+                res = await self.request(session, 'browserForTurntableFarm', {'type': 1, 'adId': item['adId']})
+                println('{}, 天天抽奖的第{}个任务, 结果:{}'.format(self._pt_pin, count, res))
+                award_res = await self.request(session, 'browserForTurntableFarm', {'type': 2, 'adId': item['adId']})
+                println('{}, 领取天天抽奖的第{}个任务奖励, 结果:{}'.format(self._pt_pin, count, award_res))
+                count += 1
 
     async def do_daily_task(self, session):
         """
@@ -256,34 +314,38 @@ class JdFarm:
         :return:
         """
         data = await self.request(session, 'taskInitForFarm')
-        if data['code'] != '0':
-            println('{}, 获取领水滴任务列表失败!'.format(self._pt_pin))
-            return
-        today_signed = data['signInit']['todaySigned']
+        # if data['code'] != '0':
+        #     println('{}, 获取领水滴任务列表失败!'.format(self._pt_pin))
+        #     return
+        # today_signed = data['signInit']['todaySigned']
+        #
+        # if not today_signed:  # 签到任务
+        #     await self.sign(session)
+        # else:
+        #     println('{}, 今日已签到, 已连续签到{}天!'.format(self._pt_pin, data['signInit']['totalSigned']))
+        #
+        # if not data['gotBrowseTaskAdInit']['f']:  # 浏览任务
+        #     tasks = data['gotBrowseTaskAdInit']['userBrowseTaskAds']
+        #     await self.do_browser_tasks(session, tasks)
+        # else:
+        #     println('{}, 今日浏览广告任务已完成!'.format(self._pt_pin))
+        #
+        # if not data['gotThreeMealInit']['f']:  # 定时领水
+        #     await self.timed_collar_drop(session)
+        #
+        # if not data['waterFriendTaskInit']['f'] and \
+        #         data['waterFriendTaskInit']['waterFriendCountKey'] < data['waterFriendTaskInit']['waterFriendMax']:
+        #     await self.do_friend_water(session)
+        #
+        # await self.get_award_of_invite_friend(session)  # 领取邀请好友奖励
+        #
+        # await self.clock_in(session)  # 打卡领水
 
-        if not today_signed:  # 签到任务
-            await self.sign(session)
-        else:
-            println('{}, 今日已签到, 已连续签到{}天!'.format(self._pt_pin, data['signInit']['totalSigned']))
+        # await self.water_drop_rain(session, data['waterRainInit'])  # 水滴雨
 
-        if not data['gotBrowseTaskAdInit']['f']:  # 浏览任务
-            tasks = data['gotBrowseTaskAdInit']['userBrowseTaskAds']
-            await self.do_browser_tasks(session, tasks)
-        else:
-            println('{}, 今日浏览广告任务已完成!'.format(self._pt_pin))
+        await self.get_extra_award(session)
 
-        if not data['gotThreeMealInit']['f']:  # 定时领水
-            await self.timed_collar_drop(session)
-
-        if not data['waterFriendTaskInit']['f'] and \
-                data['waterFriendTaskInit']['waterFriendCountKey'] < data['waterFriendTaskInit']['waterFriendMax']:
-            await self.do_friend_water(session)
-
-        await self.get_award_of_invite_friend(session)  # 领取邀请好友奖励
-
-        await self.clock_in(session)  # 打卡领水
-
-        await self.water_drop_rain(session, data['waterRainInit'])  # 水滴雨
+        await self.turntable(session)
 
     async def run(self):
         """
