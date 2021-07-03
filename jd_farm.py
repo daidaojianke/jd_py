@@ -728,13 +728,13 @@ class JdFarm:
                 println('{}, 无法获取农场数据, 退出程序!'.format(self._pt_pin))
                 return
 
-            # await self.help_friend(session)  # 助力好友
-            # await self.do_daily_task(session)  # 每日任务
-            # await self.do_ten_water(session)  # 浇水十次
-            # await self.get_first_water_award(session)  # 领取首次浇水奖励
-            # await self.get_ten_water_award(session)  # 领取十次浇水奖励
-            # await self.get_water_friend_award(session)  # 领取给好友浇水的奖励
-            # await self.click_duck(session)  # 点鸭子任务
+            await self.help_friend(session)  # 助力好友
+            await self.do_daily_task(session)  # 每日任务
+            await self.do_ten_water(session)  # 浇水十次
+            await self.get_first_water_award(session)  # 领取首次浇水奖励
+            await self.get_ten_water_award(session)  # 领取十次浇水奖励
+            await self.get_water_friend_award(session)  # 领取给好友浇水的奖励
+            await self.click_duck(session)  # 点鸭子任务
             await self.do_ten_water_again(session)  # 再次浇水
             await self.notify_result(session)  # 结果通知
 
@@ -751,6 +751,5 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-
-    start(*JD_COOKIES[0].values())
+    from utils.process import process_start
+    process_start(start, '东东农场')
