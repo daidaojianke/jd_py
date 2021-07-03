@@ -348,11 +348,11 @@ class JrPetPig:
             if not is_login:
                 println('{},登录失败, 退出程序...'.format(self._pt_pin))
                 return
-            # await self.sign(session)
-            # await self.missions(session)
-            # await self.open_box(session)
-            # await self.lottery(session)
-            # await self.add_food(session)
+            await self.sign(session)
+            await self.missions(session)
+            await self.open_box(session)
+            await self.lottery(session)
+            await self.add_food(session)
             await self.notify(session)
 
     async def notify(self, session):

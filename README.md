@@ -41,7 +41,7 @@
 | jd_cute_pet.py        | 京东APP->东东萌宠     | 0%        |
 | jd_esports_manager.py | 京东APP->电竞经理     | 0%        |
 | jd_factory.py         | 京东APP->东东工厂     |  0%       |
-| jd_farm.py            | 京东APP->东东农场     |  0%       |
+| jd_farm.py            | 京东APP->东东农场     |  100%       |
 | jd_lucky_turntable.py| 幸运大转盘 | 0%  |
 | jd_pet_dog | 京东APP-> 宠汪汪 | 0% |
 | jd_planting_bean.py | 京东APP->种豆得豆|  100% |

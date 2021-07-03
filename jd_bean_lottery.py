@@ -272,14 +272,13 @@ class JdBeanLottery:
         :return:
         """
         if len(self._award_list) > 0:
-            award =  ','.join(self._award_list)
+            award = ','.join(self._award_list)
         else:
             award = '无'
         message = '\n【活动名称】{}\n【用户ID】{}\n【用户昵称】{}\n' \
                   '【消耗京豆】{}\n【参与数量】{}\n【获得奖励】{}\n【提示信息】{}\n'\
             .format('京豆夺宝', self._pt_pin, self._nickname, self._use_bean_num, self._joined_num, award,
-                    '京豆奖励自动发放, 实物需要手动领取, 活动入口:京东APP->我的->签到领京豆->摇京豆->左上角京豆夺宝!'
-        )
+                    '京豆奖励自动发放, 实物需要手动领取, 活动入口:京东APP->我的->签到领京豆->摇京豆->左上角京豆夺宝!')
         println(message)
         notify(message)
 

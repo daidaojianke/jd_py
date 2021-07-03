@@ -51,9 +51,10 @@ JD_PLANTING_CODE = cfg.get('jd_planting_code') if cfg.get('jd_planting_code') el
 JD_PLANTING_CODE.append('t7obxmpebrxkdnfmcaebbfbrvem3hdr6ej6227y')
 JD_PLANTING_CODE = list(set(JD_PLANTING_CODE))
 
-
 JD_FARM_CODE = cfg.get('jd_farm_code') if cfg.get('jd_farm_code') else []
 JD_FARM_CODE = list(set(JD_FARM_CODE))
+JD_FARM_BEAN_CARD = cfg.get('jd_farm_bean_card') if cfg.get('jd_farm_bean_card') else False
+JD_FARM_RETAIN_WATER = cfg.get('jd_farm_retain_water') if cfg.get('jd_farm_retain_water') else 80
 
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)

@@ -417,8 +417,8 @@ class JdPlantingBean:
             #7: self.double_sign_task,  # 金融双签
             8: self.evaluation_goods_task,  # 评价商品,
             10: self.focus_channel_task,  # 关注频道,
-            # 33: self.jx_red_packet,  # 京喜红包
-            # 36: self.free_fruit_task  # 免费水果
+            33: self.jx_red_packet,  # 京喜红包
+            36: self.free_fruit_task  # 免费水果
 
         }
         for task in self._task_list:
