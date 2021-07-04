@@ -8,4 +8,3 @@ rich
 telebot
 pyppeteer
 pillow
-opencv-contrib-python-headless

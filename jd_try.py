@@ -11,3 +11,11 @@ class JdTry:
             'pt_pin': pt_pin,
             'pt_key': pt_key
         }
+        self._pt_pin = pt_pin
+
+    async def run(self):
+        """
+        :return:
+        """
+        pass
+

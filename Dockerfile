@@ -22,6 +22,7 @@ RUN set -ex \
     && mkdir $CODE_DIR/logs \
     && pip install --upgrade pip \
     && pip install -r $CODE_DIR/requirements.txt \
+    && rm -rf ~/.cache/pip \
     && cp $CODE_DIR/shell/docker-entrypoint.sh / \
     && chmod a+x /docker-entrypoint.sh
 
