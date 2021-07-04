@@ -20,6 +20,7 @@ RUN set -ex \
     && mkdir -p /root/.pip \
     && echo -e $PIP_REPO > /root/.pip/pip.conf \
     && mkdir $CODE_DIR/logs \
+    && pip install --upgrade pip \
     && pip install -r $CODE_DIR/requirements.txt \
     && cp $CODE_DIR/shell/docker-entrypoint.sh / \
     && chmod a+x /docker-entrypoint.sh

@@ -23,10 +23,6 @@ from utils.process import process_start
 
 class JdEarnBean:
     """
-
-
-
-
     JD APP 赚京豆
     """
     headers = {
