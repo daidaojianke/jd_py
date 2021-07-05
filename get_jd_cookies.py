@@ -7,7 +7,19 @@
 import time
 import qrcode
 import requests
-from utils.console import println
+from rich.console import Console
+
+console = Console()
+
+
+def println(*args, **kwargs):
+    """
+    控制台打印数据
+    :return:
+    """
+    style = kwargs.get('style', 'bold red')
+    kwargs['style'] = style
+    console.print(*args, **kwargs)
 
 
 def get_timestamp():
@@ -147,6 +159,7 @@ class JDCookies:
         token = self.__generate_qr_code(s_token)
         self.__check_login(token)
         println("获取cookie脚本执行完毕...", style='bold green')
+        input("按任意键退出!")
 
 
 def start():
