@@ -20,11 +20,11 @@ def notify(message):
         try:
             bot = telebot.TeleBot(TG_BOT_TOKEN)
             bot.send_message(TG_USER_ID, message)
-            println('成功推送消息到TG!')
+            println('\n成功推送消息到TG!')
         except Exception as e:
             logger.info('TG通知异常:{}'.format(e.args))
-            println('TG消息通知异常!')
+            println('\nTG消息通知异常!')
     else:
-        println("未配置TG_BOT_TOKEN和TG_USER_ID, 不推送TG消息...")
+        println("\n未配置TG_BOT_TOKEN和TG_USER_ID, 不推送TG消息...")
 
     # 更多推送方式

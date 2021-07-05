@@ -56,6 +56,9 @@ JD_FARM_CODE = list(set(JD_FARM_CODE))
 JD_FARM_BEAN_CARD = cfg.get('jd_farm_bean_card') if cfg.get('jd_farm_bean_card') else False
 JD_FARM_RETAIN_WATER = cfg.get('jd_farm_retain_water') if cfg.get('jd_farm_retain_water') else 80
 
+
+JD_MONEY_TREE_SHARE_PIN = list(set(cfg.get('jd_money_tree_share_pin') if cfg.get('jd_money_tree_share_pin') else []))
+
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token

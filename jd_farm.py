@@ -238,7 +238,8 @@ class JdFarm:
                 println('{}, 打卡结果{}'.format(self._pt_pin, data))
                 if data['signDay'] == 7:
                     println('{}, 开始领取--惊喜礼包!'.format(self._pt_pin))
-                    gift_data = await self.request(session, 'gotClockInGift', {'type': 2})
+                    gift_data = await self.request(session, 'clockInForFarm', {"type": 2, "version": 14,
+                                                                               "channel": 1, "babelChannel": "121"})
                     println('{}, 惊喜礼包获得{}g水滴!'.format(self._pt_pin, gift_data['amount']))
 
         if res['todaySigned'] and res['totalSigned'] == 7:  # 签到七天领惊喜礼包
