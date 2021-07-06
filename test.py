@@ -4,19 +4,34 @@
 # @File    : test.py
 # @Project : jd_scripts
 # @Desc    :
-from utils.image import detect_displacement
-from config import IMAGES_DIR
-import os
+from furl import furl
+from utils.console import println
+u = furl('https://api.m.jd.com/client.action?functionId=queryVkComponent&adid=0E38E9F1-4B4C-40A4-A479-DD15E58A5623&area=19_1601_50258_51885&body={"componentId":"4f953e59a3af4b63b4d7c24f172db3c3","taskParam":"{\"actId\":\"8tHNdJLcqwqhkLNA8hqwNRaNu5f\"}","cpUid":"8tHNdJLcqwqhkLNA8hqwNRaNu5f","taskSDKVersion":"1.0.3","businessId":"babel"}&build=167436&client=apple&clientVersion=9.2.5&d_brand=apple&d_model=iPhone11,8&eid=eidIf12a8121eas2urxgGc+zS5+UYGu1Nbed7bq8YY+gPd0Q0t+iviZdQsxnK/HTA7AxZzZBrtu1ulwEviYSV3QUuw2XHHC+PFHdNYx1A/3Zt8xYR+d3&isBackground=N&joycious=228&lang=zh_CN&networkType=wifi&networklibtype=JDNetworkBaseAF&openudid=88732f840b77821b345bf07fd71f609e6ff12f43&osVersion=14.2&partner=TF&rfs=0000&scope=11&screen=828*1792&sign=792d92f78cc893f43c32a4f0b2203a41&st=1606533009673&sv=122&uts=0f31TVRjBSsqndu4/jgUPz6uymy50MQJFKw5SxNDrZGH4Sllq/CDN8uyMr2EAv+1xp60Q9gVAW42IfViu/SFHwjfGAvRI6iMot04FU965+8UfAPZTG6MDwxmIWN7YaTL1ACcfUTG3gtkru+D4w9yowDUIzSuB+u+eoLwM7uynPMJMmGspVGyFIgDXC/tmNibL2k6wYgS249Pa2w5xFnYHQ==&uuid=hjudwgohxzVu96krv/T6Hg==&wifiBssid=1b5809fb84adffec2a397007cc235c03')
 
-if __name__ == '__main__':
-    test = [
-        '0a74407df5df4fa99672a037eec61f7e@dbb21614667246fabcfd9685b6f448f3@6fbd26cc27ac44d6a7fed34092453f77'
-        '@61ff5c624949454aa88561f2cd721bf6@56db8e7bc5874668ba7d5195230d067a@b9d287c974cc498d94112f1b064cf934'
-        '@23b49f5a106b4d61b2ea505d5a4e1056@8107cad4b82847a698ca7d7de9115f36',
-        'b1638a774d054a05a30a17d3b4d364b8@f92cb56c6a1349f5a35f0372aa041ea0@9c52670d52ad4e1a812f894563c746ea'
-        '@8175509d82504e96828afc8b1bbb9cb3@2673c3777d4443829b2a635059953a28@d2d5d435675544679413cb9145577e0f',
-    ]
-
-    for i in test:
-        for j in i.split('@'):
-            print('-', j)
+data = {
+    'functionId': 'queryVkComponent',
+    'adid': '0E38E9F1-4B4C-40A4-A479-DD15E58A5623',
+    'area': '19_1601_50258_51885',
+    'body': {
+        "componentId": "4f953e59a3af4b63b4d7c24f172db3c3",
+        "taskParam": {"actId": "8tHNdJLcqwqhkLNA8hqwNRaNu5f"},
+        "cpUid": "8tHNdJLcqwqhkLNA8hqwNRaNu5f",
+        "taskSDKVersion": "1.0.3",
+        "businessId": "babel"},
+    'build': '167436',
+    'client': 'apple',
+    'clientVersion': '9.2.5',
+    'eid': 'eidIf12a8121eas2urxgGc zS5 UYGu1Nbed7bq8YY gPd0Q0t iviZdQsxnK/HTA7AxZzZBrtu1ulwEviYSV3QUuw2XHHC PFHdNYx1A/3Zt8xYR d3',
+    'isBackground': 'N',
+    'joycious': '228',
+    'openudid': '88732f840b77821b345bf07fd71f609e6ff12f43',
+    'osVersion': '14.2',
+    'partner': 'TF',
+    'rfs': '0000',
+    'scope': '11',
+    'screen': '828*1792',
+    'sign': '792d92f78cc893f43c32a4f0b2203a41',
+    'st': '1606533009673',
+    'sv': '122',
+    'uuid': 'hjudwgohxzVu96krv/T6Hg==', 'wifiBssid': '1b5809fb84adffec2a397007cc235c03'
+}

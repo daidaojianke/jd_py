@@ -7,17 +7,37 @@ jd_cookies:
   - pt_pin=jd_1;pt_key=AAJgwFk;   # 账号1
   - pt_pin=jd_2;pt_key=AAJgwFk;   # 账号2
 
-# 请求头, 非必填, 如需要配置的可以同JD APP或网页版抓包获取。
-user_agent:
+user_agent: jdapp;android;10.0.4;11;1623732683334633-4613462616133636;network/wifi;model/RMX2121;addressid/3373978729;aid/a27b83d3d1dba1cc;oaid/;osVer/30;appBuild/88641;partner/oppo;eufv/1;jdSupportDarkMode/0;Mozilla/5.0 (Linux; Android 11; RMX2121 Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120 MQQBrowser/6.2 TBS/045537 Mobile Safari/537.36
 
 # 种豆得豆助力码
 jd_planting_code:
   # 一行一个, 顺序无所谓。
   - mlrdw3aw26j3x3vxi2qvp7xj5llrsmtd3tde64i
+  - 4npkonnsy7xi2zdhoup547nspuzngbztm6atuea
+  - vi3fkyhjhmcztukeucv7bnzov4wvag3owv33bji
+  - t7obxmpebrxkdnfmcaebbfbrvem3hdr6ej6227y
+  - fn5sjpg5zdejmcta3mlmgfuu76wt4trklie7yqq
+  - nzbkrjwgv6yglryoox4e3yrffrl4w4lbcaqureepa42gkll6smna
 
-# 消息通知配置
+
+# 京东->东东农场互助吗
+jd_farm_code:
+  - f9a5389ab473423e83a746e03a82dddc
+  - 3d688569b2a9471193b36f8591a75c78
+  - f9a5389ab473423e83a746e03a82dddc
+  - e674a16f427b4097b6ecde64b6a2d32c
+  - 63237657d5184b6d82c00f5adc5ac176
+  - b78c1eebfd1f45b1828e99312f7ac314
+
+# 金果摇钱树邀请码
+jd_money_tree_share_pin:
+  - kWYkAjeTZGUiPhaXh5w03sAdoUJQ3Dik
+  - nSCI5c7YjSWjbjjF6CBZ6w
+  - GEwzybOwKgTmY4q07j9ZiMAdoUJQ3Dik
+  - UhP7qmrWYtG8R2TVBsvP3g
+
+
 notify:
-  # TG机器人消息通知, TG机器人token:tg_bot_token, TG用户id: tg_user_id！
-  tg_bot_token:
-  tg_user_id:
+  tg_bot_token: 17422745:AAHVmR8dwzrGGh0wa7sk
+  tg_user_id: 180792
 
