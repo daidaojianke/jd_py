@@ -3,7 +3,7 @@
 ## 安裝
 
 ### 使用docker
-- docker一键安装: `docker run -d --name jd classmatelin/hhl`.
+- docker一键安装: `docker run -d --name jd classmatelin/hhl:latest`.
 
 ### 
 
@@ -40,7 +40,7 @@
 | jd_big_winner.py      | 京东极速版->省钱大赢家翻翻乐 | 100%（活动已过期） |
 | jd_cute_pet.py        | 京东APP->东东萌宠     | 0%        |
 | jd_esports_manager.py | 京东APP->电竞经理     | 0%        |
-| jd_factory.py         | 京东APP->东东工厂     |  0%       |
+| jd_factory.py         | 京东APP->东东工厂     |  100%       |
 | jd_farm.py            | 京东APP->东东农场     |  100%       |
 | jd_lucky_turntable.py| 幸运大转盘 | 0%  |
 | jd_pet_dog | 京东APP-> 宠汪汪 | 0% |

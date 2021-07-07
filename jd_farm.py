@@ -219,7 +219,7 @@ class JdFarm:
                 continue
             count += 1
             res = await self.request(session, 'waterFriendForFarm', {'shareCode': friend['shareCode']})
-            println('{}, 为第{}个好友({})浇水, 结果：{}'.format(self._pt_pin, friend['nickName'], count, res))
+            println('{}, 为第{}个好友({})浇水, 结果：{}'.format(self._pt_pin, count, friend['nickName'], count, res))
             if res['code'] == '11':
                 println('{}, 水滴不够, 退出浇水!'.format(self._pt_pin))
                 return
