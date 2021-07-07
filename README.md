@@ -38,12 +38,12 @@
 | get_jd_cookies.py     | 获取京东的COOKIES    | 100%      |
 | jd_beauty.py          | 京东APP->美丽研究院   | 0%        |
 | jd_big_winner.py      | 京东极速版->省钱大赢家翻翻乐 | 100%（活动已过期） |
-| jd_cute_pet.py        | 京东APP->东东萌宠     | 0%        |
+| jd_cute_pet.py        | 京东APP->东东萌宠     | 100%        |
 | jd_esports_manager.py | 京东APP->电竞经理     | 0%        |
 | jd_factory.py         | 京东APP->东东工厂     |  100%       |
 | jd_farm.py            | 京东APP->东东农场     |  100%       |
-| jd_lucky_turntable.py| 幸运大转盘 | 0%  |
-| jd_pet_dog | 京东APP-> 宠汪汪 | 0% |
+| jd_lucky_turntable.py| 幸运大转盘 | 100%  |
+| jd_pet_dog | 京东APP-> 宠汪汪 | 10% |
 | jd_planting_bean.py | 京东APP->种豆得豆|  100% |
 | jd_ranking_list | 京东APP->排行榜 | 100% |
 | jd_shark_bean | 京东APP->摇金豆 | 100%|

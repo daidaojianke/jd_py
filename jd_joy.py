@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/6/25 9:29 上午
-# @File    : jd_pet_dog.py
+# @File    : jd_joy.py
 # @Project : jd_scripts
 # @Desc    : 京东APP->我的->宠汪汪
 import asyncio

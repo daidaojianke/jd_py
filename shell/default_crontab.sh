@@ -28,7 +28,7 @@
 10 10,23 * * * /usr/local/bin/python /scripts/jd_lucky_turntable.py >> /scripts/logs/jd_lucky_turntable.log 2>&1
 
 # 宠汪汪
-# 0 1 * * *  /usr/local/bin/python /scripts/jd_pet_dog.py >> /scripts/logs/jd_pet_dog.log 2>&1
+# 0 1 * * *  /usr/local/bin/python /scripts/jd_joy.py >> /scripts/logs/jd_pet_dog.log 2>&1
 
 # 京东种豆得豆
 10 7-22/1 * * * /usr/local/bin/python /scripts/jd_planting_bean.py >> /scripts/logs/jd_planting_bean.log 2>&1
