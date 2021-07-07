@@ -2,10 +2,11 @@
 # 默认为True, 控制台打印消息
 debug: true
 
+# 指定进程数
+process_num: 4
+
 jd_cookies:
   - pt_pin=%E694bae;pt_key=AAJg26wqb0ghburg;
-
-
 
 # 种豆得豆助力码
 jd_planting_code:

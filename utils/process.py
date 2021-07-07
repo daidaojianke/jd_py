@@ -7,7 +7,7 @@ from urllib.parse import unquote
 import multiprocessing
 import random
 from utils.console import println
-from config import JD_COOKIES
+from config import JD_COOKIES, PROCESS_NUM
 
 
 def process_start(func, name=''):
@@ -20,12 +20,12 @@ def process_start(func, name=''):
     multiprocessing.freeze_support()
     process_count = multiprocessing.cpu_count()
 
-    if process_count < 2:
-        process_count = 2
+    if process_count < PROCESS_NUM:
+        process_count = PROCESS_NUM
 
     pool = multiprocessing.Pool(process_count)
 
-    println("开始执行{}, 共{}个账号...\n".format(name, len(JD_COOKIES)), style='bold green')
+    println("开始执行{}, 共{}个账号, 启动{}个进程!\n".format(name, len(JD_COOKIES), process_count), style='bold green')
 
     for i in range(len(JD_COOKIES)):
         jd_cookie = JD_COOKIES[i]

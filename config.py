@@ -34,7 +34,9 @@ with open(CONF_PATH, 'r', encoding='utf-8-sig') as f:
     cfg = yaml.safe_load(f)
 
 # 是否开启调试模式, 关闭不会显示控制台输出
-JD_DEBUG = cfg.get('JD_DEBUG', True)
+JD_DEBUG = cfg.get('debug', True)
+
+PROCESS_NUM = cfg.get('process_num', 4)
 
 # JD COOKIES
 JD_COOKIES = [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.search('pt_key=(.*?);', i).group(1)}
