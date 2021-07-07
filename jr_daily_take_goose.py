@@ -60,6 +60,7 @@ class JrDailyTakeGoose:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
+            await asyncio.sleep(1)
             return data
         except Exception as e:
             println('{}, 无法获取服务器数据!{}'.format(self._pt_pin, e.args))

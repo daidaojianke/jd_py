@@ -95,6 +95,7 @@ class JdPlantingBean:
         try:
             response = await session.post(url=url, data=body)
             text = await response.text()
+            await asyncio.sleep(0.5)
             logger.info('种豆得豆:{}'.format(text))
             data = json.loads(text)
             return data

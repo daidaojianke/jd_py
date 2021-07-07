@@ -63,6 +63,7 @@ class JdFarm:
                                                                                               json.dumps(body))
             response = await session.get(url=url)
             data = await response.json()
+            await asyncio.sleep(0.5)
             return data
         except Exception as e:
             println('{}, 获取服务器数据错误:{}'.format(self._pt_pin, e.args))

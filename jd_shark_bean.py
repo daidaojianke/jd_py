@@ -68,6 +68,7 @@ class JdSharkBean:
                 response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
+            await asyncio.sleep(1)
             return data
         except Exception as e:
             logger.add(e.args)

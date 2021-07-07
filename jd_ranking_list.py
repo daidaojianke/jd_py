@@ -56,6 +56,7 @@ class JdRankingList:
             response = await session.post(url)
             text = await response.text()
             data = json.loads(text)
+            await asyncio.sleep(1)
             if data['code'] != '0':
                 println('{}, 获取任务列表失败...'.format(self._account))
             else:

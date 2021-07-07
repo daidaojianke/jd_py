@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/6/26 8:55
-# @File    : jd_bean_lottery.py
+# @File    : jd_bean_indiana.py
 # @Project : jd_scripts
 # @Desc    ： 京豆APP->摇金豆->金豆夺宝
 import asyncio
@@ -16,7 +16,7 @@ from utils.process import process_start
 from config import USER_AGENT
 
 
-class JdBeanLottery:
+class JdBeanIndiana:
     """
     金豆夺宝,
     https://jdjoy.jd.com获取token和lkEPin,lkToken, 然后https://pf.moxigame.cn/jddb/duobao/login获取真正需要使用的token。
@@ -323,7 +323,7 @@ def start(pt_pin, pt_key):
     :param pt_key:
     :return:
     """
-    app = JdBeanLottery(pt_pin, pt_key)
+    app = JdBeanIndiana(pt_pin, pt_key)
     asyncio.run(app.run())
 
 

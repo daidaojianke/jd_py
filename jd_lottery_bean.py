@@ -14,7 +14,7 @@ from utils.console import println
 from utils.process import process_start
 
 
-class LotteryBean:
+class JdLotteryBean:
     """
     抽京豆
     """
@@ -73,7 +73,7 @@ def start(pt_pin, pt_key):
     :param pt_key:
     :return:
     """
-    app = LotteryBean(pt_pin, pt_key)
+    app = JdLotteryBean(pt_pin, pt_key)
     asyncio.run(app.run())
 
 

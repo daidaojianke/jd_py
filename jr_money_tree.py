@@ -70,6 +70,8 @@ class JdMoneyTree:
             else:
                 response = await session.get(url, body=params)
 
+            await asyncio.sleep(1)
+
             text = await response.text()
 
             data = json.loads(text)
