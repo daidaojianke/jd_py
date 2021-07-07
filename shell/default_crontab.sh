@@ -7,7 +7,7 @@
 # 41 7,12,19 * * * /usr/local/bin/python /scripts/jd_beauty.py >> /scripts/logs/jd_beauty.log 2>&1
 
 # 东东萌宠
-# 35 6-18/6 * * * /usr/local/bin/python /scripts/jd_cute_pet.py >> /scripts/logs/jd_cute_pet.log 2>&1
+35 6-18/6 * * * /usr/local/bin/python /scripts/jd_cute_pet.py >> /scripts/logs/jd_cute_pet.log 2>&1
 
 # 赚金豆
 # 12 * * * * /usr/local/bin/python /scripts/jd_earn_bean.py >> /scripts/logs/jd_earn_bean.log 2>&1

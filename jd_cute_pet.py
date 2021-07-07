@@ -11,6 +11,8 @@ from datetime import datetime
 from config import USER_AGENT, JD_CUTE_PET_SHARE_CODE
 from urllib.parse import unquote, quote
 from utils.console import println
+from utils.notify import notify
+from utils.process import process_start
 
 
 class JdCutePet:
@@ -210,7 +212,7 @@ class JdCutePet:
         if data['resultCode'] != '0':
             println('{}, 获取活动数据失败!'.format(self._pt_pin))
             return
-        println(data)
+
         food_amount = data['foodAmount']  # 狗粮总数
         keep_amount = 80  # 保留80狗粮用于完成明天的10次喂食任务
 
@@ -363,11 +365,46 @@ class JdCutePet:
             println('{}, 收取好感度失败!'.format(self._pt_pin))
             return
 
-        message = '{}, 成功收取好感度,【第{}块勋章完成进度】{}%，' \
-                  '还需收集{}好感度!\n'.format(self._pt_pin, data['medalNum'] + 1, data['medalPercent'], data['needCollectEnergy'])
-        message += '【已获得勋章】{}块，还需收集{}块即可兑换奖品!'.format(data['medalNum'], data['needCollectMedalNum'])
+        message = '【第{}块勋章完成进度】{}%，' \
+                  '还需收集{}好感度!\n'.format(data['medalNum'] + 1, data['medalPercent'], data['needCollectEnergy'])
+        message += '【已获得勋章】{}块，还需收集{}块即可兑换奖品!\n'.format(data['medalNum'], data['needCollectMedalNum'])
 
-        println(message)
+        self._notify_message += message
+        println('{}, 收集好感度成功!{}'.format(self._pt_pin, message))
+
+    async def get_friend_help_award(self, session):
+        """
+        获取好友助力奖励
+        :param session:
+        :return:
+        """
+        data = await self.request(session, 'masterHelpInit')
+        if data['resultCode'] != '0':
+            println('{}, 无法获取好友助力信息!'.format(self._pt_pin))
+            return
+
+        if int(data['reward']) > 50:
+            println('{}, 好友助力额外奖励已领取!'.format(self._pt_pin))
+            return
+
+        if not data['helpLimitFlag']:
+            println('{}, 好友助力不满{}人, 无法领取奖励!'.format(self._pt_pin, data['helpLimit']))
+            return
+
+        data = await self.request(session, 'getHelpAddedBonus')
+
+        if data['resultCode'] != '0':
+            println('{}, 领取好友助力奖励失败!'.format(self._pt_pin))
+            return
+
+        println('{}, 领取好友助力奖励成功, 获得狗粮:{}g!'.format(self._pt_pin, data['reward']))
+
+    async def notify(self):
+        """
+        :return:
+        """
+        println('\n' + self._notify_message + '\n')
+        notify(self._notify_message)
 
     async def run(self):
         """
@@ -384,7 +421,8 @@ class JdCutePet:
             await self.pet_sport(session)
             await self.feed_food_again(session)  # 再次喂食
             await self.collect_energy(session)
-            println(self._notify_message)
+            await self.get_friend_help_award(session)
+            await self.notify()
 
 
 def start(pt_pin, pt_key):
@@ -399,5 +437,6 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-    start(*JD_COOKIES[0].values())
+    # from config import JD_COOKIES
+    # start(*JD_COOKIES[0].values())
+    process_start(start, '东东萌宠')
