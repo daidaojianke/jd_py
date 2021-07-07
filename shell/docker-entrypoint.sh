@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CODE_DIR='/jd_scripts'
+CODE_DIR='/scripts'
 
 if [ -f "$CODE_DIR/logs/conf.lock" ]; then
     echo "存在配置锁定文件，不执行配置复制操作!"
