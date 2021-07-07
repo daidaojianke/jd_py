@@ -227,10 +227,30 @@ class JdFactory:
         :return:
         """
         println('{}, 正在进行任务:{}!'.format(self._pt_pin, task['taskName']))
+        try:
+            url = 'https://api.m.jd.com/?client=wh5&clientVersion=1.0.0&functionId=queryVkComponent&body=%7B' \
+                  '%22businessId%22%3A%22babel%22%2C%22componentId%22%3A%224f953e59a3af4b63b4d7c24f172db3c3%22%2C' \
+                  '%22taskParam%22%3A%22%7B%2522actId%2522%3A%25228tHNdJLcqwqhkLNA8hqwNRaNu5f%2522%7D%22%7D' \
+                  '&_timestamp=1625621328362'
+            response = await session.post(url)
+            text = await response.text()
+            data = json.loads(text)
+            if data['code'] != '0':
+                println('{}, 无法完成任务:{}!'.format(self._pt_pin, task['taskName']))
+                return
+        except Exception as e:
+            println('{}, 无法完成任务:{}, {}!'.format(self._pt_pin, task['taskName'], e.args))
+            return
+
         await asyncio.sleep(1)
+
         data = await self.request(session, 'jdfactory_collectScore',
                                   {'taskToken': task['simpleRecordInfoVo']['taskToken']})
-        println(data)
+
+        if data['bizCode'] != 0:
+            println('{}, 无法完成任务:{}!'.format(self._pt_pin, task['taskName']))
+        else:
+            println('{}, 完成任务:{}, 获得电量:{}!'.format(self._pt_pin, task['taskName'], data['result']['score']))
 
     async def visit_meeting_place(self, session, task):
         """
@@ -356,7 +376,6 @@ class JdFactory:
                 println('{}, 跳过入会任务:{}!'.format(self._pt_pin, task['taskName']))
 
             elif task['taskType'] == 23:  # 京东首页点击京东电器
-                continue
                 await self.click_jd_electric(session, task)
 
             elif task['taskType'] == 3:  # 逛会场
