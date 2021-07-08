@@ -55,6 +55,7 @@ class JrPetPig:
             }
         )))
         try:
+            await asyncio.sleep(1)
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
@@ -91,7 +92,7 @@ class JrPetPig:
                 if sign_item['status'] != 0:
                     println('{}, 今日已签到!'.format(self._pt_pin))
                     break
-
+                await asyncio.sleep(1)
                 sign_url = self._host + 'pigPetSignOne?_={}'.format(int(time.time() * 1000))
                 body = 'reqData={}'.format(quote(json.dumps({"source": 0, "no": sign_item['no'],
                                                              "channelLV": "", "riskDeviceParam": "{}"})))
@@ -155,7 +156,7 @@ class JrPetPig:
             if lottery_count < 1:
                 println('{}, 暂无抽奖次数!'.format(self._pt_pin))
                 return
-
+            await asyncio.sleep(1)
             lottery_url = self._host + 'pigPetLotteryPlay?_={}'.format(int(time.time() * 1000))
             body = 'reqData={}'.format(quote(json.dumps({
                 "source": 0,
@@ -173,6 +174,7 @@ class JrPetPig:
                     println('{}, 抽奖成功!'.format(self._pt_pin))
                 else:
                     println('{}, 抽奖失败!'.format(self._pt_pin))
+                await asyncio.sleep(1)
 
         except Exception as e:
             println('{}, 抽奖失败, {}'.format(self._pt_pin, e.args))
@@ -217,6 +219,7 @@ class JrPetPig:
         :param mid:
         :return:
         """
+        await asyncio.sleep(1)
         try:
             mission_url = self._host + 'pigPetDoMission?_='.format(int(time.time() * 1000))
             body = 'reqData={}'.format(quote(json.dumps({
@@ -244,6 +247,7 @@ class JrPetPig:
                                                                                       quote(json.dumps(body)))
             response = await session.get(url=url)
             text = await response.text()
+            await asyncio.sleep(1)
             data = json.loads(text)
             return data
         except Exception as e:

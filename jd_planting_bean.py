@@ -95,7 +95,7 @@ class JdPlantingBean:
         try:
             response = await session.post(url=url, data=body)
             text = await response.text()
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(1)
             logger.info('种豆得豆:{}'.format(text))
             data = json.loads(text)
             return data
@@ -122,6 +122,7 @@ class JdPlantingBean:
             response = await session.get(url=url)
             text = await response.text()
             data = json.loads(text)
+            await asyncio.sleep(1)
             return data
 
         except Exception as e:
