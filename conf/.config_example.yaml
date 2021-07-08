@@ -6,48 +6,48 @@ debug: true
 process_num: 4
 
 jd_cookies:
-  - pt_pin=%E694bae;pt_key=AAJg26wqb0ghburg;
+  - pt_pin=;pt_key=;
 
 # 种豆得豆助力码
 jd_planting_code:
   # 一行一个, 顺序无所谓。
-  - mlrdw3aw26j3x3vxi2qvp7xj5llrsmtd3tde64i
+  - xxx
 
 
 # 京东->东东农场互助吗
 jd_farm_code:
-  - f9a5389ab473423e83a746e03a82dddc
+  - xxx
 
 
 # 金果摇钱树邀请码
 jd_money_tree_share_pin:
-  - kWYkAjeTZGUiPhaXh5w03sAdoUJQ3Dik
+  - xxx
 
 
 # 东东工厂互助码
 jd_factory_share_code:
-  - T0225KkcRRYR_QbSIkmgkPUDJQCjVWnYaS5kRrbA
+  - Txxx
 
 
 # 京喜农场互助码
 jx_farm_share_code:
-  - {"smp":"c8e2ae8fbde016a8c9420b9162d75b3d","active":"jdnc_1_3yuanmitao210616_2","joinnum":1}
+  - xxxx
 
 # 京喜工厂互助码
 jx_factory_share_code:
-  - meal4nfI36-aCltW4_iEsA==
+  - xxx
 
 
 # 闪购盲盒互助码
 jd_sgmh_share_code:
-  - T020aETDmJ66I9xO9rVQxqZfCjVQmoaT5kRrbA
+  - xxx
 
 # 消息通知
 notify:
   # TG机器人Token
-  tg_bot_token: 1791422745:AAHVmR8dwzrGGh0wa7skWUte7ns9IXZ3aEM
+  tg_bot_token: 1xxx
   # TG用户ID
-  tg_user_id: 1807924672
+  tg_user_id: xxx
 
 
 # 请求头, 默认不需要修改

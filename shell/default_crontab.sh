@@ -60,6 +60,11 @@
 # 京喜农场
 # 30 9,12,18 * * * /usr/local/bin/python /scripts/jx_farm.py >> /scripts/logs/jx_farm.log 2>&1
 
+# 微信小程序-赚京豆
+15 5,15 * * * /usr/local/bin/python /scripts/jd_earn_bean.py >> /scripts/logs/jd_earn_bean.log 2>&1
 
-### 每8小时执行一次更新 ###
-0 */8 * * * /docker-entrypoint.sh  >> /dev/null  2>&1
+# 资产变动通知
+30 9,13,19,23 * * * /usr/local/bin/python /scripts/jd_bean_change.py >> /scripts/logs/jd_bean_change.log 2>&1
+
+### 每天16点执行一次更新 ###
+0 16 * * * /docker-entrypoint.sh  >> /dev/null  2>&1

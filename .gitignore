@@ -124,3 +124,5 @@ docker-scripts/
 
 /dist
 /build
+test.py
+conf/config.yaml.bak

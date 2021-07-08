@@ -18,6 +18,12 @@ LOG_DIR = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
+# 示例配置文件路径
+EXAMPLE_CONFIG_PATH = os.path.join(BASE_DIR, 'conf/.config_example.yaml')
+
+# 备份配置文件路径
+BAK_CONFIG_PATH = os.path.join(BASE_DIR, 'conf/config.yaml.bak')
+
 # 配置文件路径
 CONF_PATH = os.path.join(BASE_DIR, 'conf/config.yaml')
 
