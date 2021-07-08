@@ -52,6 +52,7 @@
 | jr_money_tree| 京东金融->摇钱树| 100%|
 | jd_bean_lottery.py | 京东APP->签到领京豆->摇金豆->京豆夺宝| 100% |
 | jd_earn_bean.py | 微信小程序-赚金豆 | 100% |
+| jd_cash.py | 京东APP-领现金 | 95% |
 | jd_beauty.py          | 京东APP->美丽研究院   | 0%        |
 | jx_factory.py | 京喜APP->京喜工厂 | 0% |
 | jx_farm.py | 京喜APP->京喜农场| 0% |

@@ -18,6 +18,12 @@ jd_planting_code:
 jd_farm_code:
   - xxx
 
+# 东东农场是否使用水滴换豆卡, 100水滴换20京豆
+jd_farm_bean_card: false
+
+# 东东农场每天保留多少水滴, 用于明天的十次浇水任务
+jd_farm_retain_water: 80
+
 
 # 金果摇钱树邀请码
 jd_money_tree_share_pin:

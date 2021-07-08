@@ -71,6 +71,8 @@ JD_FACTORY_SHARE_CODE = list(set(cfg.get('jd_factory_share_code') if cfg.get('jd
 
 JD_CUTE_PET_SHARE_CODE = list(set(cfg.get('jd_cute_pet_code') if cfg.get('jd_cute_pet_code') else []))
 
+JD_CASH_SHARE_CODE = list(set(cfg.get('jd_cash_share_code') if cfg.get('jd_cash_share_code') else []))
+
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token
