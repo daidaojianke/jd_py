@@ -15,7 +15,7 @@ from utils.console import println
 from utils.logger import logger
 from utils.process import process_start
 from utils.notify import notify
-from config import USER_AGENT, JD_PLANTING_CODE
+from config import USER_AGENT, JD_PLANTING_BEAN_CODE
 
 
 def println_task(func=None):
@@ -73,6 +73,7 @@ class JdPlantingBean:
         self._task_list = None  # 任务列表
         self._nickname = None  # 京东昵称
         self._message = ''
+        self._share_code = None
 
     async def post(self, session, function_id, params=None):
         """
@@ -103,7 +104,7 @@ class JdPlantingBean:
         except Exception as e:
             logger.error('{}, 种豆得豆访问服务器失败:[function_id={}], 错误信息:{}'.format(self._account, function_id, e.args))
 
-    async def get(self, session, function_id, body=None):
+    async def get(self, session, function_id, body=None, wait_time=1):
         """
         :param session:
         :param function_id:
@@ -122,7 +123,8 @@ class JdPlantingBean:
             response = await session.get(url=url)
             text = await response.text()
             data = json.loads(text)
-            await asyncio.sleep(1)
+            if wait_time > 0:
+                await asyncio.sleep(1)
             return data
 
         except Exception as e:
@@ -136,7 +138,7 @@ class JdPlantingBean:
 
         if not data or data['code'] != '0' or 'errorMessage' in data:
             println('{},访问种豆得豆首页失败, 退出程序！错误原因:{}'.format(self._account, data))
-            return
+            return False
         data = data['data']
 
         round_list = data['roundList']
@@ -148,6 +150,7 @@ class JdPlantingBean:
         self._message += f"【京东昵称】:{data['plantUserInfo']['plantNickName']}\n"
         self._message += f'【上期时间】:{round_list[0]["dateDesc"].replace("上期 ", "")}\n'
         self._message += f'【上期成长值】:{round_list[0]["growth"]}\n'
+        return True
 
     async def receive_nutrient(self, session):
         """
@@ -358,20 +361,19 @@ class JdPlantingBean:
         data = await self.post(session, 'receiveNutrientsTask', {"awardType": '7'})
         println('{}, {}:{}'.format(self._account, task['taskName'], data))
 
-    async def get_share_code(self, session):
+    async def get_share_code(self):
         """
         获取当前账号的助力码
         :return:
         """
-        data = await self.get(session, 'plantSharePageIndex', {'roundId': ''})
-
-        share_code = ''
-
-        if data['code'] == '0':
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+            data = await self.get(session, 'plantSharePageIndex', {'roundId': ''}, wait_time=0)
+            if data['code'] != '0':
+                return None
             share_url = furl(data['data']['jwordShareInfo']['shareUrl'])
             share_code = share_url.args.get('plantUuid', '')
-        println('{} 助力码:{}'.format(self._account, share_code))
-        return share_code
+            println('{} 助力码:{}'.format(self._account, share_code))
+            return share_code
 
     @println_task
     async def help_friend_task(self, session, task):
@@ -382,9 +384,8 @@ class JdPlantingBean:
         :return:
         """
         println('开始助力{}的好友, 如有剩余助力将助力作者!'.format(self._account))
-        my_share_code = await self.get_share_code(session)  # 获取当前账号助力码
-        for planting_code in JD_PLANTING_CODE:
-            if my_share_code == planting_code:  # 跳过自己的助力码
+        for planting_code in JD_PLANTING_BEAN_CODE:
+            if self._share_code == planting_code:  # 跳过自己的助力码
                 continue
             println('{}, 开始助力好友:{}'.format(self._account, planting_code))
             body = {
@@ -496,7 +497,11 @@ class JdPlantingBean:
         :return:
         """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
-            await self.planting_bean_index(session)
+            is_success = await self.planting_bean_index(session)
+            if not is_success:
+                println('{}, 无法获取活动数据!'.format(self._account))
+                return
+            self._share_code = await self.get_share_code()  # 获取当前账号助力码
             await self.receive_nutrient(session)
             await self.do_tasks(session)
             await self.get_friend_nutriments(session)

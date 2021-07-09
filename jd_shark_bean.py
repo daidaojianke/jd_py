@@ -71,7 +71,7 @@ class JdSharkBean:
             await asyncio.sleep(1)
             return data
         except Exception as e:
-            logger.add(e.args)
+            logger.info(e.args)
 
     async def get_index_data(self, session):
         """

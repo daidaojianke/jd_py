@@ -694,6 +694,18 @@ class JdFarm:
                 println('{}, 浇水失败, 不再浇水!'.format(self._pt_pin))
                 break
 
+    async def get_share_code(self):
+        """
+        获取助力码
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+            farm_info = await self.init_for_farm(session=session)
+            if not farm_info:
+                return None
+            println('{}, 助力码:{}'.format(self._pt_pin, farm_info['shareCode']))
+            return farm_info['shareCode']
+
     async def notify_result(self, session):
         """
         通知结果

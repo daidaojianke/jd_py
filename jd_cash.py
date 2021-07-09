@@ -11,7 +11,7 @@ import json
 from urllib.parse import quote, unquote
 from utils.console import println
 from utils.process import process_start
-from config import JD_CASH_SHARE_CODE
+from config import JD_CASH_CODE
 
 
 class JdCash:
@@ -94,6 +94,21 @@ class JdCash:
             println('{}, 获取任务列表失败:{}!'.format(self._pt_pin, e.args))
             return []
 
+    async def get_share_code(self):
+        """
+        获取助力码
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+            data = await self.request(session, 'cash_mob_home')
+            if data['code'] != 0 or data['data']['bizCode'] != 0:
+                return None
+            else:
+                data = data['data']['result']
+                share_code = data['inviteCode'] + '@' + data['shareDate']
+            println('{}, 助力码:{}'.format(self._pt_pin, share_code))
+            return share_code
+
     async def init(self, session):
         """
         获取首页数据
@@ -167,7 +182,7 @@ class JdCash:
         :return:
         """
         session.headers.add('Referer', 'https://h5.m.jd.com/babelDiy/Zeus/GzY6gTjVg1zqnQRnmWfMKC4PsT1/index.html')
-        for code in JD_CASH_SHARE_CODE:
+        for code in JD_CASH_CODE:
             if code == self._code:
                 continue
             await asyncio.sleep(1)

@@ -10,16 +10,16 @@ import time
 import asyncio
 import json
 
-from urllib.parse import unquote, urlencode, quote
+from urllib.parse import unquote, quote
 from furl import furl
-from config import USER_AGENT, JD_MONEY_TREE_SHARE_PIN
+from config import USER_AGENT, JR_MONEY_TREE_CODE
 
 from utils.console import println
 from utils.notify import notify
 from utils.process import process_start
 
 
-class JdMoneyTree:
+class JrMoneyTree:
     """
     金果摇钱树
     """
@@ -47,7 +47,7 @@ class JdMoneyTree:
         self._nickname = None
         self._tree_name = None
         self._tree_level = None
-        self._share_pin = None
+        self._code = None
         self._user_id = None
         self._user_token = None
         self._fruit = 0  # 金果数量
@@ -105,9 +105,21 @@ class JdMoneyTree:
         """
         return await self.request(session, path, params, 'get')
 
-    async def login(self, session):
+    async def get_share_code(self):
+        """
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+            success = await self.login(session, output=False)
+            if not success:
+                return None
+            println('{}, 助力码:{}'.format(self._pt_pin, self._code))
+            return self._pt_pin
+
+    async def login(self, session, output=True):
         """
         获取用户信息
+        :param output:
         :param session:
         :return:
         """
@@ -121,19 +133,22 @@ class JdMoneyTree:
         data = await self.post(session, 'login', params)
 
         if not data or data['code'] != '200':
-            println('{}, 无法获取用户数据!'.format(self._pt_pin))
+            if output:
+                println('{}, 无法获取用户数据!'.format(self._pt_pin))
             return False
 
         data = data['data']
 
-        if not data['realName']:
-            println('{}运行失败, 此账号未实名认证或者未参与过此活动: \n  ①如未参与活动,请先去京东app参加摇钱树活动入口：我的->游戏与互动->查看更多\n  '
-                    '②如未实名认证,请进行实名认证!'.format(self._pt_pin))
+        if 'realName' not in data or not data['realName']:
+            if output:
+                println('{}运行失败, 此账号未实名认证或者未参与过此活动: \n  ①如未参与活动,请先去京东app参加摇钱树活动入口：我的->游戏与互动->查看更多\n  '
+                        '②如未实名认证,请进行实名认证!'.format(self._pt_pin))
+            return False
 
         self._nickname = data['nick']
         self._tree_name = data['treeInfo']['treeName']
         self._tree_level = data['treeInfo']['level']
-        self._share_pin = data['sharePin']
+        self._code = data['sharePin']
         self._user_id = data['userInfo']
         self._user_token = data['userToken']
         self._fruit = data['treeInfo']['fruit']
@@ -256,7 +271,7 @@ class JdMoneyTree:
         """
         params = {
             "source": 0,
-            "sharePin": self._share_pin,
+            "sharePin": self._code,
             "userId": self._user_id,
             "userToken": self._user_token,
             "shareType": "1",
@@ -296,16 +311,16 @@ class JdMoneyTree:
         :param session:
         :return:
         """
-        share_pin_list = []
-        for share_pin in JD_MONEY_TREE_SHARE_PIN:
-            if share_pin == self._share_pin:
+        code_list = []
+        for code in JR_MONEY_TREE_CODE:
+            if code == self._code:
                 continue
-            share_pin_list.append(share_pin)
+            code_list.append(code)
 
         # 随机帮一名好友打工
-        share_pin = random.choice(share_pin_list)
+        code = random.choice(code_list)
         params = {
-            "sharePin": share_pin,
+            "sharePin": code,
             "shareType": "1",
             "channelLV": "",
             "source": 0,
@@ -404,7 +419,7 @@ def start(pt_pin, pt_key):
     :param pt_key:
     :return:
     """
-    app = JdMoneyTree(pt_pin, pt_key)
+    app = JrMoneyTree(pt_pin, pt_key)
     asyncio.run(app.run())
 
 

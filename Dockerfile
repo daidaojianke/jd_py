@@ -19,7 +19,6 @@ RUN set -ex \
     && git clone -b $REPO_BRANCH $REPO_URL $CODE_DIR \
     && mkdir -p /root/.pip \
     && echo -e $PIP_REPO > /root/.pip/pip.conf \
-    && mkdir $CODE_DIR/logs \
     && pip install --upgrade pip \
     && pip install -r $CODE_DIR/requirements.txt \
     && rm -rf ~/.cache/pip \

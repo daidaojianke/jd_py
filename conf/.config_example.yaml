@@ -9,14 +9,14 @@ jd_cookies:
   - pt_pin=;pt_key=;
 
 # 种豆得豆助力码
-jd_planting_code:
+jd_planting_bean_code:
   # 一行一个, 顺序无所谓。
-  - xxx
+- null
 
 
 # 京东->东东农场互助吗
 jd_farm_code:
-  - xxx
+- null
 
 # 东东农场是否使用水滴换豆卡, 100水滴换20京豆
 jd_farm_bean_card: false
@@ -26,27 +26,16 @@ jd_farm_retain_water: 80
 
 
 # 金果摇钱树邀请码
-jd_money_tree_share_pin:
-  - xxx
-
+jd_money_tree_code:
+- null
 
 # 东东工厂互助码
-jd_factory_share_code:
-  - Txxx
+jd_factory_code:
+- null
 
-
-# 京喜农场互助码
-jx_farm_share_code:
-  - xxxx
-
-# 京喜工厂互助码
-jx_factory_share_code:
-  - xxx
-
-
-# 闪购盲盒互助码
-jd_sgmh_share_code:
-  - xxx
+# 签到领现金助力码
+jd_cash_code:
+  - null
 
 # 消息通知
 notify:

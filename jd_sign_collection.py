@@ -125,7 +125,6 @@ class JdSignCollection:
             response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据: {}'.format(name, data))
 
             if data['code'] != 0:
                 message = data['data']['bizMsg'].replace('\n', ',')
@@ -172,7 +171,7 @@ class JdSignCollection:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据: {}'.format(name, data))
+
             if data['resultCode'] != 0:
                 self._result.append({
                     'name': name,
@@ -214,7 +213,6 @@ class JdSignCollection:
             response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
 
             if data['code'] != '0':
                 self._result.append({
@@ -613,8 +611,6 @@ class JdSignCollection:
             response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
-
-            logger.info('{}, 数据: {}'.format(name, data))
 
             if data['status']:
                 self._result.append({

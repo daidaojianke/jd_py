@@ -30,12 +30,14 @@
 - 配置好JD_COOKIES, 随便运行一个脚本检查配置, 如: `python jd_shark_bean.py`.
 
 
-## 京东活动脚本列表
+## 脚本列表
 
 
 | 脚本名称                  | 脚本描述            | 完成进度 |
 |:---:|:---:|:---:|
 | jd_big_winner.py      | 京东极速版->省钱大赢家翻翻乐 | 100%（活动已过期） |
+| update_config.py      | 更新配置文件, 每次更新脚本会自动执行一次 | 100% |
+| update_share_code.py  | 更新助力码, 定时任务每天凌晨自动执行一次| 100%|
 | jd_bean_change.py      | 资产变动通知 | 100% |
 | get_jd_cookies.py     | 获取京东的COOKIES    | 100%      |
 | jd_cute_pet.py        | 京东APP->东东萌宠     | 100%        |
@@ -57,3 +59,5 @@
 | jx_factory.py | 京喜APP->京喜工厂 | 0% |
 | jx_farm.py | 京喜APP->京喜农场| 0% |
 | jd_esports_manager.py | 京东APP->电竞经理     | 0%        |
+
+

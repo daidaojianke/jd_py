@@ -13,7 +13,7 @@ from utils.console import println
 from utils.notify import notify
 from utils.process import process_start
 
-from config import USER_AGENT, JD_FACTORY_SHARE_CODE
+from config import USER_AGENT, JD_FACTORY_CODE
 
 
 class JdFactory:
@@ -133,7 +133,7 @@ class JdFactory:
         :return:
         """
         println('{}, 正在帮好友助力!'.format(self._pt_pin))
-        for code in JD_FACTORY_SHARE_CODE:
+        for code in JD_FACTORY_CODE:
             if code == self._code:
                 continue
             params = {
@@ -142,6 +142,26 @@ class JdFactory:
             data = await self.request(session, 'jdfactory_collectScore', params)
 
             println('{}, 助力好友{}, {}'.format(self._pt_pin, code, data['bizMsg']))
+
+    async def get_share_code(self):
+        """
+        获取助力码
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+            data = await self.request(session, 'jdfactory_getTaskDetail')
+
+            if not data or data['bizCode'] != 0:
+                return None
+
+            task_list = data['result']['taskVos']
+
+            for task in task_list:
+                if task['taskType'] == 14:  # 互助码
+                    code = task['assistTaskDetailVo']['taskToken']
+                    println('{}, 助力码:{}'.format(self._pt_pin, code))
+                    return code
+            return None
 
     async def collect_electricity(self, session):
         """

@@ -8,7 +8,7 @@ import aiohttp
 import asyncio
 import json
 from datetime import datetime
-from config import USER_AGENT, JD_CUTE_PET_SHARE_CODE
+from config import USER_AGENT, JD_CUTE_PET_CODE
 from urllib.parse import unquote, quote
 from utils.console import println
 from utils.notify import notify
@@ -43,8 +43,9 @@ class JdCutePet:
         self._invite_code = None  # 邀请码
         self._notify_message = '【活动名称】东东萌宠\n【京东账号】{}\n'.format(self._pt_pin)
 
-    async def request(self, session, function_id, body=None):
+    async def request(self, session, function_id, body=None, wait_time=3):
         """
+        :param wait_time:
         :param session:
         :param function_id:
         :param body:
@@ -54,14 +55,17 @@ class JdCutePet:
             body = {}
         body["version"] = 2
         body["channel"] = 'app'
-        url = 'https://api.m.jd.com/client.action?functionId={}'.format(function_id)
-        body = 'body={}&appid=wh5&loginWQBiz=pet-town&clientVersion=9.0.4'.format(quote(json.dumps(body)))
+        url = 'https://api.m.jd.com/client.action?functionId={}' \
+              '&body={}&appid=wh5&loginWQBiz=pet-town&clientVersion=9.0.4'.format(function_id, quote(json.dumps(body)))
         try:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            println('{}, 等待3秒后操作， 避免操作频繁!'.format(self._pt_pin))
-            await asyncio.sleep(3)
+
+            if wait_time > 0:
+                println('{}, 等待{}秒后操作， 避免操作频繁!'.format(self._pt_pin, wait_time))
+                await asyncio.sleep(wait_time)
+
             if data['code'] != '0':
                 return {
                     'resultCode': '-500',
@@ -82,7 +86,7 @@ class JdCutePet:
         :param session:
         :return:
         """
-        for code in JD_CUTE_PET_SHARE_CODE:
+        for code in JD_CUTE_PET_CODE:
             if code == self._share_code:
                 continue
             data = await self.request(session, 'slaveHelp', {
@@ -92,6 +96,18 @@ class JdCutePet:
                 println('{}, 无法助力好友:{}, {}!'.format(self._pt_pin, code, data['message']))
             else:
                 println('{}, 成功助力好友:{}!'.format(self._pt_pin, data['masterNickName']))
+
+    async def get_share_code(self):
+        """
+        获取助力码
+        :return:
+        """
+        async with aiohttp.ClientSession(cookies=self._cookies, headers=self._cookies) as session:
+            data = await self.request(session, 'initPetTown', wait_time=0)
+            if data['resultCode'] != '0':
+                return None
+            println('{}, 助力码:{}'.format(self._pt_pin, data['shareCode']))
+            return data['shareCode']
 
     async def init(self, session):
         """
