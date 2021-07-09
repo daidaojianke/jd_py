@@ -10,7 +10,7 @@ import asyncio
 import json
 from urllib.parse import quote, unquote
 from utils.console import println
-
+from utils.process import process_start
 from config import JD_CASH_SHARE_CODE
 
 
@@ -107,40 +107,45 @@ class JdCash:
         self._code = data['inviteCode'] + '@' + data['shareDate']
         return True
 
-    async def do_tasks(self, session, task_list):
+    async def do_tasks(self, session, times=3):
         """
         做任务
-        :param task_list:
+        :param times:
         :param session:
         :return:
         """
+        if times <= 0:
+            return
+
+        task_list = await self.get_task_list(session)
         for task in task_list:
             if task['finishFlag'] == 1:
                 println('{}, 任务:《{}》, 今日已完成!'.format(self._pt_pin, task['name']))
                 continue
-            for i in range(task['doTimes'], task['times']):
-                if task['type'] == 4:
-                    task_info = task['jump']['params']['skuId']
-                elif task['type'] == 7:
-                    task_info = 1
-                elif task['type'] == 2:
-                    task_info = task['jump']['params']['shopId']
-                elif task['type'] in [16, 3, 5, 17, 21]:
-                    task_info = task['jump']['params']['url']
-                else:
-                    println('{}, 跳过任务:《{}》!'.format(self._pt_pin, task['name']))
-                    continue
+            if task['type'] == 4:
+                task_info = task['jump']['params']['skuId']
+            elif task['type'] == 7:
+                task_info = 1
+            elif task['type'] == 2:
+                task_info = task['jump']['params']['shopId']
+            elif task['type'] in [16, 3, 5, 17, 21]:
+                task_info = task['jump']['params']['url']
+            else:
+                println('{}, 跳过任务:《{}》!'.format(self._pt_pin, task['name']))
+                continue
 
-                println('{}, 正在进行任务:《{}》, 进度:{}/{}!'.format(self._pt_pin, task['name'], task['doTimes'], task['times']))
-                res = await self.request(session, 'cash_doTask', {
-                    'type': task['type'],
-                    'taskInfo': task_info
-                })
-                await asyncio.sleep(0.2)
-                if res['code'] != 0 or res['data']['bizCode'] != 0:
-                    println('{}, 任务:《{}》完成失败!'.format(self._pt_pin, task['name']))
-                else:
-                    println('{}, 成功完成任务:《{}》!'.format(self._pt_pin, task['name']))
+            println('{}, 正在进行任务:《{}》, 进度:{}/{}!'.format(self._pt_pin, task['name'], task['doTimes'], task['times']))
+            res = await self.request(session, 'cash_doTask', {
+                'type': task['type'],
+                'taskInfo': task_info
+            })
+            await asyncio.sleep(1)
+
+            if res['code'] != 0 or res['data']['bizCode'] != 0:
+                println('{}, 任务:《{}》完成失败, {}!'.format(self._pt_pin, task['name'], res['data']['bizMsg']))
+            else:
+                println('{}, 成功完成任务:《{}》!'.format(self._pt_pin, task['name']))
+        await self.do_tasks(session, times-1)
 
     async def get_award(self, session):
         """
@@ -191,8 +196,7 @@ class JdCash:
                 println('{}, 无法初始化数据, 退出程序!'.format(self._pt_pin))
                 return
             await self.help_friend(session)
-            task_list = await self.get_task_list(session)
-            await self.do_tasks(session, task_list)
+            await self.do_tasks(session)
             await self.get_award(session)
 
 
@@ -208,6 +212,4 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-
-    start(*JD_COOKIES[0].values())
+    process_start(start, '签到领现金')
