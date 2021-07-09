@@ -12,7 +12,7 @@ from datetime import datetime
 import aiohttp
 import json
 
-from urllib.parse import unquote
+from urllib.parse import unquote, quote
 from utils.console import println
 from config import USER_AGENT, JD_FARM_CODE, JD_FARM_BEAN_CARD, JD_FARM_RETAIN_WATER
 from utils.notify import notify
@@ -60,7 +60,7 @@ class JdFarm:
                 body['channel'] = 1
 
             url = 'https://api.m.jd.com/client.action?functionId={}&body={}&appid=wh5'.format(function_id,
-                                                                                              json.dumps(body))
+                                                                                              quote(json.dumps(body)))
             response = await session.get(url=url)
             data = await response.json()
             await asyncio.sleep(0.5)
@@ -239,14 +239,18 @@ class JdFarm:
                 println('{}, 打卡结果{}'.format(self._pt_pin, data))
                 if data['signDay'] == 7:
                     println('{}, 开始领取--惊喜礼包!'.format(self._pt_pin))
-                    gift_data = await self.request(session, 'clockInForFarm', {"type": 2, "version": 14,
-                                                                               "channel": 1, "babelChannel": "121"})
+                    gift_data = await self.request(session, 'clockInForFarm', {"type": 2})
                     println('{}, 惊喜礼包获得{}g水滴!'.format(self._pt_pin, gift_data['amount']))
 
         if res['todaySigned'] and res['totalSigned'] == 7:  # 签到七天领惊喜礼包
             println('{}, 开始领取--惊喜礼包!'.format(self._pt_pin))
-            gift_data = await self.request(session, 'gotClockInGift', {'type': 2})
-            println('{}, 惊喜礼包获得{}g水滴!'.format(self._pt_pin, gift_data['amount']))
+            gift_data = await self.request(session, 'clockInForFarm', {"type": 2})
+            if gift_data['code'] == '7':
+                println('{}, 领取惊喜礼包失败, 已领取过!'.format(self._pt_pin))
+            elif gift_data['code'] == '0':
+                println('{}, 惊喜礼包获得{}g水滴!'.format(self._pt_pin, gift_data['amount']))
+            else:
+                println('{}, 领取惊喜礼包失败, 原因未知!'.format(self._pt_pin))
 
         if res['themes'] and len(res['themes']) > 0:  # 限时关注得水滴
             for item in res['themes']:
