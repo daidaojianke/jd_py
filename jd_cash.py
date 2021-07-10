@@ -24,7 +24,7 @@ class JdCash:
         'Host': 'api.m.jd.com',
         'Connection': 'keep-alive',
         'Content-Type': 'application/json',
-        'Referer': 'http://wq.jd.com/wxapp/pages/hd-interaction/index/index',
+        'Referer': 'https://wq.jd.com/wxapp/pages/hd-interaction/index/index',
     }
 
     def __init__(self, pt_pin, pt_key):
@@ -41,6 +41,7 @@ class JdCash:
 
     async def request(self, session, function_id, body=None):
         """
+        :param session:
         :param function_id:
         :param body:
         :return:
@@ -100,7 +101,7 @@ class JdCash:
         :return:
         """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
-            data = await self.request(session, 'cash_mob_home')
+            data = await self.request(session, 'cash_getJDMobShareInfo', {"source": 2})
             if data['code'] != 0 or data['data']['bizCode'] != 0:
                 return None
             else:
@@ -146,6 +147,7 @@ class JdCash:
             elif task['type'] in [16, 3, 5, 17, 21]:
                 task_info = task['jump']['params']['url']
             else:
+                println(task['type'])
                 println('{}, 跳过任务:《{}》!'.format(self._pt_pin, task['name']))
                 continue
 
@@ -160,7 +162,7 @@ class JdCash:
                 println('{}, 任务:《{}》完成失败, {}!'.format(self._pt_pin, task['name'], res['data']['bizMsg']))
             else:
                 println('{}, 成功完成任务:《{}》!'.format(self._pt_pin, task['name']))
-        await self.do_tasks(session, times-1)
+        await self.do_tasks(session, times - 1)
 
     async def get_award(self, session):
         """
@@ -186,13 +188,11 @@ class JdCash:
             if code == self._code:
                 continue
             await asyncio.sleep(1)
+            println(code, self._code)
             invite_code, share_date = code.split('@')
-            url = 'https://api.m.jd.com/client.action?functionId=cash_mob_assist&body={}&appid=CashReward&client=m' \
-                  '&clientVersion=9.2.8'.format(quote(json.dumps({"inviteCode": invite_code,
-                                                                  "shareDate": share_date, "source": 3})))
-            response = await session.post(url)
-            text = await response.text()
-            data = json.loads(text)
+
+            data = await self.request(session, 'cash_mob_assist', {"inviteCode": invite_code,
+                                                                   "shareDate": share_date, "source": 2})
             if data['code'] != 0 or data['data']['bizCode'] != 0:
                 println('{}, 助力好友:{}失败, {}！'.format(self._pt_pin, invite_code, data['data']['bizMsg']))
                 if data['data']['bizCode'] == 206:  # 助力次数用完

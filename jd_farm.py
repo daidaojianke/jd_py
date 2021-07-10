@@ -736,6 +736,16 @@ class JdFarm:
         println('\n')
         println(message)
 
+    async def got_water(self, session):
+        """
+        领取水滴
+        :param session:
+        :return:
+        """
+        data = await self.request(session, 'gotWaterGoalTaskForFarm',
+                                  {"type": 3, "version": 14,"channel": 1,"babelChannel": 0})
+        println('{}, 领取水滴:{}!'.format(self._pt_pin, data))
+
     async def run(self):
         """
         :return:
@@ -745,7 +755,7 @@ class JdFarm:
             if not self._farm_info:
                 println('{}, 无法获取农场数据, 退出程序!'.format(self._pt_pin))
                 return
-
+            await self.got_water(session)  # 领水滴
             await self.help_friend(session)  # 助力好友
             await self.do_daily_task(session)  # 每日任务
             await self.do_ten_water(session)  # 浇水十次

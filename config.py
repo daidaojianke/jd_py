@@ -84,7 +84,7 @@ JD_FACTORY_CODE = list(set(cfg.get('jd_factory_code') if cfg.get('jd_factory_cod
 JD_CUTE_PET_CODE = list(set(cfg.get('jd_cute_pet_code') if cfg.get('jd_cute_pet_code') else []))
 
 # 京东领现金互助码
-JD_CASH_CODE = list(set(cfg.get('jd_cash_share_code') if cfg.get('jd_cash_share_code') else []))
+JD_CASH_CODE = list(set(cfg.get('jd_cash_code') if cfg.get('jd_cash_code') else []))
 
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)

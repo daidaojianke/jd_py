@@ -88,7 +88,10 @@ class UpdateShareCode:
 
         for key, val in code_func_map.items():
             code_list = await cls.get_share_code(val['cls'], val['name'])
-            cfg[key] = list(set([i for i in (cfg.get(key, []) + code_list) if i]))
+            if key == 'jd_cash_code':
+                cfg[key] = list(set(code_list))
+            else:
+                cfg[key] = list(set([i for i in (cfg.get(key, []) + code_list) if i]))
 
         println('助力获取完成, 准备写入配置文件: {}中...'.format(CONF_PATH))
         update_config(cfg, copy.copy(cfg))
