@@ -69,5 +69,8 @@
 # 签到领现金
 46 8,12,16 * * * /usr/local/bin/python /scripts/jd_cash.py >> /scripts/logs/jd_cash.log 2>&1
 
+# 燃动夏季
+30 7,15,19 * * * /usr/local/bin/python /scripts/jd_burning_summer.py >> /scripts/logs/jd_burning_summer.log 2>&1
+
 ### 每天16点执行一次更新
 0 16 * * * /docker-entrypoint.sh  >> /dev/null  2>&1
