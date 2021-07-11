@@ -15,7 +15,7 @@
 - 获取JD_COOKIES: `python get_jd_cookies.py`, 扫描登录成功后控制台会打印JD_COOKIES.
 
 
-- vim /jd_scripts/conf/config.yaml, 填入上一步获取的JD_COOKIES。
+- vim /scripts/conf/config.yaml, 填入上一步获取的JD_COOKIES。
 
     ```yaml
     debug: true
