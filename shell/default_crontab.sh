@@ -72,5 +72,8 @@
 # 燃动夏季
 30 7,15,19 * * * /usr/local/bin/python /scripts/jd_burning_summer.py >> /scripts/logs/jd_burning_summer.log 2>&1
 
+# 众筹许愿池
+45 8,10,14,16,18 * * * /usr/local/bin/python /scripts/jd_wishing_pool.py >> /scripts/logs/jd_wishing_pool.log 2>&1
+
 ### 每天16点执行一次更新
 0 16 * * * /docker-entrypoint.sh  >> /dev/null  2>&1

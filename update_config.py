@@ -33,6 +33,7 @@ def update_config(old_cfg=None, new_cfg=None):
         'tg_user_id': '# TG用户ID',
         'jd_farm_bean_card': '# 是否使用水滴换豆卡, 100水滴换20京豆',
         'jd_farm_retain_water': '# 每日保留水滴, 默认80g， 用于完成第二天的10次浇水任务',
+        'jd_wishing_pool_code':  '# 众筹许愿池'
     }
     if not old_cfg:
         # 加载配置文件

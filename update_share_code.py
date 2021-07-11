@@ -19,6 +19,7 @@ from jd_factory import JdFactory
 from jd_cute_pet import JdCutePet
 from jd_farm import JdFarm
 from jr_money_tree import JrMoneyTree
+from jd_wishing_pool import JdWishingPool
 
 
 class UpdateShareCode:
@@ -81,6 +82,10 @@ class UpdateShareCode:
             'jr_money_tree_code': {
                 'cls': JrMoneyTree,
                 'name': '金果摇钱树',
+            },
+            'jd_wishing_pool_code': {
+                'cls': JdWishingPool,
+                'name': '众筹许愿池'
             }
 
         }
