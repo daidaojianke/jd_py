@@ -36,7 +36,6 @@
 | 脚本名称                  | 脚本描述            | 完成进度 |
 |:---:|:---:|:---:|
 | jd_big_winner.py      | 京东极速版->省钱大赢家翻翻乐 | 100%（活动已过期） |
-| update_config.py      | 更新配置文件, 每次更新脚本会自动执行一次 | 100% |
 | update_share_code.py  | 更新助力码, 定时任务每天凌晨自动执行一次| 100%|
 | jd_bean_change.py      | 资产变动通知 | 100% |
 | get_jd_cookies.py     | 获取京东的COOKIES    | 100%      |
