@@ -46,7 +46,8 @@ def update_config(old_cfg=None, new_cfg=None):
 
     for key, val in new_cfg.items():
         if key in old_cfg:
-            continue
+            if new_cfg[key] != old_cfg[key]:
+                old_cfg[key] = new_cfg[key]
         else:
             old_cfg[key] = new_cfg[key]  # 否则加入到旧配置文件中
 
