@@ -244,5 +244,5 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-    start(*JD_COOKIES[0].values())
+    from utils.process import process_start
+    process_start(start, '资产变动通知')

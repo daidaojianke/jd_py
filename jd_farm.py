@@ -63,7 +63,7 @@ class JdFarm:
                                                                                               quote(json.dumps(body)))
             response = await session.get(url=url)
             data = await response.json()
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(1)
             return data
         except Exception as e:
             println('{}, 获取服务器数据错误:{}'.format(self._pt_pin, e.args))
@@ -585,7 +585,9 @@ class JdFarm:
                 "shareCode": code,
                 "babelChannel": "3"
             })
-
+            if 'helpResult' not in res:
+                println('{}, 助力好友状态未知~'.format(self._pt_pin))
+                continue
             if res['helpResult']['code'] == '0':
                 println('{}, 已成功给【{}】助力!'.format(self._pt_pin, res['helpResult']['masterUserInfo']['nickName']))
                 println('{}, 给好友【{}】助力获得{}g水滴'.format(self._pt_pin, res['helpResult']['masterUserInfo']['nickName'],
@@ -743,7 +745,7 @@ class JdFarm:
         :return:
         """
         data = await self.request(session, 'gotWaterGoalTaskForFarm',
-                                  {"type": 3, "version": 14,"channel": 1,"babelChannel": 0})
+                                  {"type": 3, "version": 14, "channel": 1, "babelChannel": 0})
         println('{}, 领取水滴:{}!'.format(self._pt_pin, data))
 
     async def run(self):
@@ -755,7 +757,6 @@ class JdFarm:
             if not self._farm_info:
                 println('{}, 无法获取农场数据, 退出程序!'.format(self._pt_pin))
                 return
-            await self.got_water(session)  # 领水滴
             await self.help_friend(session)  # 助力好友
             await self.do_daily_task(session)  # 每日任务
             await self.do_ten_water(session)  # 浇水十次
@@ -764,6 +765,7 @@ class JdFarm:
             await self.get_water_friend_award(session)  # 领取给好友浇水的奖励
             await self.click_duck(session)  # 点鸭子任务
             await self.do_ten_water_again(session)  # 再次浇水
+            await self.got_water(session)  # 领水滴
             await self.notify_result(session)  # 结果通知
 
 

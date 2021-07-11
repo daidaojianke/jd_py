@@ -45,12 +45,8 @@ def update_config(old_cfg=None, new_cfg=None):
             new_cfg = yaml.safe_load(f)
 
     for key, val in new_cfg.items():
-        if key in old_cfg:  # 如果在旧配置文件存在的配置跳过
-            if type(old_cfg[key]) == list:
-                old_cfg[key].extend(new_cfg[key])
-                old_cfg[key] = list(set(old_cfg[key]))
-            else:
-                continue
+        if key in old_cfg:
+            continue
         else:
             old_cfg[key] = new_cfg[key]  # 否则加入到旧配置文件中
 
@@ -58,8 +54,9 @@ def update_config(old_cfg=None, new_cfg=None):
         if key not in new_cfg:
             old_cfg.pop(key)
 
-    # # 去掉非法的cookies
-    # old_cfg['jd_cookies'] = JD_COOKIES
+    old_cfg['jd_cookies'] = []
+    for cookie in JD_COOKIES:
+        old_cfg['jd_cookies'].append('pt_pin={};pt_key={};'.format(cookie['pt_pin'], cookie['pt_key']))
 
     # 备份配置文件
     shutil.copy(CONF_PATH, BAK_CONFIG_PATH)
@@ -67,8 +64,6 @@ def update_config(old_cfg=None, new_cfg=None):
     # 利用yaml模块写入到配置文件
     with open(CONF_PATH, 'w', encoding='utf-8-sig') as f:
         yaml.dump(old_cfg, stream=f, sort_keys=False)
-
-
 
     # 重新读取并为配置添加注释
     cfg_text = ''

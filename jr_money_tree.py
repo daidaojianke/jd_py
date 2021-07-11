@@ -114,7 +114,7 @@ class JrMoneyTree:
             if not success:
                 return None
             println('{}, 助力码:{}'.format(self._pt_pin, self._code))
-            return self._pt_pin
+            return self._code
 
     async def login(self, session, output=True):
         """

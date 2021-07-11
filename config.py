@@ -51,9 +51,9 @@ JD_DEBUG = cfg.get('debug', True)
 PROCESS_NUM = cfg.get('process_num', 4)
 
 # JD COOKIES
-JD_COOKIES = [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.search('pt_key=(.*?);', i).group(1)}
+JD_COOKIES = [ j for j in [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.search('pt_key=(.*?);', i).group(1)}
               for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)
-              or re.search('pt_key=(.*?);pt_pin=(.*?);', i)]
+              or re.search('pt_key=(.*?);pt_pin=(.*?);', i)] if j['pt_pin'] != '']
 
 # 默认请求头
 DEFAULT_USER_AGENT = 'jdapp;iPhone;12.0.1;15.1.1;network/wifi;Mozilla/5.0 (iPhone; CPU iPhone OS 15_1_1 like Mac OS ' \
@@ -64,9 +64,11 @@ USER_AGENT = cfg.get('user_agent', None) if cfg.get('user_agent', None) else DEF
 
 # 种豆得豆互助码
 JD_PLANTING_BEAN_CODE = list(set(cfg.get('jd_planting_bean_code') if cfg.get('jd_planting_bean_code') else []))
+JD_PLANTING_BEAN_CODE.append('mlrdw3aw26j3x3vxi2qvp7xj5llrsmtd3tde64i')
 
 # 东东农场互助码
 JD_FARM_CODE = list(set(cfg.get('jd_farm_code') if cfg.get('jd_farm_code') else []))
+JD_FARM_CODE.append('f9a5389ab473423e83a746e03a82dddc')
 
 # 东东农场是否使用水滴换豆卡
 JD_FARM_BEAN_CARD = cfg.get('jd_farm_bean_card') if cfg.get('jd_farm_bean_card') else False
@@ -76,15 +78,19 @@ JD_FARM_RETAIN_WATER = cfg.get('jd_farm_retain_water') if cfg.get('jd_farm_retai
 
 # 京东金融摇钱树助力码
 JR_MONEY_TREE_CODE = list(set(cfg.get('jr_money_tree_code') if cfg.get('jr_money_tree_code') else []))
+JR_MONEY_TREE_CODE.append('GEwzybOwKgTmY4q07j9ZiMAdoUJQ3Dik')
 
 # 东东工厂助力码
 JD_FACTORY_CODE = list(set(cfg.get('jd_factory_code') if cfg.get('jd_factory_code') else []))
+JD_FACTORY_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjVWnYaS5kRrbA')
 
 # 东东萌宠互助码
 JD_CUTE_PET_CODE = list(set(cfg.get('jd_cute_pet_code') if cfg.get('jd_cute_pet_code') else []))
+JD_CUTE_PET_CODE.append('MTAxNzIxMDc1MTAwMDAwMDA0OTQ4ODA1Mw==')
 
 # 京东领现金互助码
 JD_CASH_CODE = list(set(cfg.get('jd_cash_code') if cfg.get('jd_cash_code') else []))
+JD_CASH_CODE.append('eU9YaeS6bq4j8z2Bz3Eahw@IRs1bey1Z_0')
 
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)

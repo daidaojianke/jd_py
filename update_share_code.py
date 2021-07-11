@@ -42,7 +42,7 @@ class UpdateShareCode:
             if not share_code:
                 continue
             code_map[i] = share_code
-        sorted(code_map.items(), key=lambda kv: (kv[1], kv[0]))
+        # sorted(code_map.items(), key=lambda kv: (kv[1], kv[0]))
         code_list = list(code_map.values())
         println('获取《{}》助力码完成...\n'.format(name))
         return code_list
@@ -88,10 +88,11 @@ class UpdateShareCode:
 
         for key, val in code_func_map.items():
             code_list = await cls.get_share_code(val['cls'], val['name'])
-            if key == 'jd_cash_code':
-                cfg[key] = list(set(code_list))
-            else:
-                cfg[key] = list(set([i for i in (cfg.get(key, []) + code_list) if i]))
+            cfg[key] = code_list
+            # if key == 'jd_cash_code':
+            #     cfg[key] = list(set(code_list))
+            # else:
+            #     cfg[key] = list(set([i for i in (cfg.get(key, []) + code_list) if i is not None and i != 'null']))
 
         println('助力获取完成, 准备写入配置文件: {}中...'.format(CONF_PATH))
         update_config(cfg, copy.copy(cfg))
