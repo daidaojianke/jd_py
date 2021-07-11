@@ -4,7 +4,7 @@
 # @File    : notify.py
 # @Project : jd_scripts
 # @Desc    : 通知模块
-import telebot
+import telegram
 from config import TG_BOT_TOKEN, TG_USER_ID
 from utils.console import println
 from utils.logger import logger
@@ -18,7 +18,7 @@ def notify(message):
     """
     if TG_BOT_TOKEN and TG_USER_ID:
         try:
-            bot = telebot.TeleBot(TG_BOT_TOKEN)
+            bot = telegram.Bot(TG_BOT_TOKEN)
             bot.send_message(TG_USER_ID, message)
             println('\n成功推送消息到TG!')
         except Exception as e:

@@ -5,7 +5,7 @@ PyYAML
 qrcode
 requests
 rich
-telebot
 pyppeteer
 pillow
 moment
+python-telegram-bot
