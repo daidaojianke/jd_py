@@ -59,7 +59,7 @@ class JdWishingPool:
         """
         data = await self.request(session, 'healthyDay_getHomeData', {"appId": "1EFVQwQ",
                                                                       "taskToken": "", "channelId": 1})
-        if data['bizCode'] != 0:
+        if 'bizCode' not in data or data['bizCode'] != 0:
             println('{}, 无法获取首页数据!'.format(self._pt_pin))
             return None
         return data['result']['taskVos']
