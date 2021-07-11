@@ -2,8 +2,10 @@
 
 CODE_DIR='/scripts'
 
-if [ ! -d "$CODE_DIR/logs"]; then
-  $CODE_DIR/logs
+if [ -d "$CODE_DIR/logs" ]; then
+  echo "目录文件已存在"
+else
+  mkdir $CODE_DIR/logs
 fi
 
 if [ -f "$CODE_DIR/logs/conf.lock" ]; then
