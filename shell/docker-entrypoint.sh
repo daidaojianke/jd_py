@@ -9,9 +9,11 @@ else
   cp $CODE_DIR/conf/.config_example.yaml $CODE_DIR/conf/config.yaml
   cp $CODE_DIR/conf/.crontab.sh $CODE_DIR/conf/crontab.sh
   echo "######添加配置锁定文件######"
+  if [ ! -d "$CODE_DIR/logs"]; then
+    mkdir /myfolder
+  fi
   echo "lock" >> $CODE_DIR/logs/conf.lock;
 fi
-
 
 if [ -f "$CODE_DIR/logs/pull.lock" ]; then
   echo "存在更新锁定文件，跳过git pull操作..."
