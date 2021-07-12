@@ -12,7 +12,7 @@ import time
 import json
 from urllib.parse import unquote, quote
 from utils.console import println
-from config import USER_AGENT
+from config import USER_AGENT, JD_BURNING_SUMMER_CODE
 
 
 class JdBurningSummer:
@@ -36,7 +36,7 @@ class JdBurningSummer:
         self._pt_pin = unquote(pt_pin)
         self._code = None
 
-    async def request(self, session, function_id, body=None, method='POST'):
+    async def request(self, session, function_id, body=None, method='POST', callback=None):
         try:
             if body is None:
                 body = {}
@@ -50,6 +50,8 @@ class JdBurningSummer:
             url = 'https://api.m.jd.com/client.action?advId={}&functionId={}&body={}&client=wh5&clientVersion=1.0.0&' \
                   'uuid=1623732683334633-4613462616133636&appid=o2_act'. \
                 format(function_id, function_id, quote(json.dumps(body)))
+            if callback:
+                url += '&{}'.format(callback)
             if method == 'POST':
                 response = await session.post(url=url)
             else:
@@ -69,7 +71,7 @@ class JdBurningSummer:
         """
         try:
             body = {"businessId": "babel", "componentId": "1938322209a94fa9945dfae29abe1fc6", "taskParam": json.dumps({
-                'taskToken': task_token
+                'taskToken': task_token, "biz": "babel",
             })}
             url = 'https://api.m.jd.com/?client=wh5&clientVersion=1.0.0' \
                   '&functionId=queryVkComponent&body={}&_timestamp={}'.format(quote(json.dumps(body)),
@@ -111,14 +113,15 @@ class JdBurningSummer:
         except Exception as e:
             println('{}, 查询任务结果失败:{}'.format(self._pt_pin, e.args))
 
-    async def do_task(self, session, task, view_page=True):
+    async def do_task(self, session, task, view_page=True, action_type=1):
         """
         做任务
         """
         if 'waitDuration' in task and task['waitDuration'] > 0:
             timeout = task['waitDuration']
+            # timeout = 1
         else:
-            timeout = 2
+            timeout = 1
 
         if task['status'] == 2:
             println('{}, 任务:{}今日已完成!'.format(self._pt_pin, task['taskName']))
@@ -151,16 +154,26 @@ class JdBurningSummer:
             if title == '':
                 title = '未知'
 
-            if item['status'] != 1:
-                println('{}, 子任务:《{}》今日已完成!'.format(self._pt_pin, title))
+            if item['status'] == 2: # 已完成
                 continue
 
+            await asyncio.sleep(1)
             body = {
                 "taskId": task['taskId'],
-                "taskToken": item['taskToken']
+                "taskToken": item['taskToken'],
+                "actionType": 1
             }
             res = await self.request(session, 'olympicgames_doTaskDetail', body)
             await asyncio.sleep(1)
+
+            if res['bizCode'] != 0:
+                body = {
+                    "taskId": task['taskId'],
+                    "taskToken": item['taskToken'],
+                    "actionType": 0
+                }
+                res = await self.request(session, 'olympicgames_doTaskDetail', body)
+                await asyncio.sleep(1)
 
             if not view_page:  # 不需要需要访问页面
                 if res['bizCode'] != 0:
@@ -175,15 +188,13 @@ class JdBurningSummer:
                 println(res)
                 println('{}, 无法领取任务:《{}》!'.format(self._pt_pin, title))
 
-            println('{}, 正在进行任务:《{}》, 需要等待{}秒!'.format(self._pt_pin, title, timeout))
-            await asyncio.sleep(timeout)
-
             success = await self.browser_task_page_view(session, item['taskToken'])
             if success:
                 println('{}, 成功完成任务《{}》!'.format(self._pt_pin, title))
             else:
                 println('{}, 无法完成任务《{}》!'.format(self._pt_pin, title))
 
+            println('{}, 正在进行任务:《{}》, 需要等待{}秒!'.format(self._pt_pin, title, timeout))
             await asyncio.sleep(timeout)
 
             res = await self.query_task_result(session, item['taskToken'])
@@ -329,39 +340,42 @@ class JdBurningSummer:
             res = await self.request(session, 'olympicgames_doTaskDetail', body)
             println(res)
 
-    async def do_tasks(self, session):
+    async def do_tasks(self, session, app_sign="1"):
         """
-        获取任务列表
+        :param session:
+        :param app_sign: 1表示京东APP, 2表示微信小程序
+        :return:
         """
-        data = await self.request(session, 'olympicgames_getTaskDetail', {"taskId": "", "appSign": "1"})
+        data = await self.request(session, 'olympicgames_getTaskDetail', {"taskId": "", "appSign": app_sign})
         if data['bizCode'] != 0:
             println('{}, 获取任务列表失败!'.format(self._pt_pin))
             return
 
-        println('{}, 开始执行每日任务...'.format(self._pt_pin))
-        # 邀请码
-        self._code = data['result']['inviteId']
+        if app_sign == '1':
+            # 邀请码
+            self._code = data['result']['inviteId']
+            channel = '京东APP'
+        else:
+            channel = '微信小程序'
         task_list = data['result']['taskVos']
+        println('{}, 开始执行{}-每日任务...'.format(self._pt_pin, channel))
 
         for task in task_list:
             if task['taskType'] == 14:  # 助力任务
                 continue
-            elif task['taskType'] in [9, 7, 3, 26]:
-                await self.do_task(session, task)
+            elif task['taskType'] in [2, 7, 9, 3, 26]:
+                await self.do_task(session, task, action_type=1)
             elif task['taskType'] in [21]:
                 println('{}, 跳过入会任务!'.format(self._pt_pin))
-                # await self.do_task(session, task, False)
-            elif task['taskType'] == 2:
-                await self.shopping_task(session, task)
             else:
                 println('{}, 任务《{}》暂未实现!'.format(self._pt_pin, task))
 
-    async def lottery(self, session):
+    async def lottery(self, session, channel_sign="1", shop_sign="1000014803"):
         """
         免费抽奖
         """
         data = await self.request(session, 'olympicgames_shopLotteryInfo',
-                                  {"channelSign": "1", "shopSign": "1000014803"})
+                                  {"channelSign": channel_sign, "shopSign": shop_sign})
         if data['bizCode'] != 0:
             println('{}, 无法获取免费抽奖数据!'.format(self._pt_pin))
             return
@@ -388,7 +402,7 @@ class JdBurningSummer:
             res = await self.request(session, 'olympicgames_bdDoTask', {
                 'taskId': task_id,
                 'taskToken': task_token,
-                "shopSign": "1000014803",
+                "shopSign": shop_sign,
                 "actionType": 1,
                 "showErrorToast": False
             })
@@ -399,7 +413,7 @@ class JdBurningSummer:
                 println('{}, 无法完成免费抽奖任务:《{}》!'.format(self._pt_pin, task_name))
 
         data = await self.request(session, 'olympicgames_shopLotteryInfo',
-                                  {"channelSign": "1", "shopSign": "1000014803"})
+                                  {"channelSign": channel_sign, "shopSign": shop_sign})
 
         if data['bizCode'] != 0:
             println('{}, 无法查询当前抽奖次数!'.format(self._pt_pin))
@@ -413,7 +427,7 @@ class JdBurningSummer:
         println('{}, 开始执行免费抽奖, 抽奖次数:{}!'.format(self._pt_pin, lottery_num))
 
         for i in range(lottery_num):
-            res = await self.request(session, 'olympicgames_boxShopLottery', {"shopSign": "1000014803"})
+            res = await self.request(session, 'olympicgames_boxShopLottery', {"shopSign": shop_sign})
             if res['bizCode'] != 0:
                 println('{}, 第{}次免费抽奖失败!'.format(self._pt_pin, i + 1))
             else:
@@ -440,12 +454,32 @@ class JdBurningSummer:
             else:
                 println('{}, 夺宝:{}, 下注失败, {}!'.format(self._pt_pin, item['skuName'], res['bizMsg']))
 
-    async def wish_lottery(self, session):
+    async def wish_lottery(self, session, shop_sign="1000014803"):
         """
         心愿抽奖
         """
-        data = await self.request(session, 'olympicgames_wishShopLottery', {"shopSign": "1000014803"})
+        data = await self.request(session, 'olympicgames_wishShopLottery', {"shopSign": shop_sign})
         println('{}, 心愿抽奖结果:{}'.format(self._pt_pin, data))
+
+    async def help_friend(self, session):
+        """
+        助力好友
+        :param session:
+        :return:
+        """
+        for code in JD_BURNING_SUMMER_CODE:
+            if code == self._code:
+                continue
+            res = await self.request(session, 'olympicgames_assist', {"inviteId": code, "type": "confirm"})
+            println(res)
+            if res['bizCode'] == 0:
+                if 'hongBaoVO' in res['result']:
+                    award = '红包:{}元'.format(res['result']['hongBaoVO']['withdrawCash'])
+                else:
+                    award = ''
+                println('{}, 成功助力好友, 奖励: {}!'.format(self._pt_pin, award))
+            else:
+                println('{}, 助力好友失败, {}!'.format(self._pt_pin, res['bizMsg']))
 
     async def login(self, session):
         data = await self.request(session, 'olympicgames_home')
@@ -454,6 +488,20 @@ class JdBurningSummer:
             return False
         println('{}, 已连续登录:{}天!'.format(self._pt_pin, data['result']['continuedSignDays']))
         return True
+
+    async def get_share_code(self):
+        """
+        获取助力码
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+            res = await self.request(session, 'olympicgames_getTaskDetail', {"taskId": "", "appSign": "1"})
+            if res['bizCode'] != 0:
+                println('{}, 获取助力码失败!'.format(self._pt_pin))
+                return
+            code = res['result']['inviteId']
+            println('{}, 助力码:{}!'.format(self._pt_pin, code))
+            return code
 
     async def run(self):
         """
@@ -464,12 +512,15 @@ class JdBurningSummer:
             if not success:
                 println('{}, 无法登录活动首页, 未开启活动或账号已黑!'.format(self._pt_pin))
                 return
-
-            await self.do_tasks(session)
+            await self.help_friend(session)
+            await self.do_tasks(session, app_sign='1')
+            await self.do_tasks(session, app_sign='2')
             await self.do_sport(session)
             await self.indiana(session)
             await self.lottery(session)
+            await self.lottery(session, channel_sign="2", shop_sign='1000013402')
             await self.wish_lottery(session)
+            await self.wish_lottery(session, shop_sign='1000013402')
             await self.collect_currency(session)  # 收取卡币
             await self.receive_coupon_currency(session)  # 领券得卡币
             await self.receive_cash(session)

@@ -97,6 +97,10 @@ JD_CASH_CODE.append('eU9YaeS6bq4j8z2Bz3Eahw@IRs1bey1Z_0')
 JD_WISHING_POOL_CODE = list(set(cfg.get('jd_wishing_pool_code') if cfg.get('jd_wishing_pool_code') else []))
 JD_WISHING_POOL_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjRXnYaU5kRrbA')
 
+# 燃动夏季互助码
+JD_BURNING_SUMMER_CODE = list(set(cfg.get('jd_burning_summer_code') if cfg.get('jd_burning_summer_code') else []))
+
+
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token
