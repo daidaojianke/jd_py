@@ -25,8 +25,6 @@ else
   cd $CODE_DIR && git pull
   echo "pip install 安装最新依赖"
   pip install -r $CODE_DIR/requirements.txt
-  echo "更新脚本配置文件"
-  /usr/local/bin/python /scripts/update_share_code.py
   echo "替換更新文件"
   rm -rf /docker-entrypoint.sh
   cp $CODE_DIR/shell/docker-entrypoint.sh /
