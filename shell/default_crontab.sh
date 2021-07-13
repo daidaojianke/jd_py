@@ -75,5 +75,8 @@
 # 众筹许愿池
 45 8,10,14,16,18 * * * /usr/local/bin/python /scripts/jd_wishing_pool.py >> /scripts/logs/jd_wishing_pool.log 2>&1
 
+# 早起福利
+30 0,6 * * * /usr/local/bin/python /scripts/jd_good_morning.py >> /scripts/logs/jd_good_morning.log 2>&1
+
 ### 每天16点执行一次更新
 0 16 * * * /docker-entrypoint.sh  >> /dev/null  2>&1

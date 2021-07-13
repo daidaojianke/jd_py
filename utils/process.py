@@ -23,6 +23,9 @@ def process_start(func, name=''):
     if process_count < PROCESS_NUM:
         process_count = PROCESS_NUM
 
+    if process_count > len(JD_COOKIES):
+        process_count = len(JD_COOKIES)
+
     pool = multiprocessing.Pool(process_count)
 
     println("开始执行{}, 共{}个账号, 启动{}个进程!\n".format(name, len(JD_COOKIES), process_count), style='bold green')

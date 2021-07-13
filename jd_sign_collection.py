@@ -14,6 +14,7 @@ import aiohttp
 from utils.notify import notify
 from utils.logger import logger
 from utils.console import println
+from config import USER_AGENT
 
 
 class JdSignCollection:
@@ -777,14 +778,6 @@ class JdSignCollection:
                 'message': '程序异常出错',
             })
 
-        except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
-                'name': name,
-                'status': self.status_fail,
-                'message': '程序异常出错',
-            })
-
     async def jd_shop_sign(self, session, name, body):
         """
         :param session:
@@ -1210,6 +1203,61 @@ class JdSignCollection:
                 'message': '程序异常出错',
             })
 
+    async def jd_kd_sign(self):
+        """
+        :param pt_pin:
+        :param pt_key:
+        :return:
+        """
+        cookies = {
+            'pt_pin': self._pt_pin,
+            'pt_key': self._pt_key,
+        }
+        headers = {
+            'Host': 'lop-proxy.jd.com',
+            'lop-dn': 'jingcai.jd.com',
+            'biz-type': 'service-monitor',
+            'app-key': 'jexpress',
+            'access': 'H5',
+            'content-type': 'application/json;charset=utf-8',
+            'clientinfo': '{"appName":"jingcai","client":"m"}',
+            'accept': 'application/json, text/plain, */*',
+            'jexpress-report-time': '1607330170578',
+            'x-requested-with': 'XMLHttpRequest',
+            'source-client': '2',
+            'appparams': '{"appid":158,"ticket_type":"m"}',
+            'version': '1.0.0',
+            'origin': 'https://jingcai-h5.jd.com',
+            'sec-fetch-site': 'same-site',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-dest': 'empty',
+            'referer': 'https://jingcai-h5.jd.com/',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'user-agent': USER_AGENT
+        }
+
+        async with aiohttp.ClientSession(headers=headers, cookies=cookies) as session:
+            try:
+                url = 'https://lop-proxy.jd.com/jiFenApi/signInAndGetReward'
+                body = '[{"userNo":"$cooMrdGatewayUid$"}]'
+                response = await session.post(url=url, data=body)
+                text = await response.text()
+                data = json.loads(text)
+                if data['code'] == 1:
+                    self._result.append({
+                        'name': '京东快递',
+                        'status': self.status_success,
+                        'msg': '签到成功',
+                    })
+                else:
+                    self._result.append({
+                        'name': '京东快递',
+                        'status': self.status_fail,
+                        'msg': '签到失败',
+                    })
+            except Exception as e:
+                println('{}, 程序出错:{}!'.format(self._pt_pin, e.args))
+
     async def get_total_subsidy(self, session):
         """
         总金贴查询
@@ -1318,6 +1366,7 @@ class JdSignCollection:
             await self.jd_shop_second_hand(session)  # 京东拍拍-二手
             await self.jd_shop_gaming(session)  # 京东商城-电竞
             await self.jd_shop_school(session)  # 京东商城-校园
+            await self.jd_kd_sign()
             await self.get_total_steel(session)  # 总钢镚查询
             await self.get_total_bean(session)  # 总金豆查询
             await self.get_total_cash(session)  # 红包查询

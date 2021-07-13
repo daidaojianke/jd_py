@@ -54,8 +54,10 @@
 | jd_bean_lottery.py | 京东APP->签到领京豆->摇金豆->京豆夺宝| 100% |
 | jd_earn_bean.py | 微信小程序-赚金豆 | 100% |
 | jd_cash.py | 京东APP-领现金 | 100% |
-| jd_burning_summer.py | 京东APP-燃动夏季| 95% |
+| jd_burning_summer.py | 京东APP-燃动夏季| 100% |
 | jd_wishing_pool.py | 京东APP-京东众筹-许愿池| 100% |
+| jd_good_morning.py | 京东APP-领金豆->早起福利| 100% |
+| jd_gold_creator.py | 京东APP-京东排行榜->金榜创造营| 100%|
 | jd_beauty.py          | 京东APP->美丽研究院   | 0%        |
 | jx_factory.py | 京喜APP->京喜工厂 | 0% |
 | jx_farm.py | 京喜APP->京喜农场| 0% |

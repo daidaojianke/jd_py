@@ -492,7 +492,6 @@ class JdBurningSummer:
             if code == self._code:
                 continue
             res = await self.request(session, 'olympicgames_assist', {"inviteId": code, "type": "confirm"})
-            println(res)
             if res['bizCode'] == 0:
                 if 'hongBaoVO' in res['result']:
                     award = '红包:{}元'.format(res['result']['hongBaoVO']['withdrawCash'])
