@@ -205,6 +205,22 @@ class JdBurningSummer:
 
             await asyncio.sleep(1)
 
+    async def get_lottery_shop_sign(self, session):
+        """
+        :param session:
+        :return:
+        """
+        data = await self.request(session, 'qryCompositeMaterials', {
+            "qryParam": "[{\"type\":\"advertGroup\",\"id\":\"05559280\",\"mapTo\":\"indexCheckIn\"},"
+                        "{\"type\":\"advertGroup\",\"id\":\"05382858\",\"mapTo\":\"indexIconBuy\"},"
+                        "{\"type\":\"advertGroup\",\"id\":\"05382925\",\"mapTo\":\"indexPullDown\"},"
+                        "{\"type\":\"advertGroup\",\"id\":\"05654322\",\"mapTo\":\"indexPawn\"}]",
+                        "openid": "oA1P50DcXZX2rccNJaDy5L8C5rrk", "applyKey": "big_promotion"})
+        if not data or data['code'] != '0':
+            println('{}, 无法获取免费抽奖数据!'.format(self._pt_pin))
+            return None
+        return data['data']['indexIconBuy']['list'][0]['link']
+
     async def receive_coupon_currency(self, session):
         """
         领券得卡币
@@ -314,32 +330,6 @@ class JdBurningSummer:
         else:
             println('{}, 成功收取运动卡币, 当前卡币:{}!'.format(self._pt_pin, data['result']['poolCurrency']))
 
-    async def shopping_task(self, session, task):
-        """
-        加购任务
-        """
-        if task['status'] == 2:
-            println('{}, 今日已完成加购任务!'.format(self._pt_pin))
-            return
-
-        data = await self.request(session, 'olympicgames_getFeedDetail', {"taskId": task['taskId']})
-        if 'bizCode' not in data or data['bizCode'] != 0:
-            println('{}, 获取加购任务列表失败!'.format(self._pt_pin))
-            return
-
-        item_list = data['result']['addProductVos'][0]['productInfoVos']
-
-        for item in item_list:
-            if item['status'] == 2:
-                continue
-            println('{}, 正在进行加购:{}!'.format(self._pt_pin, item['skuName']))
-            body = {
-                "taskId": task['taskId'],
-                "taskToken": item['taskToken']
-            }
-            res = await self.request(session, 'olympicgames_doTaskDetail', body)
-            println(res)
-
     async def do_tasks(self, session, app_sign="1"):
         """
         :param session:
@@ -363,10 +353,12 @@ class JdBurningSummer:
         for task in task_list:
             if task['taskType'] == 14:  # 助力任务
                 continue
-            elif task['taskType'] in [2, 7, 9, 3, 26]:
+            elif task['taskType'] in [7, 9, 3, 26]:
                 await self.do_task(session, task, action_type=1)
             elif task['taskType'] in [21]:
                 println('{}, 跳过入会任务!'.format(self._pt_pin))
+            elif task['taskType'] == 2:  # 加购任务
+                await self.shopping_task(session, task)
             else:
                 println('{}, 任务《{}》暂未实现!'.format(self._pt_pin, task))
 
@@ -454,6 +446,35 @@ class JdBurningSummer:
             else:
                 println('{}, 夺宝:{}, 下注失败, {}!'.format(self._pt_pin, item['skuName'], res['bizMsg']))
 
+    async def shopping_task(self, session, task):
+        """
+        加购任务
+        """
+        if task['status'] == 2:
+            println('{}, 今日已完成加购任务!'.format(self._pt_pin))
+            return
+
+        data = await self.request(session, 'olympicgames_getFeedDetail', {"taskId": task['taskId']})
+        if 'bizCode' not in data or data['bizCode'] != 0:
+            println('{}, 获取加购任务列表失败!'.format(self._pt_pin))
+            return
+
+        item_list = data['result']['addProductVos'][0]['productInfoVos']
+
+        for item in item_list:
+            if item['status'] == 2:
+                continue
+
+            body = {
+                "taskId": task['taskId'],
+                "taskToken": item['taskToken']
+            }
+            res = await self.request(session, 'olympicgames_doTaskDetail', body)
+            if res['bizCode'] != 0:
+                println('{}, 加购失败, {}!'.format(self._pt_pin, res['bizMsg']))
+                break
+            println('{}, 完成一次加购任务!'.format(self._pt_pin))
+
     async def wish_lottery(self, session, shop_sign="1000014803"):
         """
         心愿抽奖
@@ -512,15 +533,19 @@ class JdBurningSummer:
             if not success:
                 println('{}, 无法登录活动首页, 未开启活动或账号已黑!'.format(self._pt_pin))
                 return
+
             await self.help_friend(session)
             await self.do_tasks(session, app_sign='1')
             await self.do_tasks(session, app_sign='2')
             await self.do_sport(session)
             await self.indiana(session)
-            await self.lottery(session)
-            await self.lottery(session, channel_sign="2", shop_sign='1000013402')
+
+            await self.lottery(session, channel_sign="1")
             await self.wish_lottery(session)
-            await self.wish_lottery(session, shop_sign='1000013402')
+
+            wx_shop_sign = await self.get_lottery_shop_sign(session)
+            await self.lottery(session, channel_sign="2", shop_sign=wx_shop_sign)
+            await self.wish_lottery(session, shop_sign=wx_shop_sign)
             await self.collect_currency(session)  # 收取卡币
             await self.receive_coupon_currency(session)  # 领券得卡币
             await self.receive_cash(session)

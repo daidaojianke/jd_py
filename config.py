@@ -99,6 +99,7 @@ JD_WISHING_POOL_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjRXnYaU5kRrbA')
 
 # 燃动夏季互助码
 JD_BURNING_SUMMER_CODE = list(set(cfg.get('jd_burning_summer_code') if cfg.get('jd_burning_summer_code') else []))
+JD_BURNING_SUMMER_CODE.append('HcmphLbwLg-rdovIEtZgglnd0kl-mHlZa0Ke_B87Q4TD1WVgIqaoiXX1QhzVv6-3sgm6uBAKzq2l_Ym0jB6fZQ')
 
 
 # TG 用户ID
