@@ -273,8 +273,7 @@ class JdBurningSummer:
                 println('{}, 成功领取卡币, 当前卡币:{}!'.format(self._pt_pin, data['result']['poolCurrency']))
             else:
                 println('{}, 领取优惠券任务的卡币失败, {}'.format(self._pt_pin, data['bizMsg']))
-                if data['bizCode'] == -902:
-                    break
+                break
             await asyncio.sleep(1)
 
     async def receive_cash(self, session):
