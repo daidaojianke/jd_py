@@ -18,7 +18,7 @@ from jd_farm import JdFarm
 from jr_money_tree import JrMoneyTree
 from jd_wishing_pool import JdWishingPool
 from jd_burning_summer import JdBurningSummer
-
+from jd_smash_golden_egg import JdSmashGoldenEgg
 import shutil
 import yaml
 from config import CONF_PATH, EXAMPLE_CONFIG_PATH, BAK_CONFIG_PATH, JD_COOKIES
@@ -50,6 +50,7 @@ def update_config(old_cfg=None, new_cfg=None):
         'jd_farm_retain_water': '# 每日保留水滴, 默认80g， 用于完成第二天的10次浇水任务',
         'jd_wishing_pool_code':  '# 众筹许愿池助力码',
         'jd_burning_summer_code':  '# 燃动夏季助力码',
+        'jd_smash_golden_egg_code': '# 疯狂砸金蛋助力码'
     }
     if not old_cfg:
         # 加载配置文件
@@ -165,6 +166,10 @@ class UpdateShareCode:
             'jd_burning_summer_code': {
                 'cls': JdBurningSummer,
                 'name': '燃动夏季',
+            },
+            'jd_smash_golden_egg_code': {
+                'cls': JdSmashGoldenEgg,
+                'name': '疯狂砸金蛋'
             }
 
         }

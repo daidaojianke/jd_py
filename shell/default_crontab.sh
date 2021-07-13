@@ -78,5 +78,11 @@
 # 早起福利
 30 0,6 * * * /usr/local/bin/python /scripts/jd_good_morning.py >> /scripts/logs/jd_good_morning.log 2>&1
 
+# 金榜创造营
+30 7,19 * * * /usr/local/bin/python /scripts/jd_gold_creator.py >> /scripts/logs/jd_gold_creator.log 2>&1
+
+# 疯狂砸金蛋
+30 7,19 * * * /usr/local/bin/python /scripts/jd_smash_golden_egg.py >> /scripts/logs/jd_smash_golden_egg.log 2>&1
+
 ### 每天16点执行一次更新
 0 16 * * * /docker-entrypoint.sh  >> /dev/null  2>&1

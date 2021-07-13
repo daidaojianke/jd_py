@@ -51,7 +51,8 @@ JD_DEBUG = cfg.get('debug', True)
 PROCESS_NUM = cfg.get('process_num', 4)
 
 # JD COOKIES
-JD_COOKIES = [ j for j in [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1), 'pt_key': re.search('pt_key=(.*?);', i).group(1)}
+JD_COOKIES = [j for j in [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1),
+                           'pt_key': re.search('pt_key=(.*?);', i).group(1)}
               for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)
               or re.search('pt_key=(.*?);pt_pin=(.*?);', i)] if j['pt_pin'] != '']
 
@@ -101,6 +102,8 @@ JD_WISHING_POOL_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjRXnYaU5kRrbA')
 JD_BURNING_SUMMER_CODE = list(set(cfg.get('jd_burning_summer_code') if cfg.get('jd_burning_summer_code') else []))
 JD_BURNING_SUMMER_CODE.append('HcmphLbwLg-rdovIEtZgglnd0kl-mHlZa0Ke_B87Q4TD1WVgIqaoiXX1QhzVv6-3sgm6uBAKzq2l_Ym0jB6fZQ')
 
+# 疯狂砸金蛋助力码
+JD_SMASH_GOLDEN_EGG_CODE = list(set(cfg.get('jd_smash_golden_egg_code') if cfg.get('jd_smash_golden_egg_code') else []))
 
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
