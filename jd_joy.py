@@ -6,55 +6,14 @@
 # @Desc    : 京东APP->我的->宠汪汪
 import asyncio
 import json
-import platform
 import os
 import random
-
 import aiohttp
-from pyppeteer import launcher
-
-launcher.DEFAULT_ARGS.remove("--enable-automation")
 from utils.console import println
-from pyppeteer import launch
-from urllib.parse import unquote, quote
+from urllib.parse import unquote
 from config import USER_AGENT, IMAGES_DIR
 from utils.image import save_img, detect_displacement
-
-
-async def open_browser():
-    """
-    打开浏览器
-    :return:
-    """
-    if platform.system() == 'Linux':
-        headless = True
-    else:
-        headless = False
-    browser = await launch({
-        'headless': headless,
-        'dumpio': True,
-        'slowMo': 30,
-        # 'devtools': True,
-        'autoClose': False,
-        'handleSIGTERM': True,
-        'handleSIGINT': True,
-        'handleSIGHUP': True,
-        'args': [
-            '--no-sandbox',
-            '--disable-gpu',
-            '--disable-infobars',
-            '-–window-size=1920,1080',
-            '--disable-extensions',
-            '--hide-scrollbars',
-            '--disable-bundled-ppapi-flash',
-            '--disable-setuid-sandbox',
-            '--disable-xss-auditor',
-            '--ignore-certificate-errors',
-            '--use-fake-ui-for-media-stream'
-        ]
-    })
-
-    return browser
+from utils.browser import open_page, open_browser
 
 
 class JdPetDogBase:
@@ -93,39 +52,12 @@ class JdPetDogBase:
         ]
         self._pt_pin = unquote(pt_pin)
 
-    async def open_page(self, browser):
-        """
-        打开页面
-        :return:
-        """
-        context = await browser.createIncognitoBrowserContext()
-        pages = await context.pages()
-        if len(pages) > 0:
-            page = pages[0]
-        else:
-            page = await browser.newPage()
-
-        await page.setUserAgent(USER_AGENT)  # 设置USER-AGENT
-
-        await page.setViewport({
-            'width': 500,
-            'height': 845,
-            'isMobile': True
-        })
-
-        await page.setCookie(*self._cookies)  # 设置cookies
-
-        await page.goto(self.url, timeout=40000)  # 打开活动页面
-
-        return page
-
     async def validate(self):
         """
         :return:
         """
         browser = await open_browser()
-        page = await self.open_page(browser)
-        println('{}, 正在打开活动页面...'.format(self._pt_pin))
+        page = await open_page(browser, self.url, USER_AGENT, self._cookies)
 
         validator_selector = '#app > div > div > div > div.man-machine > div.man-machine-container'
         validator = await page.querySelector(validator_selector)
@@ -315,8 +247,8 @@ class JdPetDogTask(JdPetDogBase):
         async with aiohttp.ClientSession(headers=self.headers, cookies=cookies) as session:
             await self.get_task_list(session)
 
+
 if __name__ == '__main__':
     from config import JD_COOKIES
-
     app = JdPetDogTask(*JD_COOKIES[0].values())
     asyncio.run(app.run())

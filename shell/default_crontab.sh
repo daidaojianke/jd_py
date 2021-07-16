@@ -84,5 +84,8 @@
 # 疯狂砸金蛋
 30 7,19 * * * /usr/local/bin/python /scripts/jd_smash_golden_egg.py >> /scripts/logs/jd_smash_golden_egg.log 2>&1
 
+# 翻翻乐
+30 * * * * /usr/local/bin/python /scripts/jd_big_winner.py >> /scripts/logs/jd_big_winner.log 2>&1
+
 ### 每天16点执行一次更新
 0 16 * * * /docker-entrypoint.sh  >> /dev/null  2>&1

@@ -13,6 +13,7 @@ import json
 from urllib.parse import unquote, quote
 from utils.console import println
 from config import USER_AGENT, JD_BURNING_SUMMER_CODE
+from utils.browser import open_page, open_browser
 
 
 class JdBurningSummer:
@@ -29,24 +30,33 @@ class JdBurningSummer:
 
     def __init__(self, pt_pin, pt_key):
 
+        self._browser = None
+        self._page = None
         self._cookies = {
             'pt_pin': pt_pin,
             'pt_key': pt_key
         }
         self._pt_pin = unquote(pt_pin)
         self._code = None
+        self._url = 'https://wbbny.m.jd.com/babelDiy/Zeus/2rtpffK8wqNyPBH6wyUDuBKoAbCt/index.html'
+
+        self.browser_cookies = [
+            {
+                'domain': '.jd.com',
+                'name': 'pt_pin',
+                'value': pt_pin,
+            },
+            {
+                'domain': '.jd.com',
+                'name': 'pt_key',
+                'value': pt_key,
+            }
+        ]
 
     async def request(self, session, function_id, body=None, method='POST', callback=None):
         try:
             if body is None:
                 body = {}
-            body['ss'] = json.dumps({
-                "extraData": {
-                    "log": "",
-                    "sceneid": ""
-                },
-                "random": ""
-            })
             url = 'https://api.m.jd.com/client.action?advId={}&functionId={}&body={}&client=wh5&clientVersion=1.0.0&' \
                   'uuid=1623732683334633-4613462616133636&appid=o2_act'. \
                 format(function_id, function_id, quote(json.dumps(body)))
@@ -63,7 +73,10 @@ class JdBurningSummer:
             return data['data']
         except Exception as e:
             println('{}, 获取数据失败, {}!'.format(self._pt_pin, e.args))
-            return None
+            return {
+                'bizCode': 999,
+                'bizMsg': '无法获取服务器数据!'
+            }
 
     async def browser_task_page_view(self, session, task_token):
         """
@@ -113,7 +126,7 @@ class JdBurningSummer:
         except Exception as e:
             println('{}, 查询任务结果失败:{}'.format(self._pt_pin, e.args))
 
-    async def do_task(self, session, task, view_page=True, action_type=1):
+    async def do_task(self, session, task, view_page=False, action_type=1):
         """
         做任务
         """
@@ -156,12 +169,14 @@ class JdBurningSummer:
 
             if item['status'] == 2: # 已完成
                 continue
-
+            ss = await self.get_ss()
+            println(ss)
             await asyncio.sleep(1)
             body = {
                 "taskId": task['taskId'],
                 "taskToken": item['taskToken'],
-                "actionType": 1
+                "actionType": 1,
+                'ss': json.dumps(json.dumps(ss))
             }
             res = await self.request(session, 'olympicgames_doTaskDetail', body)
             await asyncio.sleep(1)
@@ -170,10 +185,18 @@ class JdBurningSummer:
                 body = {
                     "taskId": task['taskId'],
                     "taskToken": item['taskToken'],
-                    "actionType": 0
+                    "actionType": 0,
+                    "ss": json.dumps(json.dumps(ss))
                 }
                 res = await self.request(session, 'olympicgames_doTaskDetail', body)
                 await asyncio.sleep(1)
+
+            println(res)
+            if res['bizCode'] == 0:
+                println('{}, 成功领取任务:《{}》!'.format(self._pt_pin, title))
+            else:
+                println('{}, 无法领取任务:《{}》!'.format(self._pt_pin, title))
+                continue
 
             if not view_page:  # 不需要需要访问页面
                 if res['bizCode'] != 0:
@@ -181,12 +204,6 @@ class JdBurningSummer:
                 else:
                     println('{}, 完成任务:《{}》, 获得卡币:{}!'.format(self._pt_pin, title, res['result']['score']))
                 continue
-
-            if res['bizCode'] == 0:
-                println('{}, 成功领取任务:《{}》!'.format(self._pt_pin, title))
-            else:
-                println(res)
-                println('{}, 无法领取任务:《{}》!'.format(self._pt_pin, title))
 
             success = await self.browser_task_page_view(session, item['taskToken'])
             if success:
@@ -200,10 +217,24 @@ class JdBurningSummer:
             res = await self.query_task_result(session, item['taskToken'])
             if res['code'] == '0':
                 println('{}, 任务:{}, {}'.format(self._pt_pin, title, res['toast']['subTitle']))
+                continue
             else:
                 println('{}, 无法领取任务:《》的奖励!'.format(self._pt_pin, title))
 
             await asyncio.sleep(1)
+
+    async def get_cookies(self):
+        """
+        获取拼图验证后的cookies
+        :return:
+        """
+        result_cookies = dict()
+        cookies = await self._page.cookies()
+        if not cookies:
+            return None
+        for cookie in cookies:
+            result_cookies[cookie['name']] = cookie['value']
+        return result_cookies
 
     async def get_lottery_shop_sign(self, session):
         """
@@ -290,7 +321,11 @@ class JdBurningSummer:
         """
         做运动
         """
-        data = await self.request(session, 'olympicgames_startTraining')
+        body = {
+            'ss': "{\"extraData\":{\"log\":\"1626365279647~1rbt56Y2BhiMDF0ZWxZQzAxMQ==.RVNeb3BBXF5udUFQXycGDh1eaywGVFo8PUVJWnV2WFcSaz1FGx80BjMkPj9jICsoCSFMEQ86cyc9VB4kSVgS.32cd9fe2~5,2~28D728A807EB834B054AFB0230097818696B06D2002BAF44DD55C3BD949D60D5~1ov9uwy~C~TxdDXhAKaGscF0FaWBYPbG4eElREXhcPAxkWRkQRCBICAAIDBgIABgIPAgQBCgAJBhcYF0NQUxEIEkdCREFBFhkWQlJSEAoRUFZBQUFBQVQVHxBAV1gSD24FARgHBx8EHAQaBhkFaRkWX10RCAMfFFNGFw4XAw1RUgIJUFVSBwQAUQdQBAMABgMCAg0NAlNSUw4LVFIRGhJbRRYPFnleXUdIE04IA2oCARYZFUcQCgIAAgMGAgAGAg4FBgcfFFpeFw4XVRcbEVRAURQKF0ZZcHN0ZVUSZH1yYFcNQFZXBWRrCndUCw0XGRZbQhcNEXVfXFFcUBV9W1cbFR8QXlJAEg8XVxcYF0RQQBIJbQcFBRgBBAVqHxBCXBQKbhdVFxgXVhEeElIUHBdUFhkWVBUfEFERGhJUF2kZFlxYUhAKEVBWU1NSU0BBFR8QUVkUChdAFhkWVl4RCBJEBR4EGwQXGBdUVW1GEQwSBQQWGRZXUxEIEhEaElhfFg9vBRsDHgBuGhJXWVtSFg8VUhAcEVtDUhcOF1UXSg==~1dtx9rg\",\"sceneid\":\"OY217hPageh5\"},\"random\":\"86910696\"}"
+        }
+
+        data = await self.request(session, 'olympicgames_startTraining', body)
         if data['bizCode'] != 0:
             println('{}, 无法进行运动, {}!'.format(self._pt_pin, data['bizMsg']))
             if data['bizCode'] != -601:  # 运动失败，并且不是在运动中, 退出运动!
@@ -317,7 +352,8 @@ class JdBurningSummer:
         """
         收取卡币
         """
-        data = await self.request(session, 'olympicgames_collectCurrency', {"type": 1})
+        ss = await self.get_ss()
+        data = await self.request(session, 'olympicgames_collectCurrency', {"type": 1, "ss": ss})
         if data['bizCode'] != 0:
             println('{}, 收取任务卡币失败:{}'.format(self._pt_pin, data['bizMsg']))
         else:
@@ -336,7 +372,8 @@ class JdBurningSummer:
         :return:
         """
         data = await self.request(session, 'olympicgames_getTaskDetail', {"taskId": "", "appSign": app_sign})
-        if data['bizCode'] != 0:
+
+        if not data or data['bizCode'] != 0:
             println('{}, 获取任务列表失败!'.format(self._pt_pin))
             return
 
@@ -352,14 +389,14 @@ class JdBurningSummer:
         for task in task_list:
             if task['taskType'] == 14:  # 助力任务
                 continue
-            elif task['taskType'] in [7, 9, 3, 26]:
+            elif task['taskType'] in [3, 26, 7, 9]: #  3, 26, 7
                 await self.do_task(session, task, action_type=1)
             elif task['taskType'] in [21]:
                 println('{}, 跳过入会任务!'.format(self._pt_pin))
-            elif task['taskType'] == 2:  # 加购任务
-                await self.shopping_task(session, task)
+            # elif task['taskType'] == 2:  # 加购任务
+            #     await self.shopping_task(session, task)
             else:
-                println('{}, 任务《{}》暂未实现!'.format(self._pt_pin, task))
+                println('{}, 任务《{}》暂未实现!'.format(self._pt_pin, task['taskType']))
 
     async def lottery(self, session, channel_sign="1", shop_sign="1000014803"):
         """
@@ -522,31 +559,73 @@ class JdBurningSummer:
             println('{}, 助力码:{}!'.format(self._pt_pin, code))
             return code
 
+    async def get_ss(self):
+        """
+        获取验证参数
+        """
+        println('{}, 正在获取验证参数!'.format(self._pt_pin))
+        try:
+            data = await self._page.evaluate(('''() => {
+                                const DATA = {appid:'50085',sceneid:'OY217hPageh5'};
+                                window.smashUtils.init({"appid": "50085","sceneid": 'OY217hPageh5', 'uid': '-1'})
+                                var t = Math.floor(1e7 + 9e7 * Math.random()).toString();
+                                var e = window.smashUtils.get_risk_result({id: t,data: {random: t}}).log;
+                                var o = JSON.stringify({extraData: {log:  e || -1, sceneid: DATA.sceneid,},random: t});
+                                return o;
+                                }'''))
+            return data
+        except Exception as e:
+            println(e.args)
+
     async def run(self):
         """
         程序入口
         """
+        # try:
+        #     self._browser = await open_browser()
+        #     self._page = await open_page(self._browser, self._url, USER_AGENT, self.browser_cookies)
+        # except Exception as e:
+        #     println('{}, 程序出错!'.format(self._pt_pin))
+        #
+        # if not self._browser:
+        #     println('{}, 无法打开浏览器, 退出程序!'.format(self._pt_pin))
+        #     return
+        #
+        # if not self._page:
+        #     println('{}, 无法打开页面, 退出程序!'.format(self._pt_pin))
+        #     if self._browser:
+        #         await self._browser.close()
+        #     return
+        #
+        # cookies = await self.get_cookies()
+        # if not cookies:
+        #     println('{}, 获取cookies失败, 退出程序!')
+        #     return
+
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
             success = await self.login(session)
             if not success:
                 println('{}, 无法登录活动首页, 未开启活动或账号已黑!'.format(self._pt_pin))
                 return
+              #await self.help_friend(session)
+            #await self.do_tasks(session, app_sign='1')
+            #await self.do_tasks(session, app_sign='2')
 
-            await self.help_friend(session)
-            await self.do_tasks(session, app_sign='1')
-            await self.do_tasks(session, app_sign='2')
             await self.do_sport(session)
-            await self.indiana(session)
-
-            await self.lottery(session, channel_sign="1")
-            await self.wish_lottery(session)
-
-            wx_shop_sign = await self.get_lottery_shop_sign(session)
-            await self.lottery(session, channel_sign="2", shop_sign=wx_shop_sign)
-            await self.wish_lottery(session, shop_sign=wx_shop_sign)
+        #     await self.indiana(session)
+        #
+        #     await self.lottery(session, channel_sign="1")
+        #     await self.wish_lottery(session)
+        #
+        #     wx_shop_sign = await self.get_lottery_shop_sign(session)
+        #     await self.lottery(session, channel_sign="2", shop_sign=wx_shop_sign)
+        #     await self.wish_lottery(session, shop_sign=wx_shop_sign)
             await self.collect_currency(session)  # 收取卡币
-            await self.receive_coupon_currency(session)  # 领券得卡币
-            await self.receive_cash(session)
+        #     await self.receive_coupon_currency(session)  # 领券得卡币
+        #     await self.receive_cash(session)
+
+        if self._browser:
+            await self._browser.close()
 
 
 def start(pt_pin, pt_key):
@@ -558,7 +637,7 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    # from config import JD_COOKIES
-    # start(*JD_COOKIES[0].values())
-    from utils.process import process_start
-    process_start(start, '燃动夏季')
+    from config import JD_COOKIES
+    start(*JD_COOKIES[0].values())
+    # from utils.process import process_start
+    # process_start(start, '燃动夏季')
