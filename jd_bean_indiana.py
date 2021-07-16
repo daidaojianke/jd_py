@@ -13,7 +13,7 @@ from urllib.parse import unquote
 from utils.console import println
 from utils.notify import notify
 from utils.process import process_start
-from config import USER_AGENT
+from config import USER_AGENT, JD_BEAN_INDIANA_OPEN
 
 
 class JdBeanIndiana:
@@ -328,4 +328,7 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    process_start(start, '京豆夺宝')
+    if not JD_BEAN_INDIANA_OPEN:
+        println('配置未开启京豆夺宝功能不运行!')
+    else:
+        process_start(start, '京豆夺宝')

@@ -37,7 +37,7 @@
 21 9 * * *  /usr/local/bin/python /scripts/jd_ranking_list.py >> /scripts/logs/jd_ranking_list.log 2>&1
 
 # 摇金豆
-6 0,23 * * * /usr/local/bin/python /scripts/jd_shark_bean.py >> /scripts/logs/jd_shark_bean.log 2>&1
+6 0,18,23 * * * /usr/local/bin/python /scripts/jd_shark_bean.py >> /scripts/logs/jd_shark_bean.log 2>&1
 
 # 签到合集
 7 0,17 * * * /usr/local/bin/python /scripts/jd_sign_collection.py >> /scripts/logs/jd_sign_collection.log 2>&1

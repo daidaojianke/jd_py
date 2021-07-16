@@ -110,4 +110,5 @@ TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token
 TG_BOT_TOKEN = cfg.get('notify', dict()).get('tg_bot_token', None)
 
+JD_BEAN_INDIANA_OPEN = cfg.get('jd_bean_indiana', False)
 

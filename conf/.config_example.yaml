@@ -48,5 +48,9 @@ notify:
 jd_wishing_pool_code:
   - null
 
+
+# 是否开启京豆夺宝功能
+jd_bean_indiana_open: false
+
 # 请求头, 默认不需要修改
 user_agent: jdapp;iPhone;10.0.2;14.3;network/wifi;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1
