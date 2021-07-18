@@ -13,6 +13,12 @@ class JdTry:
         }
         self._pt_pin = pt_pin
 
+    async def request(self, session, url, method):
+        """
+        请求数据
+        """
+        pass
+
     async def run(self):
         """
         :return:
