@@ -4,3 +4,17 @@
 # @File    : jx_farm.py
 # @Project : jd_scripts
 # @Desc    : 京喜APP->京喜农场
+
+
+class JxFactory:
+
+    def __init__(self, pt_pin, pt_key):
+
+        self._cookies = {
+            'pt_pin': pt_pin,
+            'pt_key': pt_key
+        }
+
+    async def run(self):
+        """
+        """
