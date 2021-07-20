@@ -29,6 +29,8 @@
 
 - 配置好JD_COOKIES, 随便运行一个脚本检查配置, 如: `python update_share_code.py`.
 
+- 内置定时任务, 配好Cookies自动会执行脚本。
+
 
 ## 脚本列表
 
