@@ -29,7 +29,9 @@
 
 - 配置好JD_COOKIES, 随便运行一个脚本检查配置, 如: `python update_share_code.py`.
 
-- 内置定时任务, 配好Cookies自动会执行脚本。
+- 内置定时任务, 配好JD_COOKIES自动会执行脚本。
+
+- 消息通知支持TG机器人, 需要在config.yaml文件中填写 tg_bot_token和tg_user_id配置.
 
 
 ## 脚本列表
