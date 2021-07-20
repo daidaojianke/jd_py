@@ -12,7 +12,6 @@ from urllib.parse import urlencode, quote, unquote
 import aiohttp
 
 from utils.notify import notify
-from utils.logger import logger
 from utils.console import println
 from config import USER_AGENT
 
@@ -36,7 +35,7 @@ class JdSignCollection:
         self._pt_key = pt_key
         self._result = []
 
-    @logger.catch
+
     async def is_login(self, session):
         """
         判断cookies是否有效
@@ -51,7 +50,7 @@ class JdSignCollection:
             if data['islogin'] == '1':
                 return True
         except Exception as e:
-            logger.info('检查登录状态失败, 网络异常:{}'.format(e.args))
+            println('检查登录状态失败, 网络异常:{}'.format(e.args))
 
         return False
 
@@ -73,7 +72,7 @@ class JdSignCollection:
             response = await session.post(url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info("{}: {}".format(name, data))
+            println("{}: {}".format(name, data))
             if data['code'] != '0':
                 self._result.append({
                     'name': name,
@@ -105,7 +104,7 @@ class JdSignCollection:
                         'message': '原因未知'
                     })
         except Exception as e:
-            logger.info("{}, 异常: {}".format(name, e.args))
+            println("{}, 异常: {}".format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -148,14 +147,13 @@ class JdSignCollection:
                         'message': data['data']['bizMsg'],
                     })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
             })
 
-    @logger.catch
     async def jr_steel(self, session):
         """
         金融钢镚
@@ -193,14 +191,13 @@ class JdSignCollection:
                         'message': data['resultData']['resBusiMsg']
                     })
         except Exception as e:
-            logger.info('签到失败, 异常:{}'.format(e.args))
+            println('签到失败, 异常:{}'.format(e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
             })
 
-    @logger.catch
     async def jd_turn(self, session):
         """
         京东转盘-查询
@@ -228,9 +225,9 @@ class JdSignCollection:
                         'status': self.status_success,
                         'message': '',
                     })
-                    logger.info('{}, 助力码: {}'.format(name, data['data']['lotteryCode']))
+                    println('{}, 助力码: {}'.format(name, data['data']['lotteryCode']))
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -252,7 +249,6 @@ class JdSignCollection:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
 
             if data['code'] != '0':
                 self._result.append({
@@ -282,7 +278,7 @@ class JdSignCollection:
                     })
 
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -309,7 +305,6 @@ class JdSignCollection:
             response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
 
             if data['success']:
                 self._result.append({
@@ -324,7 +319,7 @@ class JdSignCollection:
                     'message': data['message'],
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -359,7 +354,7 @@ class JdSignCollection:
                     'message': ''
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -396,7 +391,7 @@ class JdSignCollection:
                 })
 
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -417,7 +412,6 @@ class JdSignCollection:
             response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
 
             if data['code'] != 0:
                 self._result.append({
@@ -447,7 +441,7 @@ class JdSignCollection:
                     })
 
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -472,7 +466,6 @@ class JdSignCollection:
             response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
 
             if data['success']:
                 data = data['data']
@@ -505,7 +498,7 @@ class JdSignCollection:
                     'message': message,
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -527,7 +520,6 @@ class JdSignCollection:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
 
             if data['code'] == '1':
                 self._result.append({
@@ -548,7 +540,7 @@ class JdSignCollection:
                     'message': '原因未知',
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -571,7 +563,6 @@ class JdSignCollection:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
 
             if data['code'] == -101:
                 self._result.append({
@@ -592,7 +583,7 @@ class JdSignCollection:
                     'message': data['msg']
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -626,7 +617,7 @@ class JdSignCollection:
                     'message': data['error']['msg']
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -641,7 +632,7 @@ class JdSignCollection:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
+
             if 'resultCode' in data and data['resultCode'] == 0:
                 self._result.append({
                     'name': name,
@@ -655,7 +646,7 @@ class JdSignCollection:
                     'message': data['resultMsg']
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -755,7 +746,6 @@ class JdSignCollection:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}-关注店铺, 数据:'.format(name, data))
 
             if data['success']:
                 self._result.append({
@@ -771,7 +761,7 @@ class JdSignCollection:
                 })
 
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -792,7 +782,6 @@ class JdSignCollection:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}-签到, 数据:{}'.format(name, data))
             if len(re.findall('签到成功', text)):
                 self._result.append({
                     'name': name,
@@ -812,7 +801,7 @@ class JdSignCollection:
                     'message': data['subCodeMsg'] if data['msg'] else '原因:未知',
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -833,8 +822,6 @@ class JdSignCollection:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
-
             sign_params = None
             turn_table_id = None
 
@@ -852,7 +839,6 @@ class JdSignCollection:
             if 'floatLayerList' in data and data['floatLayerList']:
                 float_layer_text = json.dumps(data['floatLayerList'])
                 if len(re.findall('enActK', float_layer_text)) > 0:
-                    logger.info('在float_layer_list中找到签到数据:{}'.format(data['floatLayerList']))
                     for float_layer in data['floatLayerList']:
                         if 'params' in float_layer:
                             sign_params = {
@@ -889,7 +875,7 @@ class JdSignCollection:
                 await self.jd_shop_sign(session, name, sign_params)
 
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -1100,7 +1086,6 @@ class JdSignCollection:
             response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
             if 'gbBalance' in data:
                 self._result.append({
                     'name': name,
@@ -1114,7 +1099,7 @@ class JdSignCollection:
                     'message': '原因未知!'
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -1133,7 +1118,6 @@ class JdSignCollection:
             response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
             if data['retcode'] == '0':
                 bean_num = data['data']['assetInfo']['beanNum']
                 self._result.append({
@@ -1149,7 +1133,7 @@ class JdSignCollection:
                 })
 
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -1180,7 +1164,6 @@ class JdSignCollection:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据:{}'.format(name, data))
             if 'resultCode' in data and data['resultCode'] == 200:
                 self._result.append({
                     'name': name,
@@ -1196,7 +1179,7 @@ class JdSignCollection:
                 })
 
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
@@ -1271,7 +1254,7 @@ class JdSignCollection:
             response = await session.get(url)
             text = await response.text()
             data = json.loads(text)
-            logger.info('{}, 数据: {}'.format(name, text))
+
             if 'resultCode' in data and data['resultCode'] == 0:
                 self._result.append({
                     'name': name,
@@ -1285,7 +1268,7 @@ class JdSignCollection:
                     'message': data['resultMsg']
                 })
         except Exception as e:
-            logger.info('{}, 异常:{}'.format(name, e.args))
+            println('{}, 异常:{}'.format(name, e.args))
             self._result.append({
                 'name': name,
                 'status': self.status_fail,
