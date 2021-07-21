@@ -90,5 +90,8 @@
 # 每天23:30清除前一天的日期
 30 23 * * * /usr/local/bin/python /scripts/clean_log.py
 
+# 每2个小时检查一次cookies是否过期
+0 */2 * * * /usr/local/bin/python /scripts/check_cookies.py
+
 ### 每天16点执行一次更新
 0 16 * * * /docker-entrypoint.sh  >> /dev/null  2>&1
