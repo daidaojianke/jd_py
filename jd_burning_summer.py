@@ -13,7 +13,6 @@ import json
 from urllib.parse import unquote, quote
 from utils.console import println
 from config import USER_AGENT, JD_BURNING_SUMMER_CODE
-from utils.browser import open_page, open_browser
 
 
 class JdBurningSummer:
