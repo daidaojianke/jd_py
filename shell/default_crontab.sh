@@ -87,5 +87,8 @@
 # 翻翻乐
 30 * * * * /usr/local/bin/python /scripts/jd_big_winner.py >> /scripts/logs/jd_big_winner_`date "+%Y-%m-%d"`.log 2>&1
 
+# 每天23:30清除前一天的日期
+30 23 * * * /usr/local/bin/python /scripts/clean_log.py
+
 ### 每天16点执行一次更新
 0 16 * * * /docker-entrypoint.sh  >> /dev/null  2>&1
