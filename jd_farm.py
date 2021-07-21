@@ -12,10 +12,10 @@ from datetime import datetime
 import aiohttp
 import json
 
+from utils.notify import notify
 from urllib.parse import unquote, quote
 from utils.console import println
 from config import USER_AGENT, JD_FARM_CODE, JD_FARM_BEAN_CARD, JD_FARM_RETAIN_WATER
-
 
 
 class JdFarm:
@@ -720,6 +720,12 @@ class JdFarm:
         message = '【活动名称】东东农场\n【京东账号】{}\n【今日共浇水】{}次\n'.format(self._pt_pin, today_water_times)
         message += '【奖品名称】{}\n'.format(self._farm_info['name'])
         message += '【剩余水滴】{}g💧\n'.format(farm_data['farmUserPro']['totalEnergy'])
+        if farm_data['farmUserPro']['treeTotalEnergy'] == farm_data['farmUserPro']['treeEnergy']:
+            message += '【水果进度】已成熟, 请前往京东APP->东东农场领取水果, 并种植新的水果!\n'
+            println(message)
+            notify(message)
+            return
+
         message += '【完整进度】{}%, 已浇水{}次!\n'.format(
             round(farm_data['farmUserPro']['treeEnergy'] / farm_data['farmUserPro']['treeTotalEnergy'] * 100, 2),
             math.ceil(farm_data['farmUserPro']['treeEnergy'] / 10),

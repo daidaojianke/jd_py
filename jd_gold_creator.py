@@ -64,7 +64,6 @@ class JdGoldCreator:
         :param index_data:
         :return:
         """
-        #
         subject_list = index_data['result']['subTitleInfos']
         stage_id = index_data['result']['mainTitleHeadInfo']['stageId']
         for subject in subject_list:
@@ -119,6 +118,8 @@ class JdGoldCreator:
                 }
                 res = await self.request(session, 'goldCreatorDoTask', body)
                 println('{}, 做额外任务: 《{}》, 结果:{}!'.format(self._pt_pin, task[0]['taskItemInfo']['title'], res))
+
+            await asyncio.sleep(1)
 
     async def run(self):
         """
