@@ -253,6 +253,7 @@ class JxFactory:
                 return
             await self.get_user_electricity(session)
 
+
 def start(pt_pin, pt_key):
     """
     """
