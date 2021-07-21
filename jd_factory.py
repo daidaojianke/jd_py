@@ -438,7 +438,7 @@ class JdFactory:
         message += '【已投入电量/所需电量】{}/{}\n'.format(use_score, total_score)
         message += '【剩余电量】{}'.format(remain_score)
         println('\n' + message + '\n')
-        notify(message)
+        # notify(message)
 
     async def run(self):
         """

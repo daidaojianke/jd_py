@@ -394,7 +394,7 @@ class JrMoneyTree:
 
         println('\n')
         println(message)
-        notify(message)
+        # notify(message)
 
     async def run(self):
         """

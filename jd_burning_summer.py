@@ -581,26 +581,26 @@ class JdBurningSummer:
         """
         程序入口
         """
-        try:
-            self._browser = await open_browser()
-            self._page = await open_page(self._browser, self._url, USER_AGENT, self.browser_cookies)
-        except Exception as e:
-            println('{}, 程序出错:{}!'.format(self._pt_pin, e.args))
-
-        if not self._browser:
-            println('{}, 无法打开浏览器, 退出程序!'.format(self._pt_pin))
-            return
-
-        if not self._page:
-            println('{}, 无法打开页面, 退出程序!'.format(self._pt_pin))
-            if self._browser:
-                await self._browser.close()
-            return
-
-        cookies = await self.get_cookies()
-        if not cookies:
-            println('{}, 获取cookies失败, 退出程序!')
-            return
+        # try:
+        #     self._browser = await open_browser()
+        #     self._page = await open_page(self._browser, self._url, USER_AGENT, self.browser_cookies)
+        # except Exception as e:
+        #     println('{}, 程序出错:{}!'.format(self._pt_pin, e.args))
+        #
+        # if not self._browser:
+        #     println('{}, 无法打开浏览器, 退出程序!'.format(self._pt_pin))
+        #     return
+        #
+        # if not self._page:
+        #     println('{}, 无法打开页面, 退出程序!'.format(self._pt_pin))
+        #     if self._browser:
+        #         await self._browser.close()
+        #     return
+        #
+        # cookies = await self.get_cookies()
+        # if not cookies:
+        #     println('{}, 获取cookies失败, 退出程序!')
+        #     return
 
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
             success = await self.login(session)

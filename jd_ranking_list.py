@@ -108,7 +108,7 @@ class JdRankingList:
         for msg in self._msg_list:
             message += msg + '\n'
         message += '总共获得:{}京豆!\n\n#########今日王牌#########\n'.format(self._bean_count)
-        notify(message)
+        #notify(message)
 
 
 def start(pt_pin, pt_key):

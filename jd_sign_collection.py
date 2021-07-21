@@ -1371,7 +1371,8 @@ class JdSignCollection:
             line = "\t{}.{}: {}! {}\n".format(i + 1, res['name'], self.status_msg[res['status']], res['message'])
             message += line
 
-        notify(message)
+        println(message)
+        #notify(message)
 
 
 def start(pt_pin, pt_key):

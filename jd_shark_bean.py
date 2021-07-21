@@ -258,7 +258,7 @@ class JdSharkBean:
         else:
             message += '无\n'
 
-        notify(message)
+        # notify(message)
         println(message)
 
     async def run(self):

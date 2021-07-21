@@ -15,7 +15,7 @@ import json
 from urllib.parse import unquote, quote
 from utils.console import println
 from config import USER_AGENT, JD_FARM_CODE, JD_FARM_BEAN_CARD, JD_FARM_RETAIN_WATER
-from utils.notify import notify
+
 
 
 class JdFarm:

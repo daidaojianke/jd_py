@@ -16,7 +16,6 @@ from furl import furl
 
 from utils.process import process_start
 from utils.console import println
-from utils.notify import notify
 from config import USER_AGENT
 
 

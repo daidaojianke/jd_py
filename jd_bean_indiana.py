@@ -280,7 +280,7 @@ class JdBeanIndiana:
             .format('京豆夺宝', self._pt_pin, self._nickname, self._use_bean_num, self._joined_num, award,
                     '京豆奖励自动发放, 实物需要手动领取, 活动入口:京东APP->我的->签到领京豆->摇京豆->左上角京豆夺宝!')
         println(message)
-        notify(message)
+        # notify(message)
 
     async def run(self):
         """

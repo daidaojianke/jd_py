@@ -420,7 +420,7 @@ class JdCutePet:
         :return:
         """
         println('\n' + self._notify_message + '\n')
-        notify(self._notify_message)
+        # notify(self._notify_message)
 
     async def run(self):
         """

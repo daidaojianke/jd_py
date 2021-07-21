@@ -490,7 +490,7 @@ class JdPlantingBean:
         self._message += f'【本期成长值】:{self._cur_round_list["growth"]}\n'
 
         println(self._message)
-        notify(self._message)
+        #notify(self._message)
 
     async def run(self):
         """

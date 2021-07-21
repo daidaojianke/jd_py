@@ -176,7 +176,7 @@ class LuckyTurntable:
         for line in self._result:
             message += ''.join(['  ', line, '\n'])
         message += s
-        notify(message)
+        # notify(message)
 
     async def run(self):
         """
