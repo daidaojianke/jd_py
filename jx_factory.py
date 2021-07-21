@@ -248,12 +248,13 @@ class JxFactory:
         user_info = await self.get_user_info(session)
         if not user_info:
             return False
-        if 'factoryList' not in user_info:
+        if 'factoryList' not in user_info or not user_info['factoryList']:
             println('{}, 未开启活动!'.format(self._pt_pin))
             return False
+
         self._factory_id = user_info['factoryList'][0]['factoryId']
 
-        if 'productionList' not in user_info:
+        if 'productionList' not in user_info or not user_info['productionList']:
             println('{}, 未选择商品!'.format(self._pt_pin))
         else:
             self._inserted_electric = user_info['productionList'][0]['investedElectric']
@@ -339,6 +340,18 @@ class JxFactory:
 
             #println(task['awardStatus'])
 
+    async def pick_up(self, session):
+        """
+        收零件
+        """
+        path = 'dreamfactory/usermaterial/GetUserComponent'
+        params = {
+            'pin': self._pin,
+            '_stk': '_time,pin,zone'
+        }
+        data = await self.request(session, path, params)
+        println(data)
+
     async def run(self):
         """
         程序入口
@@ -349,10 +362,10 @@ class JxFactory:
             if not success:
                 println('{}, 初始化失败!'.format(self._pt_pin))
                 return
-
+            await self.pick_up(session)
             # await self.get_user_electricity(session)
             # await self.query_friend_list(session)
-            await self.get_task_list(session)
+            # await self.get_task_list(session)
 
 
 def start(pt_pin, pt_key):
