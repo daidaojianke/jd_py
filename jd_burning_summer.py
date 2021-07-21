@@ -581,48 +581,45 @@ class JdBurningSummer:
         """
         程序入口
         """
-        # try:
-        #     self._browser = await open_browser()
-        #     self._page = await open_page(self._browser, self._url, USER_AGENT, self.browser_cookies)
-        # except Exception as e:
-        #     println('{}, 程序出错!'.format(self._pt_pin))
-        #
-        # if not self._browser:
-        #     println('{}, 无法打开浏览器, 退出程序!'.format(self._pt_pin))
-        #     return
-        #
-        # if not self._page:
-        #     println('{}, 无法打开页面, 退出程序!'.format(self._pt_pin))
-        #     if self._browser:
-        #         await self._browser.close()
-        #     return
-        #
-        # cookies = await self.get_cookies()
-        # if not cookies:
-        #     println('{}, 获取cookies失败, 退出程序!')
-        #     return
+        try:
+            self._browser = await open_browser()
+            self._page = await open_page(self._browser, self._url, USER_AGENT, self.browser_cookies)
+        except Exception as e:
+            println('{}, 程序出错:{}!'.format(self._pt_pin, e.args))
+
+        if not self._browser:
+            println('{}, 无法打开浏览器, 退出程序!'.format(self._pt_pin))
+            return
+
+        if not self._page:
+            println('{}, 无法打开页面, 退出程序!'.format(self._pt_pin))
+            if self._browser:
+                await self._browser.close()
+            return
+
+        cookies = await self.get_cookies()
+        if not cookies:
+            println('{}, 获取cookies失败, 退出程序!')
+            return
 
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
             success = await self.login(session)
             if not success:
                 println('{}, 无法登录活动首页, 未开启活动或账号已黑!'.format(self._pt_pin))
                 return
-              #await self.help_friend(session)
-            #await self.do_tasks(session, app_sign='1')
-            #await self.do_tasks(session, app_sign='2')
-
+            await self.help_friend(session)
+            await self.do_tasks(session, app_sign='1')
+            await self.do_tasks(session, app_sign='2')
             await self.do_sport(session)
-        #     await self.indiana(session)
-        #
-        #     await self.lottery(session, channel_sign="1")
-        #     await self.wish_lottery(session)
-        #
-        #     wx_shop_sign = await self.get_lottery_shop_sign(session)
-        #     await self.lottery(session, channel_sign="2", shop_sign=wx_shop_sign)
-        #     await self.wish_lottery(session, shop_sign=wx_shop_sign)
+            await self.indiana(session)
+            await self.lottery(session, channel_sign="1")
+            await self.wish_lottery(session)
+            wx_shop_sign = await self.get_lottery_shop_sign(session)
+            await self.lottery(session, channel_sign="2", shop_sign=wx_shop_sign)
+            await self.wish_lottery(session, shop_sign=wx_shop_sign)
             await self.collect_currency(session)  # 收取卡币
-        #     await self.receive_coupon_currency(session)  # 领券得卡币
-        #     await self.receive_cash(session)
+            await self.receive_coupon_currency(session)  # 领券得卡币
+            await self.receive_cash(session)
 
         if self._browser:
             await self._browser.close()
@@ -637,7 +634,7 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-    start(*JD_COOKIES[0].values())
-    # from utils.process import process_start
-    # process_start(start, '燃动夏季')
+    # from config import JD_COOKIES
+    # start(*JD_COOKIES[0].values())
+    from utils.process import process_start
+    process_start(start, '燃动夏季')
