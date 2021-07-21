@@ -134,7 +134,7 @@ class BigWinner:
             else:
                 println('账号:{}, 翻倍成功, 获得:'.format(self._pt_pin, data))
 
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(2)
             return await self.doubled_reward(session, data)
 
         except Exception as e:
