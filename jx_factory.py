@@ -4,18 +4,18 @@
 # @File    : jx_factory.py
 # @Project : jd_scripts
 # @Desc    : 京喜App->惊喜工厂
+import time
+import re
 import json
 import aiohttp
 import asyncio
 from datetime import datetime
-import re
-from furl import furl
 from urllib.parse import unquote, urlencode
+from utils.algo import JxSignAlgoMixin
 from utils.console import println
-from utils.algo import *
 
 
-class JxFactory:
+class JxFactory(JxSignAlgoMixin):
     """
     京喜工厂
     """
@@ -40,20 +40,15 @@ class JxFactory:
         self._factory_id = None  # 工厂ID
         self._nickname = None  # 用户昵称
         self._encrypt_pin = None
-        self._inserted_electric = 0   # 已投入电量
+        self._inserted_electric = 0  # 已投入电量
         self._need_electric = 0  # 总共需要的电量
         self._production_id = 0  # 商品ID
         self._production_stage_progress = ''  # 生产进度
         self._phone_id = ''  # 设备ID
         self._pin = ''  # 账号ID
-
-        self._token = None  # 签名的TOKEN
-        self._algo = None  # 签名算法
-        self._fp = generate_fp()  # 签名算法参数
-        self._appid = '10001'  #
         self._random = None  #
-
         self._can_help = True  # 是否能帮好友打工
+        self._friend_list = []
 
     async def request(self, session, path, params, method='GET'):
         """
@@ -61,15 +56,14 @@ class JxFactory:
         try:
             time_ = datetime.now()
             default_params = {
-                '_time': int(time_.timestamp()*1000),
+                '_time': int(time_.timestamp() * 1000),
                 'g_ty': 'ls',
                 'callback': 'jsonp',
                 'sceneval': '2',
                 'g_login_type': '1',
-                '_': int(time.time() * 1000),
+                '_': int(time_.timestamp() * 1000) + 2,
                 '_ste': '1',
-                'timeStamp': int(time.time()*1000),
-                'zone': 'dream_factory'
+                'timeStamp': int(time.time() * 1000),
             }
             params.update(default_params)
             url = self._host + path + '?' + urlencode(params)
@@ -96,87 +90,28 @@ class JxFactory:
                 'msg': '请求服务器失败'
             }
 
-    async def get_encrypt(self):
+    async def get_user_info_by_pin(self, session, pin):
         """
-        获取签名算法
+        根据pin获取用户信息
+        :param session:
+        :param pin:
+        :return:
         """
-        url = 'https://cactus.jd.com/request_algo?g_ty=ajax'
-        headers = {
-            'Authority': 'cactus.jd.com',
-            'Pragma': 'no-cache',
-            'Cache-Control': 'no-cache',
-            'Accept': 'application/json',
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
-            'Content-Type': 'application/json',
-            'Origin': 'https://st.jingxi.com',
-            'Sec-Fetch-Site': 'cross-site',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Dest': 'empty',
-            'Referer': 'https://st.jingxi.com/',
-            'Accept-Language': 'zh-CN,zh;q=0.9,zh-TW;q=0.8,en;q=0.7'
+        path = 'dreamfactory/userinfo/GetUserInfoByPin'
+        params = {
+            'zone': 'dream_factory',
+            'pin': pin,
+            'sharePin': '',
+            'shareType': '',
+            'materialTuanPin': '',
+            'materialTuanId': '',
+            'source': '',
+            '_stk': '_time,materialTuanId,materialTuanPin,pin,sharePin,shareType,source,zone',
         }
-        body = {
-            "version": "1.0",
-            "fp": self._fp,
-            "appId": self._appid,
-            "timestamp": int(time.time()*1000),
-            "platform": "web",
-            "expandParams": ""
-        }
-        algo_map = {
-            'md5': md5,
-            'hmacmd5': hmacMD5,
-            'sha256': sha256,
-            'hmacsha256': hmacSha256,
-            'sha512': sha512,
-            'hmacsha512': sha512,
-        }
-        try:
-            async with aiohttp.ClientSession(cookies=self._cookies, headers=headers) as session:
-                response = await session.post(url=url, data=json.dumps(body))
-                text = await response.text()
-                data = json.loads(text)
-                if data['status'] == 200:
-                    self._token = data['data']['result']['tk']
-                    self._random = re.search("random='(.*)';", data['data']['result']['algo']).group(1)
-                    algo = re.search(r'algo\.(.*)\(', data['data']['result']['algo']).group(1)
-                    if algo.lower() in algo_map:
-                        self._algo = algo_map[algo.lower()]
-                    else:
-                        self._algo = algo_map['hmacsha512']
-                        self._random = '5gkjB6SpmC9s'
-                        self._token = 'tk01wcdf61cb3a8nYUtHcmhSUFFCfddDPRvKvYaMjHkxo6Aj7dhzO+GXGFa9nPXfcgT' \
-                                      '+mULoF1b1YIS1ghvSlbwhE0Xc '
-                else:
-                    println('{}, 获取签名算法失败!'.format(self._pt_pin))
-
-        except Exception as e:
-            println('{}, 获取签名算法失败, {}!'.format(self._pt_pin, e.args))
-
-    async def encrypt(self, timestamp=None, url='',  stk=''):
-        """
-        获取签名
-        """
-        timestamp = 20210721161534621
-        if not stk:
-            url = furl(url)
-            stk = url.args.get('_stk', '')
-
-        s = '{}{}{}{}{}'.format(self._token, self._fp, timestamp, self._appid, self._random)
-        try:
-            hash1 = self._algo(s, self._token)
-        except Exception as e:
-            hash1 = self._algo(s)
-        tmp = []
-        tmp_url = furl(url)
-        for key in stk.split(','):
-            if key == '':
-                continue
-            tmp_s = '{}:{}'.format(key, tmp_url.args.get(key, ''))
-            tmp.append(tmp_s)
-        st = '&'.join(tmp)
-        hash2 = hmacSha256(st, hash1)
-        return ';'.join([str(timestamp), str(self._fp), self._appid, self._token, hash2])
+        data = await self.request(session, path, params)
+        if not data or data['ret'] != 0:
+            return None
+        return data
 
     async def get_user_info(self, session):
         """
@@ -189,7 +124,8 @@ class JxFactory:
             'shareType': '',
             'materialTuanPin': '',
             'materialTuanId': '',
-            'source': ''
+            'source': '',
+            'zone': 'dream_factory'
         }
         data = await self.request(session, path, params)
         if data['ret'] != 0:
@@ -197,49 +133,80 @@ class JxFactory:
             return None
         return data
 
-    async def collect_user_electricity(self, session):
+    async def query_friend_list(self, session):
         """
-        收取电量
+        查询好友列表
+        :param session:
+        :return:
+        """
+        println('{}, 正在获取好友信息列表...'.format(self._pt_pin))
+        path = 'dreamfactory/friend/QueryFactoryManagerList'
+        params = {
+            'sort': 0,
+            '_stk': '_time,sort,zone',
+            'zone': 'dream_factory',
+        }
+        data = await self.request(session, path, params)
+        if not data or data['ret'] != 0:
+            println('{}, 获取好友列表失败!'.format(self._pt_pin))
+            return
+        friend_list = data['list']
+        for friend in friend_list:
+            if 'encryptPin' not in friend:
+                continue
+            self._friend_list.append(friend['encryptPin'])
+        println('{}, 成功获取{}个好友信息!'.format(self._pt_pin, len(self._friend_list)))
+
+    async def collect_user_electricity(self, session, phone_id=None, factory_id=None, nickname=None, double_flag=1):
+        """
+        收取发电机电量, 默认收取自己的
+        :param nickname:
+        :param double_flag: 是否翻倍
+        :param factory_id: 工厂ID
+        :param phone_id: 手机设备ID
         :param session:
         :return:
         """
         path = 'dreamfactory/generator/CollectCurrentElectricity'
+
+        if not phone_id:
+            phone_id = self._phone_id
+        if not factory_id:
+            factory_id = self._factory_id
+        if not nickname:
+            nickname = self._nickname
         params = {
-            'pgtimestamp': str(int(time.time()*1000)),
-            'apptoken': 'a65979d104f9154076c8c47d2846d516',
-            'phoneID': self._phone_id,
-            'factoryid': self._factory_id,
-            'doubleflag': 1,
+            'pgtimestamp': str(int(time.time() * 1000)),
+            'apptoken': '',
+            'phoneID': phone_id,
+            'factoryid': factory_id,
+            'doubleflag': double_flag,
             'timeStamp': 'undefined',
-            'zone': 'dream_factory',
             '_stk': '_time,apptoken,doubleflag,factoryid,pgtimestamp,phoneID,zone',
+            'zone': 'dream_factory',
         }
         data = await self.request(session, path, params, 'GET')
         if not data or data['ret'] != 0:
-            println('{}, 收取电量失败, {}'.format(self._pt_pin, data))
+            println('{}, 收取用户:{}的电量失败, {}'.format(self._pt_pin, nickname, data))
         else:
-            println('{}, 成功收取电量:{}!'.format(self._pt_pin, data['CollectElectricity']))
+            println('{}, 成功收取用户:{}的电量:{}!'.format(self._pt_pin, nickname, data['CollectElectricity']))
 
-    async def get_user_electricity(self, session):
+    async def query_user_electricity(self, session, factory_id=None, pin=None, nickname=None):
         """
-        查询用户电量, 如果满了就收取电量
+        查询当前用户发电机电量, 如果满了就收取电量
         """
+        if not factory_id:
+            factory_id = self._factory_id
+        if not nickname:
+            nickname = self._nickname
         path = 'dreamfactory/generator/QueryCurrentElectricityQuantity'
         body = {
-            'factoryid': self._factory_id,
+            'factoryid': factory_id,
             '_stk': '_time,factoryid,zone',
+            'zone': 'dream_factory'
         }
         data = await self.request(session, path, body)
-        if not data or data['ret'] != 0:
-            println('{}, 查询用户电量失败!'.format(self._pt_pin))
-            return
-
-        # 电量满了收取电量
-        if int(data['currentElectricityQuantity']) >= data['maxElectricityQuantity']:
-            await self.collect_user_electricity(session)
-        else:
-            println('{}, 当前电量:{}/{}，暂不收取!'.format(self._pt_pin, int(data['currentElectricityQuantity']),
-                                                  data['maxElectricityQuantity']))
+        return data
 
     async def init(self, session):
         """
@@ -270,16 +237,17 @@ class JxFactory:
         self._nickname = user_info['user']['nickname']
         return True
 
-    async def query_friend_list(self, session):
+    async def query_work_info(self, session):
         """
-        查询招工情况
+        查询招工/打工情况
         :param session:
         :return:
         """
         path = 'dreamfactory/friend/QueryFriendList'
         params = {
             'body': '',
-            '_stk': '_time,zone'
+            '_stk': '_time,zone',
+            'zone': 'dream_factory',
         }
         data = await self.request(session, path, params)
         if not data:
@@ -314,7 +282,7 @@ class JxFactory:
         num = data['prizeInfo'].replace('\n', '')
         println('{}, 领取任务:《{}》奖励成功, 获得电力:{}!'.format(self._pt_pin, task['taskName'], num))
 
-    async def get_task_list(self, session):
+    async def do_task_list(self, session):
         """
         获取任务列表
         :param session:
@@ -337,20 +305,37 @@ class JxFactory:
             if task['completedTimes'] >= task['targetTimes'] and task['awardStatus'] != 1:
                 await self.get_task_award(session, task)
                 await asyncio.sleep(1)
+                continue
 
-            #println(task['awardStatus'])
+            if task['taskType'] in [2, 9]:
+                await self.do_task(session, task)
+                await asyncio.sleep(1)
 
-    async def pick_up(self, session):
+    async def do_task(self, session, task):
         """
-        收零件
+        做任务
+        :param task:
+        :param session:
+        :return:
         """
-        path = 'dreamfactory/usermaterial/GetUserComponent'
+        if task['completedTimes'] >= task['targetTimes']:
+            println('{}, 任务《{}》今日已完成!'.format(self._pt_pin, task['taskName']))
+            return
+
+        path = 'newtasksys/newtasksys_front/DoTask'
         params = {
-            'pin': self._pin,
-            '_stk': '_time,pin,zone'
+            'source': 'dreamfactory',
+            'bizCode': 'dream_factory',
+            '_stk': '_time,bizCode,configExtra,source,taskId',
+            'taskId': task['taskId'],
+            'configExtra': ''
         }
-        data = await self.request(session, path, params)
-        println(data)
+        for i in range(task['completedTimes'], task['targetTimes']):
+            data = await self.request(session, path, params)
+            if not data or data['ret'] != 0:
+                break
+            await asyncio.sleep(1)
+        await self.get_task_award(session, task)
 
     async def run(self):
         """
@@ -362,14 +347,12 @@ class JxFactory:
             if not success:
                 println('{}, 初始化失败!'.format(self._pt_pin))
                 return
-            await self.pick_up(session)
-            # await self.get_user_electricity(session)
-            # await self.query_friend_list(session)
-            # await self.get_task_list(session)
+            await self.do_task_list(session)  # 做任务
 
 
 def start(pt_pin, pt_key):
     """
+    程序入口
     """
     app = JxFactory(pt_pin, pt_key)
     asyncio.run(app.run())
@@ -377,5 +360,5 @@ def start(pt_pin, pt_key):
 
 if __name__ == '__main__':
     from config import JD_COOKIES
+
     start(*JD_COOKIES[0].values())
-    #println(sha256('_time:1626856317724&apptoken:&doubleflag:1&factoryid:1099558512495&pgtimestamp:&phoneID:&timeStamp:&zone:dream_factory', '1cb64d2c5e8979479ca7a1a047dcd22311fb91344abf42522d5415251616c41c'))

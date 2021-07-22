@@ -19,12 +19,11 @@ def clean_log():
     count = 0
     today_date = moment.now().format('YYYY-M-D')
     for file in os.listdir(LOG_DIR):
-        if not os.path.isfile(file):  # 跳过文件夹
-            continue
         if os.path.splitext(file)[-1] != '.log':   # 跳过非日志文件
             continue
         try:
             date = re.split(r'\.|_', file)[-2]
+
             if date == today_date:  # 跳过当天的记录
                 continue
             os.remove(os.path.join(LOG_DIR, file))
