@@ -4,11 +4,13 @@
 # @File    : jx_factory.py
 # @Project : jd_scripts
 # @Desc    : 京喜App->惊喜工厂
+import moment
 import time
 import re
 import json
 import aiohttp
 import asyncio
+from furl import furl
 from datetime import datetime
 from urllib.parse import unquote, urlencode
 from utils.algo import JxSignAlgoMixin
@@ -48,7 +50,7 @@ class JxFactory(JxSignAlgoMixin):
         self._pin = ''  # 账号ID
         self._random = None  #
         self._can_help = True  # 是否能帮好友打工
-        self._friend_list = []
+        self._active_id = ''
 
     async def request(self, session, path, params, method='GET'):
         """
@@ -140,6 +142,7 @@ class JxFactory(JxSignAlgoMixin):
         :return:
         """
         println('{}, 正在获取好友信息列表...'.format(self._pt_pin))
+        res = []
         path = 'dreamfactory/friend/QueryFactoryManagerList'
         params = {
             'sort': 0,
@@ -149,17 +152,49 @@ class JxFactory(JxSignAlgoMixin):
         data = await self.request(session, path, params)
         if not data or data['ret'] != 0:
             println('{}, 获取好友列表失败!'.format(self._pt_pin))
-            return
+            return []
+
         friend_list = data['list']
+
         for friend in friend_list:
             if 'encryptPin' not in friend:
                 continue
-            self._friend_list.append(friend['encryptPin'])
-        println('{}, 成功获取{}个好友信息!'.format(self._pt_pin, len(self._friend_list)))
+            res.append(friend['encryptPin'])
+        println('{}, 成功获取{}个好友信息!'.format(self._pt_pin, len(res)))
+        return res
 
-    async def collect_user_electricity(self, session, phone_id=None, factory_id=None, nickname=None, double_flag=1):
+    async def collect_friend_electricity(self, session):
+        """
+        收取好友电量
+        :param session:
+        :return:
+        """
+        friend_pin_list = await self.query_friend_list(session)
+
+        for friend_pin in friend_pin_list:
+            friend_info = await self.get_user_info_by_pin(session, friend_pin)
+            await asyncio.sleep(0.2)
+            if not friend_info:
+                continue
+            if friend_info['ret'] != 0:
+                continue
+            if 'factoryList' not in friend_info or not friend_info['factoryList']:
+                continue
+
+            if 'user' not in friend_info or not friend_info['user']:
+                continue
+
+            factory_id = friend_info['factoryList'][0]['factoryId']
+            pin = friend_info['user']['pin']
+            nickname = friend_info['user']['nickname']
+            await self.query_user_electricity(session, factory_id=factory_id, pin=pin, nickname=nickname)
+            await asyncio.sleep(1)
+
+    async def collect_user_electricity(self, session, phone_id=None, factory_id=None,
+                                       nickname=None, pin=None, double_flag=1):
         """
         收取发电机电量, 默认收取自己的
+        :param pin:
         :param nickname:
         :param double_flag: 是否翻倍
         :param factory_id: 工厂ID
@@ -185,28 +220,82 @@ class JxFactory(JxSignAlgoMixin):
             '_stk': '_time,apptoken,doubleflag,factoryid,pgtimestamp,phoneID,zone',
             'zone': 'dream_factory',
         }
+        if pin:
+            params['master'] = pin
+            params['_stk'] = '_time,apptoken,doubleflag,factoryid,master,pgtimestamp,phoneID,zone'
         data = await self.request(session, path, params, 'GET')
         if not data or data['ret'] != 0:
             println('{}, 收取用户:{}的电量失败, {}'.format(self._pt_pin, nickname, data))
         else:
             println('{}, 成功收取用户:{}的电量:{}!'.format(self._pt_pin, nickname, data['CollectElectricity']))
 
-    async def query_user_electricity(self, session, factory_id=None, pin=None, nickname=None):
+    async def query_user_electricity(self, session, factory_id=None, phone_id=None, nickname=None, pin=None):
         """
         查询当前用户发电机电量, 如果满了就收取电量
         """
         if not factory_id:
             factory_id = self._factory_id
+        if not phone_id:
+            phone_id = self._phone_id
         if not nickname:
             nickname = self._nickname
+
         path = 'dreamfactory/generator/QueryCurrentElectricityQuantity'
         body = {
             'factoryid': factory_id,
             '_stk': '_time,factoryid,zone',
             'zone': 'dream_factory'
         }
+        if pin:
+            body['master'] = pin
+            body['_stk'] = '_time,factoryid,master,zone'
         data = await self.request(session, path, body)
-        return data
+        if data['ret'] != 0:
+            println('{}, 查询电量失败！'.format(self._pt_pin))
+            return
+
+        if int(data['currentElectricityQuantity']) >= data['maxElectricityQuantity']:
+            await self.collect_user_electricity(session, phone_id, factory_id, nickname, pin)
+        else:
+            println('{}, 用户:{}, 当前电量:{}/{}, 不收取!'.format(self._pt_pin,
+                                                         nickname, int(data['currentElectricityQuantity']),
+                                                         data['maxElectricityQuantity']))
+
+    async def get_active_id(self, session):
+        """
+        获取每期拼团的活动ID
+        :param session:
+        :return:
+        """
+        try:
+            println('{}, 正在获取拼团活动ID...'.format(self._pt_pin))
+            url = 'https://wqsd.jd.com/pingou/dream_factory/index.html'
+            response = await session.get(url)
+            text = await response.text()
+            res = re.search(r'window\._CONFIG = (.*) ;var __getImgUrl', text).group(1)
+            data = json.loads(res)
+            for item in data:
+                if 'skinConfig' not in item:
+                    continue
+                conf_list = item['skinConfig']
+                for conf in conf_list:
+                    if 'adConfig' not in conf:
+                        continue
+                    ad_list = conf['adConfig']
+                    for ad in ad_list:
+                        if not ad['start'] or not ad['end']:
+                            continue
+                        start_date = moment.date(ad['start'])
+                        end_date = moment.date(ad['end'])
+                        now = moment.now()
+                        if start_date < now < end_date:
+                            url = furl(ad['link'].split(',')[0])
+                            active_id = url.args.get('activeId', '')
+                            println('{}, 拼团活动ID为:{}'.format(self._pt_pin, active_id))
+                            return active_id
+        except Exception as e:
+            println('{}, 获取拼团活动ID失败, {}!'.format(self._pt_pin, e.args))
+            return ''
 
     async def init(self, session):
         """
@@ -335,7 +424,74 @@ class JxFactory(JxSignAlgoMixin):
             if not data or data['ret'] != 0:
                 break
             await asyncio.sleep(1)
-        await self.get_task_award(session, task)
+            await self.get_task_award(session, task)
+
+    async def query_tuan_info(self, session, active_id=None):
+        """
+        查询开团信息
+        :return:
+        """
+        if not active_id:
+            active_id = self._active_id
+        path = 'dreamfactory/tuan/QueryActiveConfig'
+        params = {
+            'activeId': active_id,
+            'tuanId': '',
+            '_stk': '_time,activeId,tuanId',
+        }
+        data = await self.request(session, path, params)
+        if not data or data['ret'] != 0:
+            println('{}, 获取团ID失败!'.format(self._pt_pin))
+            return []
+        return data['userTuanInfo']
+
+    async def create_tuan(self, session):
+        """
+        :return:
+        """
+        self._active_id = await self.get_active_id(session)
+        tuan_info = await self.query_tuan_info(session)
+
+        if tuan_info['isOpenTuan'] != 2:
+            path = 'dreamfactory/tuan/CreateTuan'
+            params = {
+                'activeId': self._active_id,
+                'isOpenApp': 1,
+                '_stk': '_time,activeId,isOpenApp'
+            }
+            data = await self.request(session, path, params)
+            if not data or data['ret'] != 0:
+                println('{}, 开团失败!'.format(self._pt_pin))
+                return ''
+            println('{}, 开团成功, 团ID：{}!'.format(self._pt_pin, data['tuanId']))
+            return data['tuanId']
+
+        println('{}, 已开过团, 团ID: {}!'.format(self._pt_pin, tuan_info['tuanId']))
+        return tuan_info['tuanId']
+
+    async def join_tuan(self, session, tuan_id=None):
+        """
+        参团
+        :param tuan_id:
+        :param session:
+        :return:
+        """
+        path = 'dreamfactory/tuan/JoinTuan'
+        params = {
+            'activeId': self._active_id,
+            'tuanId': 'FfCW8rRQrxfpaQfG_COFDw==',
+            '_stk': '_time,activeId,tuanId'
+        }
+        data = await self.request(session, path, params)
+
+        if not data:
+            println('{}, 无法参团, 团ID:{}!'.format(self._pt_pin, tuan_id))
+            return
+
+        if data['ret'] in [10208, 0]:
+            println('{}, 已成功参团, 团ID: {}'.format(self._pt_pin, tuan_id))
+        else:
+            println('{}, 无法参团, 团ID:{}, {}'.format(self._pt_pin, tuan_id, data['msg']))
 
     async def run(self):
         """
@@ -347,7 +503,11 @@ class JxFactory(JxSignAlgoMixin):
             if not success:
                 println('{}, 初始化失败!'.format(self._pt_pin))
                 return
-            await self.do_task_list(session)  # 做任务
+            await self.create_tuan(session)
+            await self.join_tuan(session)
+            # await self.do_task_list(session)  # 做任务
+            # await self.query_user_electricity(session)  # 查询当前用户电量, 满了则收取电量
+            # await self.collect_friend_electricity(session)
 
 
 def start(pt_pin, pt_key):

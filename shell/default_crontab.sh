@@ -87,7 +87,7 @@
 # 翻翻乐
 30 * * * * /usr/local/bin/python /scripts/jd_big_winner.py >> /scripts/logs/jd_big_winner_`date "+%Y-%m-%d"`.log 2>&1
 
-# 每天23:30清除前一天的日期
+# 每天23:30清除前一天日志
 30 23 * * * /usr/local/bin/python /scripts/clean_log.py
 
 # 每2个小时检查一次cookies是否过期
