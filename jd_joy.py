@@ -10,7 +10,7 @@ import os
 import random
 import aiohttp
 from utils.console import println
-from urllib.parse import unquote
+from urllib.parse import unquote, urlencode
 from config import USER_AGENT, IMAGES_DIR
 from utils.image import save_img, detect_displacement
 from utils.browser import open_page, open_browser
@@ -50,25 +50,33 @@ class JdPetDogBase:
                 'value': pt_key,
             }
         ]
+        self._aiohttp_cookies = {
+            'pt_pin': pt_pin,
+            'pt_key': pt_key,
+        }
         self._pt_pin = unquote(pt_pin)
+        self.browser = None  # 浏览器对象
+        self.page = None  # 页面标签对象
 
     async def validate(self):
         """
         :return:
         """
-        browser = await open_browser()
-        page = await open_page(browser, self.url, USER_AGENT, self._cookies)
-
+        if not self.browser:
+            self.browser = await open_browser()
+        if not self.page:
+            self.page = await open_page(self.browser, self.url, USER_AGENT, self._cookies)
+        page = self.page
         validator_selector = '#app > div > div > div > div.man-machine > div.man-machine-container'
         validator = await page.querySelector(validator_selector)
         if not validator:
             println('{}, 不需要拼图验证...'.format(self._pt_pin))
-            return await page.cookies()
+            return True
         else:
             box = await validator.boundingBox()
             if not box:
                 println('{}, 不需要拼图验证...'.format(self._pt_pin))
-                return await page.cookies()
+                return True
 
         println('{}, 需要进行拼图验证...'.format(self._pt_pin))
 
@@ -187,68 +195,171 @@ class JdPetDogBase:
         validator = await page.querySelector(validator_selector)
         if not validator:
             println('{}, 已完成拼图验证...'.format(self._pt_pin))
-            return await page.cookies()
+            return True
         else:
             box = await validator.boundingBox()
             if not box:
                 println('{}, 已完成拼图验证...'.format(self._pt_pin))
-                return await page.cookies()
+                return True
             else:
                 println('{}, 无法完成拼图验证...'.format(self._pt_pin))
                 return None
 
-    async def get_cookies(self):
+    async def request(self, session, path, body=None, method='GET'):
         """
-        获取拼图验证后的cookies
-        :return:
-        """
-        result_cookies = dict()
-        cookies = await self.validate()
-        if not cookies:
-            return None
-        for cookie in cookies:
-            result_cookies[cookie['name']] = cookie['value']
-        return result_cookies
-
-    async def get(self, session, url):
-        """
+        请求数据
         :param session:
-        :param url:
+        :param method:
+        :param path:
         :param body:
         :return:
         """
         try:
-            response = await session.get(url)
+            if not body:
+                body = dict()
+            body.update({
+                'reqSource': 'h5',
+                'invokeKey': 'qRKHmL4sna8ZOP9F'
+            })
+            url = 'https://jdjoy.jd.com/common/{}'.format(path) + '?' + urlencode(body)
+            if method == 'GET':
+                response = await session.get(url)
+            else:
+                response = await session.post(url)
             text = await response.text()
             data = json.loads(text)
-            return data
+            if not data['errorCode']:
+                if 'data' in data:
+                    return data['data']
+                if 'datas' in data:
+                    return data['datas']
+                return data
+
+            if data['errorCode'] == 'H0001':  # 需要拼图验证
+                is_success = await self.validate()
+                if is_success:
+                    return await self.request(session, path, body, method)
+            return None
         except Exception as e:
             println('{}, 获取服务器数据失败:{}'.format(self._pt_pin, e.args))
+            return None
 
-    async def get_task_list(self, session):
+    async def sign_every_day(self, session, task):
         """
-        获取任务列表
+        每日签到
+        """
+        pass
+
+    async def get_task_food(self, session, task):
+        """
+        领取任务奖励狗粮
+        """
+        path = 'pet/getFood'
+        body = {
+            'taskType': task['taskType']
+        }
+        data = await self.request(session, path, body)
+        if not data:
+            println('{}, 领取')
+
+    async def follow_shop(self, session, task):
+        """
+        关注店铺
+        """
+        path = 'pet/icon/click'
+        shop_list = task['followShops']
+        for shop in shop_list:
+            params = {
+                'iconCode': 'follow_shop',
+                'linkAddr': shop['shopId']
+            }
+            data = await self.request(session, path, params)
+            if not data:
+                println('{}, 关注店铺:{}失败!'.format(self._pt_pin, shop['name']))
+            else:
+                println('{}, 成功关注店铺:{}!'.format(self._pt_pin, shop['name']))
+            await asyncio.sleep(0.1)
+
+    async def follow_good(self, session, task):
+        """
+        关注商品
+        """
+        path = 'pet/icon/click'
+        good_list = task['followGoodList']
+
+        for good in good_list:
+            params = {
+                'iconCode': 'follow_good',
+                'linkAddr': good['sku']
+            }
+            data = await self.request(session, path, params)
+            if not data:
+                println('{}, 关注商品:{}失败!'.format(self._pt_pin, good['skuName']))
+            else:
+                println('{}, 成功关注商品:{}!'.format(self._pt_pin, good['skuName']))
+            await asyncio.sleep(0.1)
+
+    async def follow_channel(self, session, task):
+        """
+        """
+        path = 'pet/icon/click'
+        channel_list = task['followChannelList']
+
+        for channel in channel_list:
+            params = {
+                'iconCode': 'follow_channel',
+                'linkAddr': channel['channelId']
+            }
+            data = await self.request(session, path, params)
+            if not data:
+                println('{}, 浏览频道:{}失败!'.format(self._pt_pin, channel['channelName']))
+            else:
+                println('{}, 成功浏览频道:{}!'.format(self._pt_pin, channel['channelName']))
+            await asyncio.sleep(0.1)
+
+    async def do_task_list(self, session):
+        """
+        做任务
         :return:
         """
-        url = 'https://jdjoy.jd.com/common/pet/getPetTaskConfig?reqSource=h5&invokeKey=NRp8OPxZMFXmGkaE'
-        data = await self.get(session, url)
-        println(data)
+        path = 'pet/getPetTaskConfig'
+        task_list = await self.request(session, path)
+        if not task_list:
+            println('{}, 获取任务列表失败!'.format(self._pt_pin))
+            return
+
+        for task in task_list:
+            println(task)
+            if task['receiveStatus'] == 'unreceive':
+                await self.get_task_food(session, task)
+                await asyncio.sleep(1)
+
+            if task['taskType'] == 'SignEveryDay':
+                await self.sign_every_day(session, task)
+
+            elif task['taskType'] == 'FollowShop':
+                await self.follow_shop(session, task)
+
+            elif task['taskType'] == 'FollowGood':
+                await self.follow_good(session, task)
+
+            elif task['taskType'] == 'FollowChannel':
+                await self.follow_channel(session, task)
 
 
-class JdPetDogTask(JdPetDogBase):
+class JdPetDog(JdPetDogBase):
     """
-    宠汪汪任务
+    宠汪汪
     """
     async def run(self):
-        cookies = await self.get_cookies()
-        if not cookies:
-            println('{}, 获取COOKIES失败, 退出程序...'.format(self._pt_pin))
-            return
-        async with aiohttp.ClientSession(headers=self.headers, cookies=cookies) as session:
-            await self.get_task_list(session)
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies) as session:
+            await self.do_task_list(session)
+
+        if self.browser:
+            await self.browser.close()
 
 
 if __name__ == '__main__':
     from config import JD_COOKIES
-    app = JdPetDogTask(*JD_COOKIES[0].values())
+    app = JdPetDog(*JD_COOKIES[0].values())
     asyncio.run(app.run())
