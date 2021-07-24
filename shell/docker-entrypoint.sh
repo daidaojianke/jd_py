@@ -1,17 +1,17 @@
 #!/bin/bash
 echo "######开始执行更新脚本######"
 
-if [ -z $CODE_DIR]; then
+if [ -z $CODE_DIR ]; then
   CODE_DIR=/scripts
 fi
 
-if [ -z $REPO_URL]; then
+if [ -z $REPO_URL ]; then
   REPO_URL=https://gitee.com/ClassmateLin/jd_scripts
 fi
 
-if [ ! -d $CODE_DIR ]; then
+if [ ! -d $CODE_DIR/.git ]; then
   echo "代码目录为空, 开始clone代码..."
-  git clone $REPO_URL $CODE_DIR
+  cd / && rm -rf $CODE_DIR && git clone $REPO_URL $CODE_DIR
 fi
 
 if [ -f "$CODE_DIR/config.yaml" ]; then
