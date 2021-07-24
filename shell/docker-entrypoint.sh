@@ -1,45 +1,44 @@
 #!/bin/bash
+echo "######开始执行更新脚本######"
 
-CODE_DIR='/scripts'
-
-if [ -d "$CODE_DIR/logs" ]; then
-  echo "目录文件已存在"
-else
-  mkdir $CODE_DIR/logs
+if [ -z $CODE_DIR]; then
+  CODE_DIR=/scripts
 fi
 
-if [ -f "$CODE_DIR/logs/conf.lock" ]; then
-    echo "存在配置锁定文件，不执行配置复制操作!"
+if [ -z $REPO_URL]; then
+  REPO_URL=https://gitee.com/ClassmateLin/jd_scripts
+fi
+
+if [ ! -d $CODE_DIR ]; then
+  echo "代码目录为空, 开始clone代码..."
+  git clone $REPO_URL $CODE_DIR
+fi
+
+if [ -f "$CODE_DIR/config.yaml" ]; then
+    echo "配置文件已存在, 跳过..."
 else
-  echo "######初始化配置#####"
+  echo "配置文件不存在, 复制配置文件..."
   cp $CODE_DIR/conf/.config_example.yaml $CODE_DIR/conf/config.yaml
   cp $CODE_DIR/conf/.crontab.sh $CODE_DIR/conf/crontab.sh
-  echo "######添加配置锁定文件######"
-  echo "lock" >> $CODE_DIR/logs/conf.lock;
 fi
 
-if [ -f "$CODE_DIR/logs/pull.lock" ]; then
-  echo "存在更新锁定文件，跳过git pull操作..."
-else
-  echo "git pull拉取最新代码..."
-  cd $CODE_DIR && git pull
-  echo "pip install 安装最新依赖"
-  pip install -r $CODE_DIR/requirements.txt
-  echo "替換更新文件"
-  rm -rf /docker-entrypoint.sh
-  cp $CODE_DIR/shell/docker-entrypoint.sh /
-  chmod a+x /docker-entrypoint.sh
-  echo "重新配置定时任务..."
-  crontab -r
-  cat $CODE_DIR/shell/default_crontab.sh >> /etc/crontabs/root
-  cat $CODE_DIR/conf/crontab.sh >> /etc/crontabs/root
-fi
+echo "git pull拉取最新代码..."
+cd $CODE_DIR && git pull
+echo "pip install 安装最新依赖..."
+pip install -r $CODE_DIR/requirements.txt
+echo "更新docker-entrypoint..."
+cp $CODE_DIR/shell/docker-entrypoint.sh /bin/docker-entrypoint
+chmod a+x /bin/docker-entrypoint
 
+echo "更新crontab任务..."
+crontab -r
+cat $CODE_DIR/shell/default_crontab.sh >> /var/spool/cron/crontabs/root
+echo -e "\n" >> /var/spool/cron/crontabs/root
+cat $CODE_DIR/conf/crontab.sh >> /var/spool/cron/crontabs/root
+echo "重载crontab配置..."
+/etc/init.d/cron reload
 
-PID=`ps -ef |grep myprocess |grep -v grep | awk '{print $2}'`
-if [ "$PID" != "" ]; then
-  echo "######定时任务已存在!######"
-else
-  echo "######启动定时任务######"
-  crond -f /etc/crontabs/;
-fi
+echo "######更新脚本执行完毕######"
+
+# 保证容器不退出
+tail -f /dev/null

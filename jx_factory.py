@@ -187,7 +187,9 @@ class JxFactory(JxSignAlgoMixin):
             factory_id = friend_info['factoryList'][0]['factoryId']
             pin = friend_info['user']['pin']
             nickname = friend_info['user']['nickname']
-            await self.query_user_electricity(session, factory_id=factory_id, pin=pin, nickname=nickname)
+            status = await self.query_user_electricity(session, factory_id=factory_id, pin=pin, nickname=nickname)
+            if status == -1:  # 今日收取好友电量达到上限
+                return
             await asyncio.sleep(1)
 
     async def collect_user_electricity(self, session, phone_id=None, factory_id=None,
@@ -226,6 +228,8 @@ class JxFactory(JxSignAlgoMixin):
         data = await self.request(session, path, params, 'GET')
         if not data or data['ret'] != 0:
             println('{}, 收取用户:{}的电量失败, {}'.format(self._pt_pin, nickname, data))
+            if data['ret'] == 11010:
+                return -1
         else:
             println('{}, 成功收取用户:{}的电量:{}!'.format(self._pt_pin, nickname, data['CollectElectricity']))
 
@@ -255,7 +259,7 @@ class JxFactory(JxSignAlgoMixin):
             return
 
         if int(data['currentElectricityQuantity']) >= data['maxElectricityQuantity']:
-            await self.collect_user_electricity(session, phone_id, factory_id, nickname, pin)
+            return await self.collect_user_electricity(session, phone_id, factory_id, nickname, pin)
         else:
             println('{}, 用户:{}, 当前电量:{}/{}, 不收取!'.format(self._pt_pin,
                                                          nickname, int(data['currentElectricityQuantity']),
@@ -505,9 +509,9 @@ class JxFactory(JxSignAlgoMixin):
                 return
             await self.create_tuan(session)
             await self.join_tuan(session)
-            # await self.do_task_list(session)  # 做任务
-            # await self.query_user_electricity(session)  # 查询当前用户电量, 满了则收取电量
-            # await self.collect_friend_electricity(session)
+            await self.do_task_list(session)  # 做任务
+            await self.query_user_electricity(session)  # 查询当前用户电量, 满了则收取电量
+            await self.collect_friend_electricity(session)
 
 
 def start(pt_pin, pt_key):
