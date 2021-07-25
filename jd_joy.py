@@ -514,4 +514,5 @@ def start(pt_pin, pt_key):
 
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(start, '宠汪汪做任务')
+    from config import JOY_PROCESS_NUM
+    process_start(start, '宠汪汪做任务', process_num=JOY_PROCESS_NUM)
