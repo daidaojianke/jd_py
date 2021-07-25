@@ -50,6 +50,9 @@ JD_DEBUG = cfg.get('debug', True)
 # 默认进程数量
 PROCESS_NUM = cfg.get('process_num', 4)
 
+# 宠汪汪进程数
+JOY_PROCESS_NUM = cfg.get('joy_process_num', 1)
+
 # JD COOKIES
 JD_COOKIES = [j for j in [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1),
                            'pt_key': re.search('pt_key=(.*?);', i).group(1)}

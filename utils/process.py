@@ -10,7 +10,7 @@ from utils.console import println
 from config import JD_COOKIES, PROCESS_NUM
 
 
-def process_start(func, name=''):
+def process_start(func, name='', process_num=None):
     """
     从配置中读取JD_COOKIES，开启多进程执行func。
     :param name: 活动名称
@@ -25,6 +25,9 @@ def process_start(func, name=''):
 
     if process_count > len(JD_COOKIES):
         process_count = len(JD_COOKIES)
+
+    if process_num:
+        process_count = process_num
 
     pool = multiprocessing.Pool(process_count)
 
