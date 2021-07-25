@@ -10,3 +10,4 @@ pillow
 moment
 python-telegram-bot
 opencv-python-headless
+ujson
