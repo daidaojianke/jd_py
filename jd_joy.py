@@ -9,6 +9,8 @@ import json
 import os
 import random
 import aiohttp
+import ujson
+
 from utils.console import println
 from urllib.parse import unquote, urlencode
 from config import USER_AGENT, IMAGES_DIR
@@ -16,7 +18,7 @@ from utils.image import save_img, detect_displacement
 from utils.browser import open_page, open_browser
 
 
-class JdPetDogBase:
+class JdPetDog:
     """
     宠汪汪, 需要使用浏览器方式进行拼图验证。
     """
@@ -205,52 +207,67 @@ class JdPetDogBase:
                 println('{}, 无法完成拼图验证...'.format(self._pt_pin))
                 return None
 
-    async def request(self, session, path, body=None, method='GET'):
+    async def request(self, session, path, body=None, method='GET', post_type='json'):
         """
         请求数据
         :param session:
         :param method:
         :param path:
+        :param post_type:
         :param body:
         :return:
         """
         try:
-            if not body:
-                body = dict()
-            body.update({
+            default_params = {
                 'reqSource': 'h5',
                 'invokeKey': 'qRKHmL4sna8ZOP9F'
-            })
-            url = 'https://jdjoy.jd.com/common/{}'.format(path) + '?' + urlencode(body)
+            }
+            if method == 'GET' and body:
+                default_params.update(body)
+
+            url = 'https://jdjoy.jd.com/common/{}'.format(path) + '?' + urlencode(default_params)
+
             if method == 'GET':
                 response = await session.get(url)
             else:
-                response = await session.post(url)
+                if post_type == 'json':
+                    content_type = session.headers.get('Content-Type', None)
+                    if content_type:
+                        session.headers.pop('Content-Type')
+                    response = await session.post(url, json=body)
+                else:
+                    session.headers.add('Content-Type', 'application/x-www-form-urlencoded')
+                    response = await session.post(url, data=body)
+
             text = await response.text()
             data = json.loads(text)
             if not data['errorCode']:
                 if 'data' in data:
                     return data['data']
-                if 'datas' in data:
+                elif 'datas' in data:
                     return data['datas']
                 return data
 
             if data['errorCode'] == 'H0001':  # 需要拼图验证
+                println('{}, 需要进行拼图验证!'.format(self._pt_pin))
                 is_success = await self.validate()
                 if is_success:
                     return await self.request(session, path, body, method)
-            return None
+            return data
+
         except Exception as e:
             println('{}, 获取服务器数据失败:{}'.format(self._pt_pin, e.args))
-            return None
+            return {
+                'errorCode': 9999
+            }
 
     async def sign_every_day(self, session, task):
         """
         每日签到
         """
-        pass
+        println('{}, 签到功能暂时未完成!'.format(self._pt_pin))
 
-    async def get_task_food(self, session, task):
+    async def get_award(self, session, task):
         """
         领取任务奖励狗粮
         """
@@ -259,26 +276,57 @@ class JdPetDogBase:
             'taskType': task['taskType']
         }
         data = await self.request(session, path, body)
-        if not data:
-            println('{}, 领取')
+
+        if not data or (data['errorCode'] and 'fail' in data['errorCode']):
+            println('{}, 领取任务: 《{}》 奖励失败!'.format(self._pt_pin, task['taskName']))
+        else:
+            println('{}, 成功领取任务: 《{}》 奖励!'.format(self._pt_pin, task['taskName']))
+
+    async def scan_market(self, session, task):
+        """
+        逛会场
+        """
+        market_list = task['scanMarketList']
+        path = 'pet/scan'
+        for market in market_list:
+            market_link = market['marketLink']
+            if market_link == '':
+                market_link = market['marketLinkH5']
+            params = {
+                'marketLink': market_link,
+                'taskType': task['taskType']
+            }
+            data = await self.request(session, path, params, method='POST')
+            if not data or (data['errorCode'] and 'success' not in data['errorCode']):
+                println('{}, 无法完成逛会场任务:{}!'.format(self._pt_pin, market['marketName']))
+            else:
+                println('{}, 成功完成逛会场任务:{}!'.format(self._pt_pin, market['marketName']))
+            await asyncio.sleep(3)
 
     async def follow_shop(self, session, task):
         """
         关注店铺
         """
-        path = 'pet/icon/click'
+        click_path = 'pet/icon/click'
         shop_list = task['followShops']
         for shop in shop_list:
-            params = {
+            click_params = {
                 'iconCode': 'follow_shop',
                 'linkAddr': shop['shopId']
             }
-            data = await self.request(session, path, params)
-            if not data:
-                println('{}, 关注店铺:{}失败!'.format(self._pt_pin, shop['name']))
+            await self.request(session, click_path, click_params)
+            await asyncio.sleep(0.5)
+
+            follow_path = 'pet/followShop'
+            follow_params = {
+                'shopId': shop['shopId']
+            }
+            data = await self.request(session, follow_path, follow_params, post_type='body', method='POST')
+            if not data or 'success' not in data:
+                println('{}, 无法关注店铺{}'.format(self._pt_pin, shop['name']))
             else:
-                println('{}, 成功关注店铺:{}!'.format(self._pt_pin, shop['name']))
-            await asyncio.sleep(0.1)
+                println('{}, 成功关注店铺: {}'.format(self._pt_pin, shop['name']))
+            await asyncio.sleep(1)
 
     async def follow_good(self, session, task):
         """
@@ -292,32 +340,51 @@ class JdPetDogBase:
                 'iconCode': 'follow_good',
                 'linkAddr': good['sku']
             }
-            data = await self.request(session, path, params)
+            await self.request(session, path, params)
+            await asyncio.sleep(1)
+
+            follow_path = 'pet/followGood'
+            params = {
+                'sku': good['sku']
+            }
+            data = await self.request(session, follow_path, params, method='POST', post_type='form')
             if not data:
                 println('{}, 关注商品:{}失败!'.format(self._pt_pin, good['skuName']))
             else:
                 println('{}, 成功关注商品:{}!'.format(self._pt_pin, good['skuName']))
-            await asyncio.sleep(0.1)
 
     async def follow_channel(self, session, task):
         """
         """
-        path = 'pet/icon/click'
-        channel_list = task['followChannelList']
+        channel_path = 'pet/getFollowChannels'
+        channel_list = await self.request(session, channel_path)
+        if not channel_list:
+            println('{}, 获取频道列表失败!'.format(self._pt_pin))
+            return
 
         for channel in channel_list:
-            params = {
+            if channel['status']:
+                continue
+            click_path = 'pet/icon/click'
+            click_params = {
                 'iconCode': 'follow_channel',
                 'linkAddr': channel['channelId']
             }
-            data = await self.request(session, path, params)
-            if not data:
-                println('{}, 浏览频道:{}失败!'.format(self._pt_pin, channel['channelName']))
+            await self.request(session, click_path, click_params)
+            follow_path = 'pet/scan'
+            follow_params = {
+                'channelId': channel['channelId'],
+                'taskType': task['taskType']
+            }
+            data = await self.request(session, follow_path, follow_params, method='POST')
+            await asyncio.sleep(0.5)
+            if not data or (data['errorCode'] and 'success' not in data['errorCode'] and 'repeat' not in data['errorCode']):
+                println('{}, 关注频道:{}失败!'.format(self._pt_pin, channel['channelName']))
             else:
-                println('{}, 成功浏览频道:{}!'.format(self._pt_pin, channel['channelName']))
-            await asyncio.sleep(0.1)
+                println('{}, 成功关注频道:{}!'.format(self._pt_pin, channel['channelName']))
+            await asyncio.sleep(3.1)
 
-    async def do_task_list(self, session):
+    async def do_task(self, session):
         """
         做任务
         :return:
@@ -329,31 +396,118 @@ class JdPetDogBase:
             return
 
         for task in task_list:
-            println(task)
             if task['receiveStatus'] == 'unreceive':
-                await self.get_task_food(session, task)
+                await self.get_award(session, task)
                 await asyncio.sleep(1)
+
+            if task['joinedCount'] and task['joinedCount'] >= task['taskChance']:
+                println('{}, 任务:{}今日已完成!'.format(self._pt_pin, task['taskName']))
+                continue
 
             if task['taskType'] == 'SignEveryDay':
                 await self.sign_every_day(session, task)
 
-            elif task['taskType'] == 'FollowShop':
-                await self.follow_shop(session, task)
-
-            elif task['taskType'] == 'FollowGood':
+            elif task['taskType'] == 'FollowGood':  # 关注商品
                 await self.follow_good(session, task)
 
-            elif task['taskType'] == 'FollowChannel':
+            elif task['taskType'] == 'FollowChannel':  # 关注频道
                 await self.follow_channel(session, task)
 
+            elif task['taskType'] == 'FollowShop':  # 关注店铺
+                await self.follow_shop(session, task)
 
-class JdPetDog(JdPetDogBase):
-    """
-    宠汪汪
-    """
+            elif task['taskType'] == 'ScanMarket':  # 逛会场
+                await self.scan_market(session, task)
+
+    async def get_friend_list(self, session, page=1):
+        """
+        获取好友列表
+        """
+        path = 'pet/h5/getFriends'
+        params = {
+            'itemsPerPage': 20,
+            'currentPage': page
+        }
+        friend_list = await self.request(session, path, params)
+        if not friend_list:
+            return []
+        return friend_list
+
+    async def help_friend_feed(self, session):
+        """
+        帮好友喂狗
+        """
+        cur_page = 0
+        while True:
+            cur_page += 1
+            friend_list = await self.get_friend_list(session, page=cur_page)
+            if not friend_list:
+                break
+
+            for friend in friend_list:
+                if friend['status'] == 'chance_full':
+                    println('{}, 今日帮好友喂狗次数已用完成!'.format(self._pt_pin))
+                    return
+
+                if friend['status'] != 'not_feed':
+                    continue
+
+                feed_path = 'pet/helpFeed'
+                feed_params = {
+                    'friendPin': friend['friendPin']
+                }
+                data = await self.request(session, feed_path, feed_params)
+                if data and data['errorCode'] and 'ok' in data['errorCode']:
+                    println('{}, 成功帮好友:{} 喂狗!'.format(self._pt_pin, friend['friendName']))
+                else:
+                    println(data)
+                await asyncio.sleep(1)
+            await asyncio.sleep(0.5)
+
+    async def joy_race(self, session, level=2):
+        """
+        参与赛跑
+        """
+        click_path = 'pet/icon/click'
+        click_params = {
+            'iconCode': 'race_match',
+        }
+        await self.request(session, click_path, click_params)
+        await asyncio.sleep(0.5)
+
+        match_path = 'pet/combat/match'
+        match_params = {
+            'teamLevel': level
+        }
+
+        for i in range(10):
+            data = await self.request(session, match_path, match_params)
+            if data['petRaceResult'] == 'participate':
+                println('{}, 成功参与赛跑!'.format(self._pt_pin))
+                return
+            await asyncio.sleep(1)
+        println('{}, 无法参与赛跑!'.format(self._pt_pin))
+
+    async def feed_food(self, session, feed_count=80):
+        """
+        喂狗, 默认80g
+        """
+        path = 'pet/feed'
+        params = {
+            'feedCount': feed_count
+        }
+        data = await self.request(session, path, params)
+        if data and data['errorCode'] and 'ok' in data['errorCode']:
+            println('{}, 成功喂狗一次, 消耗狗粮:{}!'.format(self._pt_pin, feed_count))
+        else:
+            println('{}, 喂狗失败!'.format(self._pt_pin))
+
     async def run(self):
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies) as session:
-            await self.do_task_list(session)
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies,  json_serialize=ujson.dumps) as session:
+            await self.joy_race(session)
+            await self.feed_food(session)
+            await self.help_friend_feed(session)
+            await self.do_task(session)
 
         if self.browser:
             await self.browser.close()
