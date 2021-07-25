@@ -14,7 +14,7 @@ if [ ! -d $CODE_DIR/.git ]; then
   cd / && rm -rf $CODE_DIR && git clone $REPO_URL $CODE_DIR
 fi
 
-if [ -f "$CODE_DIR/config.yaml" ]; then
+if [ -f "$CODE_DIR/conf/config.yaml" ]; then
     echo "配置文件已存在, 跳过..."
 else
   echo "配置文件不存在, 复制配置文件..."
