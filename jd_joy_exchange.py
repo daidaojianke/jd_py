@@ -1,0 +1,118 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time    : 2021/7/25 下午8:20 
+# @File    : jd_joy_exchange.py
+# @Project : jd_scripts 
+# @Desc    : 宠汪汪商品兑换
+import asyncio
+import aiohttp
+import ujson
+from jd_joy import JdJoy
+from datetime import datetime
+
+from utils.console import println
+
+
+class JdJoyExchange(JdJoy):
+    """
+    宠汪汪兑换京豆
+    """
+    def __init__(self, pt_pin, pt_key):
+        super(JdJoyExchange, self).__init__(pt_pin, pt_key)
+
+    async def exchange_bean(self, session):
+        """
+        积分换豆
+        """
+        path = 'gift/getBeanConfigs'
+        data = await self.request(session, path)
+        if not data:
+            println('{}, 获取奖品列表失败!'.format(self._pt_pin))
+            return
+
+        if datetime.now().hour >= 23:  # 0点场
+            start_time = datetime.strftime((datetime.now() + relativedelta(days=1)), "%Y-%m-%d 00:00:00")
+            key = 'beanConfigs0'
+        elif datetime.now().hour < 8 or 8 < datetime.now().hour < 16:  # 8点场
+            start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 08:00:00")
+            key = 'beanConfigs8'
+        elif datetime.now().hour < 16 or 16 < datetime.now().hour < 23:  # 16点场
+            start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 16:00:00")
+            key = 'beanConfigs16'
+        else:  # 默认16点场
+            start_time = datetime.now().strftime("%Y-%m-%d 16:00:00")
+            key = 'beanConfigs16'
+
+        gift_list = data[key]
+        pet_coin = data['petCoin']  # 当前积分
+        gift_id = None
+        gift_name = None
+        for gift in gift_list:
+            if pet_coin > gift['salePrice']:
+                gift_id = gift['id']
+                gift_name = gift['giftName']
+        if not gift_id:
+            println('{}, 当前不满足兑换商品条件!'.format(self._pt_pin))
+            return
+
+        println('{}, 正在兑换, 商品: {}!'.format(self._pt_pin, gift_name))
+
+        exchange_path = 'gift/new/exchange'
+        exchange_params = {"buyParam": {"orderSource": 'pet', "saleInfoId": gift_id}, "deviceInfo": {}}
+
+        while True:
+            now = datetime.now()
+            nx_start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+            if now >= nx_start_time:
+                println('{}, 当前时间大于兑换时间, 去兑换:{}'.format(self._pt_pin, gift_name))
+                break
+            else:
+                remain_seconds = abs(int((now - nx_start_time).total_seconds()))
+                if remain_seconds < 10:
+                    timeout = 1
+                else:
+                    timeout = remain_seconds - 1
+
+                    # 防止兑换的时候需要验证码，尝试先触发验证码
+                    path = 'gift/getBeanConfigs'
+                    await self.request(session, path)
+                println('{}, 当前时间小于兑换时间, 等待{}秒!'.format(self._pt_pin, timeout))
+                await asyncio.sleep(timeout)
+
+        exchange_success = False
+
+        for i in range(10):
+            data = await self.request(session, exchange_path, exchange_params, method='POST')
+            if data and data['errorCode'] and 'success' in data['errorCode']:
+                exchange_success = True
+                break
+            elif data and data['errorCode'] and 'limit' in data['errorCode']:
+                println('{}, 今日已兑换商品:{}!'.format(self._pt_pin, gift_name))
+                return
+            await asyncio.sleep(0.1)
+
+        if exchange_success:
+            println('{}, 成功兑换商品:{}!'.format(self._pt_pin, gift_name))
+        else:
+            println('{}, 无法兑换商品:{}!'.format(self._pt_pin, gift_name))
+
+    async def run(self):
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies,
+                                         json_serialize=ujson.dumps) as session:
+            await self.exchange_bean(session)
+
+        if self.browser:
+            await self.browser.close()
+
+
+def start(pt_pin, pt_key):
+    """
+    宠汪汪商品兑换
+    """
+    app = JdJoyExchange(pt_pin, pt_key)
+    asyncio.run(app.run())
+
+
+if __name__ == '__main__':
+    from utils.process import process_start
+    process_start(start, '宠汪汪兑换')

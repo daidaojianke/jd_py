@@ -47,7 +47,9 @@
 | jd_factory.py         | 京东APP->东东工厂     |  100%       |
 | jd_farm.py            | 京东APP->东东农场     |  100%       |
 | jd_lucky_turntable.py| 幸运大转盘 | 100%  |
-| jd_pet_dog | 京东APP-> 宠汪汪 | 10% |
+| jd_joy.py | 京东APP-> 宠汪汪 | 90% |
+| jd_joy_exchange.py | 京东APP-> 宠汪汪 -> 兑换京豆| 100% |
+| jd_joy_feed.py | 京东APP-> 宠汪汪 -> 喂狗粮 | 100% |
 | jd_planting_bean.py | 京东APP->种豆得豆|  100% |
 | jd_ranking_list | 京东APP->排行榜 | 100% |
 | jd_shark_bean | 京东APP->摇金豆 | 100%|

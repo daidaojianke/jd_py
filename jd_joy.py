@@ -9,7 +9,11 @@ import json
 import os
 import random
 import aiohttp
+import moment
 import ujson
+from dateutil.relativedelta import relativedelta
+
+from datetime import datetime
 
 from utils.console import println
 from urllib.parse import unquote, urlencode
@@ -18,7 +22,7 @@ from utils.image import save_img, detect_displacement
 from utils.browser import open_page, open_browser
 
 
-class JdPetDog:
+class JdJoy:
     """
     宠汪汪, 需要使用浏览器方式进行拼图验证。
     """
@@ -32,7 +36,7 @@ class JdPetDog:
         "Accept-Language": "zh-cn",
         "Connection": "keep-alive",
         "Referer": "https://h5.m.jd.com/babelDiy/Zeus/2wuqXrZrhygTQzYA7VufBEpj4amH/index.html",
-        "User-Agent":  USER_AGENT
+        "User-Agent": USER_AGENT
     }
 
     def __init__(self, pt_pin, pt_key):
@@ -90,7 +94,7 @@ class JdPetDog:
 
         for i in range(10):
 
-            println('{}, 正在进行第{}次拼图验证...'.format(self._pt_pin, i+1))
+            println('{}, 正在进行第{}次拼图验证...'.format(self._pt_pin, i + 1))
             println('{}, 等待加载拼图验证背景图片...'.format(self._pt_pin))
             await page.waitForSelector(bg_img_selector)
 
@@ -183,16 +187,16 @@ class JdPetDog:
                 println('{}, 拼图向左滑动:offset:{}, delay:{}, steps:{}'.format(self._pt_pin, px, delay, steps))
                 await page.mouse.move(cur_x, cur_y,
                                       {'delay': delay, 'steps': steps})
-            println('{}, 第{}次拼图验证, 耗时:{}s.'.format(self._pt_pin, i+1, total_delay / 1000))
+            println('{}, 第{}次拼图验证, 耗时:{}s.'.format(self._pt_pin, i + 1, total_delay / 1000))
             await page.mouse.up()
             await asyncio.sleep(3)
             println('{}, 正在获取验证结果, 等待3s...'.format(self._pt_pin))
             slider_img_ele = await page.querySelector(slider_img_selector)
             if slider_img_ele is None:
-                println('{}, 第{}次拼图验证, 验证成功!'.format(self._pt_pin, i+1))
+                println('{}, 第{}次拼图验证, 验证成功!'.format(self._pt_pin, i + 1))
                 break
             else:
-                println('{}, 第{}次拼图验证, 验证失败, 继续验证!'.format(self._pt_pin, i+1))
+                println('{}, 第{}次拼图验证, 验证失败, 继续验证!'.format(self._pt_pin, i + 1))
 
         validator = await page.querySelector(validator_selector)
         if not validator:
@@ -378,7 +382,8 @@ class JdPetDog:
             }
             data = await self.request(session, follow_path, follow_params, method='POST')
             await asyncio.sleep(0.5)
-            if not data or (data['errorCode'] and 'success' not in data['errorCode'] and 'repeat' not in data['errorCode']):
+            if not data or (
+                    data['errorCode'] and 'success' not in data['errorCode'] and 'repeat' not in data['errorCode']):
                 println('{}, 关注频道:{}失败!'.format(self._pt_pin, channel['channelName']))
             else:
                 println('{}, 成功关注频道:{}!'.format(self._pt_pin, channel['channelName']))
@@ -488,24 +493,10 @@ class JdPetDog:
             await asyncio.sleep(1)
         println('{}, 无法参与赛跑!'.format(self._pt_pin))
 
-    async def feed_food(self, session, feed_count=80):
-        """
-        喂狗, 默认80g
-        """
-        path = 'pet/feed'
-        params = {
-            'feedCount': feed_count
-        }
-        data = await self.request(session, path, params)
-        if data and data['errorCode'] and 'ok' in data['errorCode']:
-            println('{}, 成功喂狗一次, 消耗狗粮:{}!'.format(self._pt_pin, feed_count))
-        else:
-            println('{}, 喂狗失败!'.format(self._pt_pin))
-
     async def run(self):
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies,  json_serialize=ujson.dumps) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies,
+                                         json_serialize=ujson.dumps) as session:
             await self.joy_race(session)
-            await self.feed_food(session)
             await self.help_friend_feed(session)
             await self.do_task(session)
 
@@ -513,7 +504,14 @@ class JdPetDog:
             await self.browser.close()
 
 
-if __name__ == '__main__':
-    from config import JD_COOKIES
-    app = JdPetDog(*JD_COOKIES[0].values())
+def start(pt_pin, pt_key):
+    """
+    宠汪汪做任务
+    """
+    app = JdJoy(pt_pin, pt_key)
     asyncio.run(app.run())
+
+
+if __name__ == '__main__':
+    from utils.process import process_start
+    process_start(start, '宠汪汪做任务')

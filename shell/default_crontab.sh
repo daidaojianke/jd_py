@@ -27,8 +27,14 @@
 # 幸运大转盘
 10 10,23 * * * /usr/local/bin/python /scripts/jd_lucky_turntable.py >> /scripts/logs/jd_lucky_turntable_`date "+%Y-%m-%d"`.log 2>&1
 
-# 宠汪汪
-0 1 * * *  /usr/local/bin/python /scripts/jd_joy.py >> /scripts/logs/jd_pet_dog_`date "+%Y-%m-%d"`.log 2>&1
+# 宠汪汪做任务
+45 8,12,17  * * *  /usr/local/bin/python /scripts/jd_joy.py >> /scripts/logs/jd_pet_dog_`date "+%Y-%m-%d"`.log 2>&1
+
+# 宠汪汪兑换京豆
+58 7,15,23 * * * /usr/local/bin/python /scripts/jd_joy_exchange.py >> /scripts/logs/jd_joy_exchange_`date "+%Y-%m-%d"`.log 2>&1
+
+# 宠汪汪喂狗每三小时喂一次
+35 */3 * * * /usr/local/bin/python /scripts/jd_joy_feed.py >> /scripts/logs/jd_joy_feed_`date "+%Y-%m-%d"`.log 2>&1
 
 # 京东种豆得豆
 10 7-22/1 * * * /usr/local/bin/python /scripts/jd_planting_bean.py >> /scripts/logs/jd_planting_bean_`date "+%Y-%m-%d"`.log 2>&1
