@@ -122,3 +122,4 @@ dmypy.json
 test.py
 conf/
 logs/
+/jd
