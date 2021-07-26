@@ -24,6 +24,11 @@ if [ ! -d $CODE_DIR/conf ]; then
   mkdir -p $CODE_DIR/conf
 fi
 
+if [ ! -d $CODE_DIR/logs ]; then
+  echo "日志目录不存在, 创建目录..."
+  mkdir -p $CODE_DIR/conf
+fi
+
 if [ -f "$CODE_DIR/conf/config.yaml" ]; then
     echo "配置文件已存在, 跳过..."
 else
