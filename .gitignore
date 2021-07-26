@@ -115,12 +115,10 @@ dmypy.json
 .pyre/
 *.png
 .idea/
-!logs/
+
 !static/images
-conf/config.yaml
-conf/crontab.sh
 /dist
 /build
 test.py
-!conf/
-!test
+!conf/.gitignore
+!logs/.gitignore
