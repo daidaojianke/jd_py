@@ -99,5 +99,5 @@
 # 每2个小时检查一次cookies是否过期
 0 */2 * * * /usr/local/bin/python /scripts/check_cookies.py
 
-### 每天16点执行一次更新
-0 16 * * * /docker-entrypoint.sh  >> /dev/null  2>&1
+### 每天15点30分执行一次更新
+30 15 * * * /bin/docker-entrypoint >> /dev/null  2>&1
