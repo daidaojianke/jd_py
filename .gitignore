@@ -122,5 +122,5 @@ conf/crontab.sh
 /dist
 /build
 test.py
-conf/config.yaml.bak
+!conf/
 !test

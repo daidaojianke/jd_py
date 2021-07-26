@@ -6,20 +6,30 @@ if [ -z $CODE_DIR ]; then
 fi
 
 if [ -z $REPO_URL ]; then
-  REPO_URL=https://gitee.com/ClassmateLin/jd_scripts
+  REPO_URL=https://github.com/ClassmateLin/jd_scripts
 fi
 
 if [ ! -d $CODE_DIR/.git ]; then
   echo "代码目录为空, 开始clone代码..."
-  cd / && rm -rf $CODE_DIR && git clone $REPO_URL $CODE_DIR
+  cd $CODE_DIR;
+  git init;
+  git branch -M master;
+  git remote add origin $REPO_URL;
+  git pull origin master;
+  git branch --set-upstream-to=origin/master master;
+fi
+
+if [ ! -d $CODE_DIR/conf ]; then
+  echo "配置文件目录不存在, 创建目录..."
+  mkdir -p $CODE_DIR/conf
 fi
 
 if [ -f "$CODE_DIR/conf/config.yaml" ]; then
     echo "配置文件已存在, 跳过..."
 else
   echo "配置文件不存在, 复制配置文件..."
-  cp $CODE_DIR/conf/.config_example.yaml $CODE_DIR/conf/config.yaml
-  cp $CODE_DIR/conf/.crontab.sh $CODE_DIR/conf/crontab.sh
+  cp $CODE_DIR/.config.yaml $CODE_DIR/conf/config.yaml
+  cp $CODE_DIR/.crontab.sh $CODE_DIR/conf/crontab.sh
 fi
 
 echo "git pull拉取最新代码..."
@@ -30,13 +40,13 @@ echo "更新docker-entrypoint..."
 cp $CODE_DIR/shell/docker-entrypoint.sh /bin/docker-entrypoint
 chmod a+x /bin/docker-entrypoint
 
-echo "更新crontab任务..."
+echo "更新cron任务..."
 crontab -r
 cat $CODE_DIR/shell/default_crontab.sh >> /var/spool/cron/crontabs/root
 echo -e "\n" >> /var/spool/cron/crontabs/root
 cat $CODE_DIR/conf/crontab.sh >> /var/spool/cron/crontabs/root
-echo "重载crontab配置..."
-/etc/init.d/cron reload
+echo "重启cron进程..."
+/etc/init.d/cron restart
 
 echo "######更新脚本执行完毕######"
 
