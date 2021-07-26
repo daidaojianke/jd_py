@@ -120,5 +120,5 @@ dmypy.json
 /dist
 /build
 test.py
-!conf/.gitignore
-!logs/.gitignore
+conf/
+logs/
