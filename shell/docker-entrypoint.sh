@@ -29,13 +29,17 @@ if [ ! -d $CODE_DIR/logs ]; then
   mkdir -p $CODE_DIR/conf
 fi
 
-if [ -f "$CODE_DIR/conf/config.yaml" ]; then
-    echo "配置文件已存在, 跳过..."
-else
-  echo "配置文件不存在, 复制配置文件..."
+if [ ! -f "$CODE_DIR/conf/config.yaml" ]; then
+  echo "脚本配置文件不存在, 复制配置文件..."
   cp $CODE_DIR/.config.yaml $CODE_DIR/conf/config.yaml
+fi
+
+
+if [ ! -f "$CODE_DIR/conf/crontab.sh" ]; then
+  echo "自定义cron配置文件不存在, 复制配置文件..."
   cp $CODE_DIR/.crontab.sh $CODE_DIR/conf/crontab.sh
 fi
+
 
 echo "git pull拉取最新代码..."
 cd $CODE_DIR && git pull
