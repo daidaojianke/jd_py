@@ -398,6 +398,7 @@ class JdPlantingBean:
             if data['code'] == '0':
                 if data['data']['helpShareRes']['state'] == '2':
                     println('{}, 助力结果:{}'.format(self._account, '您今日助力的机会已耗尽，已不能再帮助好友助力了!'))
+                    break
                 elif data['data']['helpShareRes']['state'] == '3':
                     println('{}, 助力结果:{}'.format(self._account, '该好友今日已满9人助力/20瓶营养液,明天再来为Ta助力吧'))
                 else:
@@ -435,6 +436,8 @@ class JdPlantingBean:
                 data = await self.post(session, 'receiveNutrientsTask', {"awardType": str(task['taskType'])})
                 println('{}, {}:{}'.format(self._account, task['taskName'], data))
 
+            await asyncio.sleep(0.2)
+
     async def collect_nutriments(self, session):
         """
         收取营养液
@@ -442,6 +445,7 @@ class JdPlantingBean:
         """
         # 刷新数据
         await self.planting_bean_index(session)
+        await asyncio.sleep(0.1)
         if not self._cur_round_list or 'roundState' not in self._cur_round_list:
             println('{}, 获取营养池数据失败, 无法收取！'.format(self._account))
 
@@ -465,7 +469,7 @@ class JdPlantingBean:
         :return:
         """
         await self.planting_bean_index(session)
-
+        await asyncio.sleep(0.2)
         if not self._prev_round_list:
             println('{}, 无法获取上期活动信息!'.format(self._account))
 
@@ -489,8 +493,9 @@ class JdPlantingBean:
         self._message += f'【本期时间】:{self._cur_round_list["dateDesc"].replace("上期 ", "")}\n'
         self._message += f'【本期成长值】:{self._cur_round_list["growth"]}\n'
 
-        println(self._message)
-        #notify(self._message)
+    @property
+    def message(self):
+        return self._message
 
     async def run(self):
         """
@@ -518,7 +523,8 @@ def start(pt_pin, pt_key):
     """
     app = JdPlantingBean(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':
-    process_start(start, '种豆得豆')
+    process_start(start, '种豆得豆', process_num=2)

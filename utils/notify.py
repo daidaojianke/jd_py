@@ -7,7 +7,6 @@
 import telegram
 from config import TG_BOT_TOKEN, TG_USER_ID
 from utils.console import println
-from utils.logger import logger
 
 
 def notify(message):
@@ -22,8 +21,7 @@ def notify(message):
             bot.send_message(TG_USER_ID, message)
             println('\n成功推送消息到TG!')
         except Exception as e:
-            logger.info('TG通知异常:{}'.format(e.args))
-            println('\nTG消息通知异常!')
+            println('\nTG消息通知异常:{}'.format(e.args))
     else:
         println("\n未配置TG_BOT_TOKEN和TG_USER_ID, 不推送TG消息...")
 

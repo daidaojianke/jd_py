@@ -63,7 +63,6 @@ class JdCutePet:
             data = json.loads(text)
 
             if wait_time > 0:
-                println('{}, 等待{}秒后操作， 避免操作频繁!'.format(self._pt_pin, wait_time))
                 await asyncio.sleep(wait_time)
 
             if data['code'] != '0':
@@ -125,6 +124,7 @@ class JdCutePet:
 
         if 'goodsInfo' not in data:
             println('{}, 暂未选购商品!'.format(self._pt_pin))
+            self._notify_message += '【商品状态】暂未选择商品!\n'
 
         self._share_code = data['shareCode']
         self._invite_code = data['inviteCode']
@@ -133,9 +133,11 @@ class JdCutePet:
 
         if data['petStatus'] == 5:
             println('{}, 已可兑换商品!'.format(self._pt_pin))
+            self._notify_message += '【商品状态】已可兑换商品\n'
 
         if data['petStatus'] == 6:
             println('{}, 已领取红包, 但未继续领养新的物品!'.format(self._pt_pin))
+            self._notify_message += '【商品状态】暂未领取新的物品!'
 
         return True
 
@@ -415,12 +417,13 @@ class JdCutePet:
 
         println('{}, 领取好友助力奖励成功, 获得狗粮:{}g!'.format(self._pt_pin, data['reward']))
 
-    async def notify(self):
+    @property
+    def message(self):
         """
         :return:
         """
-        println('\n' + self._notify_message + '\n')
-        # notify(self._notify_message)
+        self._notify_message += '【活动入口】京东APP->我的->东东萌宠\n'
+        return self._notify_message
 
     async def run(self):
         """
@@ -438,7 +441,6 @@ class JdCutePet:
             await self.feed_food_again(session)  # 再次喂食
             await self.collect_energy(session)
             await self.get_friend_help_award(session)
-            await self.notify()
 
 
 def start(pt_pin, pt_key):
@@ -450,6 +452,7 @@ def start(pt_pin, pt_key):
     """
     app = JdCutePet(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':

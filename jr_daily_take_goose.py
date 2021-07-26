@@ -45,6 +45,12 @@ class JrDailyTakeGoose:
         self._integral = 0  # 兑换了多少积分
         self._pt_pin = unquote(self._pt_pin)
 
+        self._message = None
+
+    @property
+    def message(self):
+        return self._message
+
     async def request(self, session, function_id, body):
         """
         发起请求
@@ -291,8 +297,8 @@ class JrDailyTakeGoose:
         total_integral = await self.query_integral(session)
         message = '\n【活动名称】天天提鹅\n【京东ID】{}\n【获得鹅蛋】{}\n【获得积分】{}\n【可用鹅蛋】{}\n【可用积分】{}\n'.format(
             self._pt_pin, self._egg_num, self._integral, total_egg, total_integral)
-        println(message)
-        # notify(message)
+
+        self._message = message
 
     async def run(self):
         """
@@ -323,6 +329,7 @@ def start(pt_pin, pt_key):
     """
     app = JrDailyTakeGoose(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':

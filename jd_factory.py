@@ -39,6 +39,11 @@ class JdFactory:
         self._pt_pin = unquote(pt_pin)
         self._host = 'https://api.m.jd.com/client.action/'
         self._code = None  # 互助码
+        self._message = None # 消息通知
+
+    @property
+    def message(self):
+        return self._message
 
     async def request(self, session, function_id=None, params=None, method='post'):
         """
@@ -436,9 +441,9 @@ class JdFactory:
         message = '【活动名称】{}\n【京东账号】{}\n'.format('东东工厂', self._pt_pin)
         message += '【商品名称】{}\n【剩余商品数】{}\n'.format(product_name, remaining_count)
         message += '【已投入电量/所需电量】{}/{}\n'.format(use_score, total_score)
-        message += '【剩余电量】{}'.format(remain_score)
-        println('\n' + message + '\n')
-        # notify(message)
+        message += '【剩余电量】{}\n'.format(remain_score)
+        message += '【活动入口】京东APP->京东电器->东东工厂\n'
+        self._message = message
 
     async def run(self):
         """
@@ -464,6 +469,7 @@ def start(pt_pin, pt_key):
     """
     app = JdFactory(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':

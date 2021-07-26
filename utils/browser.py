@@ -22,7 +22,7 @@ async def open_browser():
         headless = False
     browser = await launch({
         'headless': headless,
-        'dumpio': True,
+        'dumpio': False,
         'slowMo': 30,
         # 'devtools': True,
         'autoClose': False,

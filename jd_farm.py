@@ -12,7 +12,6 @@ from datetime import datetime
 import aiohttp
 import json
 
-from utils.notify import notify
 from urllib.parse import unquote, quote
 from utils.console import println
 from config import USER_AGENT, JD_FARM_CODE, JD_FARM_BEAN_CARD, JD_FARM_RETAIN_WATER
@@ -43,6 +42,11 @@ class JdFarm:
             'pt_key': pt_key,
         }
         self._farm_info = None
+        self._message = None  # 消息通知
+
+    @property
+    def message(self):
+        return self._message
 
     async def request(self, session, function_id, body=None):
         """
@@ -721,28 +725,27 @@ class JdFarm:
         message += '【奖品名称】{}\n'.format(self._farm_info['name'])
         message += '【剩余水滴】{}g💧\n'.format(farm_data['farmUserPro']['totalEnergy'])
         if farm_data['farmUserPro']['treeTotalEnergy'] == farm_data['farmUserPro']['treeEnergy']:
-            message += '【水果进度】已成熟, 请前往京东APP->东东农场领取水果, 并种植新的水果!\n'
-            println(message)
-            notify(message)
-            return
-
-        message += '【完整进度】{}%, 已浇水{}次!\n'.format(
-            round(farm_data['farmUserPro']['treeEnergy'] / farm_data['farmUserPro']['treeTotalEnergy'] * 100, 2),
-            math.ceil(farm_data['farmUserPro']['treeEnergy'] / 10),
-        )
-        if farm_data['toFlowTimes'] > farm_data['farmUserPro']['treeEnergy'] / 10:
-            message += '【开花进度】再浇水{}次开花\n'.format(
-                farm_data['toFlowTimes'] - int(farm_data['farmUserPro']['treeEnergy'] / 10))
-        elif farm_data['toFruitTimes'] > farm_data['farmUserPro']['treeEnergy'] / 10:
-            message += '【结果进度】再浇水{}次结果\n'.format(
-                farm_data['toFruitTimes'] - int(farm_data['farmUserPro']['treeEnergy'] / 10)
+            message += '【水果进度】已成熟, 请前往东东农场领取并种植新的水果!\n'
+        else:
+            message += '【完整进度】{}%, 已浇水{}次!\n'.format(
+                round(farm_data['farmUserPro']['treeEnergy'] / farm_data['farmUserPro']['treeTotalEnergy'] * 100, 2),
+                math.ceil(farm_data['farmUserPro']['treeEnergy'] / 10),
             )
+            if farm_data['toFlowTimes'] > farm_data['farmUserPro']['treeEnergy'] / 10:
+                message += '【开花进度】再浇水{}次开花\n'.format(
+                    farm_data['toFlowTimes'] - int(farm_data['farmUserPro']['treeEnergy'] / 10))
+            elif farm_data['toFruitTimes'] > farm_data['farmUserPro']['treeEnergy'] / 10:
+                message += '【结果进度】再浇水{}次结果\n'.format(
+                    farm_data['toFruitTimes'] - int(farm_data['farmUserPro']['treeEnergy'] / 10)
+                )
 
-        remain_water_times = (farm_data['farmUserPro']['treeTotalEnergy'] - farm_data['farmUserPro']['treeEnergy']
-                              - farm_data['farmUserPro']['totalEnergy']) / 10
-        message += '【预测】{}天后可以领取水果!'.format(math.ceil(remain_water_times / today_water_times))
-        println('\n')
-        println(message)
+            remain_water_times = (farm_data['farmUserPro']['treeTotalEnergy'] - farm_data['farmUserPro']['treeEnergy']
+                                  - farm_data['farmUserPro']['totalEnergy']) / 10
+            message += '【预测】{}天后可以领取水果!\n'.format(math.ceil(remain_water_times / today_water_times))
+
+        message += '【活动入口】京东APP->我的->东东农场\n'
+
+        self._message = message
 
     async def got_water(self, session):
         """
@@ -784,6 +787,7 @@ def start(pt_pin, pt_key):
     """
     app = JdFarm(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':

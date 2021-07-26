@@ -47,6 +47,7 @@ class JdSharkBean:
         self._red_packet_num = 0
         self._coupon_list = []
         self._pt_pin = unquote(pt_pin)
+        self._message = None
 
     async def request(self, session, params=None, method='get'):
         """
@@ -245,6 +246,10 @@ class JdSharkBean:
             else:
                 println('{}, 摇盒子失败: {}'.format(self._pt_pin, res['resultTips']))
 
+    @property
+    def message(self):
+        return self._message
+
     async def notify(self):
         """
         :return:
@@ -258,8 +263,7 @@ class JdSharkBean:
         else:
             message += '无\n'
 
-        # notify(message)
-        println(message)
+        self._message = message
 
     async def run(self):
         """
@@ -281,6 +285,7 @@ def start(pt_pin, pt_key):
     """
     app = JdSharkBean(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':

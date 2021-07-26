@@ -41,6 +41,14 @@ class JdBeanIndiana:
         self._joined_num = 0  # 当前已参与的夺宝数量
         self._use_bean_num = 0  # 夺宝消耗的京豆
         self._award_list = []  # 奖品列表
+        self._message = None
+
+    @property
+    def message(self):
+        """
+        :return:
+        """
+        return self._message
 
     async def get_token(self, session):
         try:
@@ -279,8 +287,7 @@ class JdBeanIndiana:
                   '【消耗京豆】{}\n【参与数量】{}\n【获得奖励】{}\n【提示信息】{}\n'\
             .format('京豆夺宝', self._pt_pin, self._nickname, self._use_bean_num, self._joined_num, award,
                     '京豆奖励自动发放, 实物需要手动领取, 活动入口:京东APP->我的->签到领京豆->摇京豆->左上角京豆夺宝!')
-        println(message)
-        # notify(message)
+        self._message = message
 
     async def run(self):
         """
@@ -325,6 +332,7 @@ def start(pt_pin, pt_key):
     """
     app = JdBeanIndiana(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':

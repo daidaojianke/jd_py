@@ -41,6 +41,12 @@ class JrPetPig:
         self._pt_pin = unquote(pt_pin)
         self._host = 'https://ms.jr.jd.com/gw/generic/uc/h5/m/'
 
+        self._message = None
+
+    @property
+    def message(self):
+        return self._message
+
     async def login(self, session):
         """
         :return:
@@ -394,7 +400,8 @@ class JrPetPig:
             message = '\n【活动名称】{}\n【用户ID】{}\n【奖品名称】{}\n【完成进度】{}\n【小提示】{}'.format(
                 '京东金融养猪猪', self._pt_pin, award_name, '{}:{}/{}'.format(curr_level_message, curr_count, curr_level_count), award_tips
             )
-            println(message)
+
+            self._message = message
         except Exception as e:
             println(e.args)
 
@@ -408,6 +415,7 @@ def start(pt_pin, pt_key):
     """
     app = JrPetPig(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':

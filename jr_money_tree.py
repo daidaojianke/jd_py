@@ -53,6 +53,12 @@ class JrMoneyTree:
         self._fruit = 0  # 金果数量
         self._jt_rest = None
 
+        self._message = None
+
+    @property
+    def message(self):
+        return self._message
+
     async def request(self, session, path, params, method='post'):
         """
         :param method:
@@ -389,12 +395,10 @@ class JrMoneyTree:
 
         params = {"source": 0, "riskDeviceParam": "{}"}
         data = await self.request(session, 'myWealth', params)
-        message = '【活动名称】摇钱树\n【京东账号】{}\n【摇钱树等级】{}\n【金果数量】{}\n【金贴数量】{}' \
+        message = '【活动名称】摇钱树\n【京东账号】{}\n【摇钱树等级】{}\n【金果数量】{}\n【金贴数量】{}\n\n' \
                   ''.format(self._pt_pin, self._tree_level, data['data']['gaAmount'], data['data']['gcAmount'] / 100)
 
-        println('\n')
-        println(message)
-        # notify(message)
+        self._message = message
 
     async def run(self):
         """
@@ -421,6 +425,7 @@ def start(pt_pin, pt_key):
     """
     app = JrMoneyTree(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':

@@ -38,6 +38,11 @@ class LuckyTurntable:
             'pt_key': pt_key,
         }
         self._result = []
+        self._message = None
+
+    @property
+    def message(self):
+        return self._message
 
     async def get_task_list(self, session):
         """
@@ -170,13 +175,15 @@ class LuckyTurntable:
             println(e.args)
 
     async def notify(self):
-        s = '\n#########幸运大转盘###########\n\n'
-        message = s
-        message += '  账号: {}\n'.format(self._pt_pin)
+        """
+        消息通知
+        :return:
+        """
+        message = '  账号: {}\n'.format(self._pt_pin)
         for line in self._result:
             message += ''.join(['  ', line, '\n'])
-        message += s
-        # notify(message)
+
+        self._message = message
 
     async def run(self):
         """
@@ -214,6 +221,7 @@ def start(pt_pin, pt_key):
     """
     app = LuckyTurntable(pt_pin=pt_pin, pt_key=pt_key)
     asyncio.run(app.run())
+    # return app.message
 
 
 if __name__ == '__main__':

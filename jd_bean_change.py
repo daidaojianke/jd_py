@@ -37,10 +37,15 @@ class JdBeanChange:
         }
         self._pt_pin = unquote(pt_pin)
 
+        self._message = None
         # self._total_bean = 0  # 当前总金豆
         # self._today_income_bean = 0  # 今日收入
         # self._yesterday_income_bean = 0  # 昨日收入京豆
         # self._yesterday_used_bean = 0  # 昨日支出京豆
+
+    @property
+    def message(self):
+        return self._message
 
     async def get_bean_detail(self, session, page=1, timeout=0.5):
         """
@@ -53,7 +58,6 @@ class JdBeanChange:
         try:
             session.headers.add('Host', 'api.m.jd.com')
             session.headers.add('Content-Type', 'application/x-www-form-urlencoded')
-            println('{}, 正在获取第{}页的京豆详细信息, 等待{}秒!'.format(self._pt_pin, page, timeout))
             await asyncio.sleep(timeout)
             url = 'https://api.m.jd.com/client.action?functionId=getJingBeanBalanceDetail'
             body = 'body={}&appid=ld'.format(quote(json.dumps({"pageSize": "20", "page": str(page)})))
@@ -72,7 +76,7 @@ class JdBeanChange:
         :return:
         """
         try:
-            println('{}, 正在获取即将过期京豆数据, 等待{}秒!'.format(self._pt_pin, timeout))
+            println('{}, 正在获取即将过期京豆数据...'.format(self._pt_pin, timeout))
             await asyncio.sleep(timeout)
             session.headers.add('Referer', 'https://wqs.jd.com/promote/201801/bean/mybean.html')
             session.headers.add('Host', 'wq.jd.com')
@@ -111,6 +115,8 @@ class JdBeanChange:
         today = moment.date(moment.now()).zero
         page = 1
         finished = False
+
+        println('{}, 正在获取京豆明细...'.format(self._pt_pin))
         while True:
             detail_list = await self.get_bean_detail(session, page)
             if len(detail_list) < 1:
@@ -155,7 +161,7 @@ class JdBeanChange:
         :return:
         """
         try:
-            println('{}, 正在获取京豆总数, 等待{}秒!'.format(self._pt_pin, timeout))
+            println('{}, 正在获取京豆总数...'.format(self._pt_pin, timeout))
             await asyncio.sleep(timeout)
             url = 'https://me-api.jd.com/user_new/info/GetJDUserInfoUnion'
             session.headers.add('Host', 'me-api.jd.com')
@@ -208,8 +214,7 @@ class JdBeanChange:
         bean_data = await self.total_bean(session)  # 京豆统计数据
         red_packet_data = await self.total_red_packet(session)  # 红包统计数据
 
-        message = '\n==============📣资产变动通知📣=================\n'
-        message += '【京东账号】{}\n'.format(self._pt_pin)
+        message = '【京东账号】{}\n'.format(self._pt_pin)
         message += '【京豆总数】{}\n'.format(bean_data['bean_amount'])
         message += '【今日收入】{}京豆\n'.format(bean_data['today_income'])
         message += '【今日支出】{}京豆\n'.format(bean_data['today_used'])
@@ -219,10 +224,7 @@ class JdBeanChange:
             message += item + '\n'
         message += '【当前红包余额】{}￥\n'.format(red_packet_data['total_amount'])
         message += '【即将过期红包】{}￥\n'.format(red_packet_data['expire_amount'])
-
-        println(message)
-
-        notify(message)
+        self._message = message
 
     async def run(self):
         """
@@ -241,6 +243,7 @@ def start(pt_pin, pt_key):
     """
     app = JdBeanChange(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':

@@ -39,6 +39,11 @@ class BigWinner:
             'pt_key': pt_key,
         }
         self._can_withdraw = False  # 是否可以提现
+        self._message = ''
+
+    @property
+    def message(self):
+        return self._message
 
     async def can_open_reward(self, session):
         """
@@ -53,9 +58,8 @@ class BigWinner:
         try:
             response = await session.get(url=url)
             data = await response.json()
-            logger.info(data)
             if data['code'] != 0:
-                logger.info('账号:{}, 无法获取开红包状态: {}'.format(self._pt_pin, data))
+                println('账号:{}, 无法获取开红包状态: {}'.format(self._pt_pin, data))
             else:
                 return data['data']['leftTime'] == 0
         except Exception as e:
@@ -78,7 +82,6 @@ class BigWinner:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info(data)
             if data['code'] == 0:
                 println('账号:{}, 开红包成功,获得: {}元红包!'.format(self._pt_pin, data['data']['rewardValue']))
                 return data['data']
@@ -109,7 +112,7 @@ class BigWinner:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info(data)
+
             if data['code'] != 0:
                 println('账号:{}, 红包翻倍失败, 原因:{}'.format(self._pt_pin, data['errMsg']))
                 return reward_data
@@ -136,7 +139,7 @@ class BigWinner:
             return await self.doubled_reward(session, data)
 
         except Exception as e:
-            logger.info('账号:{}, 红包翻倍异常:{}'.format(self._pt_pin, e.args))
+            logger.error('账号:{}, 红包翻倍异常:{}'.format(self._pt_pin, e.args))
 
     async def withdraw(self, session, reward_data):
         """
@@ -156,13 +159,16 @@ class BigWinner:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info(data)
+
             if data['code'] != 0:
                 println("账号:{}, 现金领取失败:{}！".format(self._pt_pin, data))
                 return
             println("账号:{}, 现金领取成功: {}元现金!".format(self._pt_pin, data['data']['amount']))
 
             data = data['data']
+
+            self._message = '【活动名称】大赢家翻翻乐【京东账号】{}【奖励金额】{}￥【活动入口】' \
+                            '京东极速版->我的->XX大赢家->翻翻乐!'.format(self._pt_pin, data['amount'])
 
             withdraw_data = {  # 提现参数
                 'businessSource': 'GAMBLE',
@@ -181,8 +187,6 @@ class BigWinner:
             response = await session.post(url=url, data=body)
             text = await response.text()
             data = json.loads(text)
-            logger.info(data)
-            println(data)
             if data['code'] == 0:
                 println('账号:{}, 提现成功:{}'.format(self._pt_pin, data['data']))
             else:
@@ -227,6 +231,7 @@ def start(pt_pin, pt_key):
     """
     app = BigWinner(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':
