@@ -96,6 +96,12 @@
 # 翻翻乐
 30 * * * * /usr/local/bin/python /scripts/jd_big_winner.py >> /scripts/logs/jd_big_winner_`date "+%Y-%m-%d"`.log 2>&1
 
+# 到家果园
+10 7,11,18 * * * /usr/local/bin/python /scripts/dj_fruit.py >> /scripts/logs/dj_fruit_`date "+%Y-%m-%d"`.log 2>&1
+
+# 到家果园领水滴
+25 */1 * * * /usr/local/bin/python /scripts/dj_fruit_collect.py >> /scripts/logs/dj_fruit_collect_`date "+%Y-%m-%d"`.log 2>&1
+
 # 每天23:30清除前一天日志
 30 23 * * * /usr/local/bin/python /scripts/clean_log.py
 

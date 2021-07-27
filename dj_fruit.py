@@ -12,12 +12,13 @@ import random
 import asyncio
 
 from utils.console import println
-from urllib.parse import unquote, urlencode, quote
+from urllib.parse import unquote, urlencode
 from config import USER_AGENT
 
 
 def uuid():
     """
+    生成设备ID
     :return:
     """
     def s4():
@@ -57,6 +58,12 @@ class DjFruit:
             'pt_key': pt_key,
             'deviceid_pdj_jd': self._device_id
         }
+
+        self._message = None
+
+    @property
+    def message(self):
+        return self._message
 
     async def request(self, session, function_id='', body=None, method='GET'):
         """
@@ -280,11 +287,13 @@ class DjFruit:
         """
         pass
 
-    async def watering(self, session, times=1):
+    async def watering(self, session, times=None, batch=True, keep_water=10):
         """
         浇水
         :param times: 浇水次数
         :param session:
+        :param batch: 是否批量浇水
+        :param keep_water: 保留水滴
         :return:
         """
         water_info = await self.get_water_info(session)
@@ -293,18 +302,38 @@ class DjFruit:
             return
 
         water_balance = water_info['userWaterBalance']
+        if not times:
+            times = int((water_balance - keep_water) / 10)
+
+        if water_balance - times * 10 < keep_water:
+            println('{}, 执行完浇水, 剩余水滴将小于保留水滴, 故不浇水!'.format(self._account))
+            return
+
         if water_balance < times * 10:
             println('{}, 当前水滴:{}, 不够浇{}次水, 不浇水...'.format(self._account, water_balance, times))
             return
 
-        println(water_info)
+        if times < 1:
+            println('{}, 当前不需要浇水!'.format(self._account))
+            return
+
         println('{}, 当前水滴:{}, 需要浇水:{}次!'.format(self._account, water_balance, times))
 
-        res = await self.post(session, 'fruit/watering', {"waterTime": times})
-        if res['code'] != '0':
-            println('{}, {}次浇水失败!'.format(self._account, times))
-        else:
-            println('{}, 成功浇水{}次!'.format(self._account, times))
+        if batch:
+            res = await self.post(session, 'fruit/watering', {"waterTime": times})
+            if res['code'] != '0':
+                println('{}, {}次浇水失败!'.format(self._account, times))
+            else:
+                println('{}, 成功浇水{}次!'.format(self._account, times))
+            return
+
+        for i in range(1, times + 1):
+            res = await self.post(session, 'fruit/watering', {"waterTime": 1})
+            if res['code'] != '0':
+                println('{}, 第{}次浇水失败, 不再浇水!'.format(self._account, i))
+                break
+            else:
+                println('{}, 第{}次浇水成功!'.format(self._account, i))
 
     async def receive_water_red_packet(self, session):
         """
@@ -313,7 +342,7 @@ class DjFruit:
         :return:
         """
         res = await self.get(session, 'fruit/getWaterRedPackInfo')
-        if res['code'] != '0':
+        if res['code'] != '0' or 'result' not in res:
             println('{}, 查询浇水红包信息失败!'.format(self._account))
             return
 
@@ -321,8 +350,13 @@ class DjFruit:
 
         if rest_progress > 0.0:
             println('{}, 浇水红包差{}可以打开!'.format(self._account, rest_progress))
+            return
+
+        res = await self.request(session, 'fruit/getWaterRedPackInfo')
+        if res['code'] != '0':
+            println('{}, 打开浇水红包失败!'.format(self._account))
         else:
-            println('{}, 浇水红包可领取!'.format(self._account))
+            println('{}, 成功打开浇水红包!'.format(self._account))
 
     async def receive_water_bottle(self, session):
         """
@@ -343,6 +377,7 @@ class DjFruit:
         :return:
         """
         res = await self.get(session, 'task/list', {"modelId": "M10007", "plateCode": 3})
+
         if res['code'] != '0':
             println('{}, 获取任务列表失败!'.format(self._account))
             return
@@ -384,7 +419,12 @@ class DjFruit:
                 await self.receive_task(session, task_name, {"modelId": task['modelId'], "taskId": task['taskId'],
                                                              "taskType": task['taskType'], "plateCode": 3})
             elif task_type == 0:  # 浇水任务
-                pass
+                if 'todayFinishNum' in task:
+                    times = 15 - task['todayFinishNum']
+                else:
+                    times = task['totalNum'] - task['finishNum']
+                await self.watering(session, times=times, batch=False)  # 浇水10次
+                await self.get_task_award(session, task)
             else:
                 println('{}, 任务:《{}》暂未实现!'.format(self._account, task_name))
 
@@ -419,6 +459,40 @@ class DjFruit:
         else:
             println('{}, 成功收取水车水滴!'.format(self._account))
 
+    async def get_share_code(self, session):
+        """
+        获取助力码
+        """
+        res = await self.post(session, 'fruit/ShareMaterialRequest', {"scene": 1})
+        println(res)
+
+    async def init(self, session):
+        """
+        初始化
+        """
+        res = await self.post(session, 'fruit/initFruit', {
+            "cityId": str(self._city_id), "longitude": self._lng, "latitude": self._lat})
+        if res['code'] != '0':
+            println('{}, 初始化失败!'.format(self._account))
+            return False
+        return res['result']
+
+    async def set_notify_message(self, session):
+        data = await self.init(session)
+        if not data:
+            return
+        active_info = data['activityInfoResponse']
+        message = '【活动名称】到家果园\n【活动账号】{}\n【活动昵称】{}\n'.format(self._pin, self._nickname)
+        message += '【奖品名称】{}\n'.format(active_info['fruitName'])
+        message += '【{}进度】{}/{}\n'.format(active_info['stageName'], active_info['curStageLeftProcess'],
+                                        active_info['curStageTotalProcess'])
+        if active_info['ifMaxProcess']:
+            message += '【温馨提示】奖品可领取，请前往京东APP-京东到家-领免费水果领取, 并种植新一轮奖品!'
+
+        message += '【剩余水滴】{}\n'.format(data['userResponse']['waterBalance'])
+
+        self._message = message
+
     async def run(self):
         """
         :return:
@@ -427,22 +501,30 @@ class DjFruit:
             dj_cookies = await self.login(session)
             if not dj_cookies:
                 return
-            println('{}, 登录成功, 开始每日任务...'.format(self._account))
+            println('{}, 登录成功...'.format(self._account))
 
         async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
-            await self.do_task(session)
+            result = await self.init(session)
+            if not result:
+                return
+            await self.do_task(session)  # 做任务
             await self.receive_water_red_packet(session)  # 领取浇水红包
-            await self.watering(session, times=5)
             await self.receive_water_bottle(session)  # 领取水瓶
             await self.receive_water_wheel(session)  # 领取水车
+            await self.watering(session, batch=True, keep_water=100)
+            await self.set_notify_message(session)
 
 
 def start(pt_pin, pt_key):
 
     app = DjFruit(pt_pin, pt_key)
     asyncio.run(app.run())
+    return app.message
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-    start(*JD_COOKIES[3].values())
+    # from config import JD_COOKIES
+    # start(*JD_COOKIES[5].values())
+    from utils.process import process_start
+    process_start(start, '到家果园')
+
