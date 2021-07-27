@@ -51,12 +51,13 @@
 | jd_joy_exchange.py | 京东APP-> 宠汪汪 -> 兑换京豆| 100% |
 | jd_joy_feed.py | 京东APP-> 宠汪汪 -> 喂狗粮 | 100% |
 | jd_planting_bean.py | 京东APP->种豆得豆|  100% |
-| jd_ranking_list | 京东APP->排行榜 | 100% |
-| jd_shark_bean | 京东APP->摇金豆 | 100%|
-| jd_sign_collection| 京东签到合集 | 100% |
+| jd_ranking_list.py | 京东APP->排行榜 | 100% |
+| jd_shark_bean.py | 京东APP->摇金豆 | 100%|
+| jd_collar_bean.py | 京东APP->领金豆 | 99%|
+| jd_sign_collection.py| 京东签到合集 | 100% |
 | jr_daily_task_goose.py| 京东金融->天天提鹅 | 100% |
-| jr_pet_pig | 京东金融->养猪猪| 100% |
-| jr_money_tree| 京东金融->摇钱树| 100%|
+| jr_pet_pig.py | 京东金融->养猪猪| 100% |
+| jr_money_tree.py| 京东金融->摇钱树| 100%|
 | jd_bean_lottery.py | 京东APP->签到领京豆->摇金豆->京豆夺宝| 100% |
 | jd_earn_bean.py | 微信小程序-赚金豆 | 100% |
 | jd_cash.py | 京东APP-领现金 | 100% |
@@ -88,7 +89,7 @@
 
 * 如果任何单位或个人认为该项目的脚本可能涉嫌侵犯其权利，则应及时通知并提供身份证明，所有权证明，本人将在收到认证文件后删除相关脚本.
 
-* 任何以任何方式查看此项目的人或直接或间接使用该jd_scripts项目的任何脚本的使用者都应仔细阅读此声明。ClassmateLin保留随时更改或补充此免责声明的权利。一旦使用并复制了任何相关脚本或jd_scripts项目的规则，则视为您已接受此免责声明.
+* 以任何方式查看此项目的人或直接或间接使用该jd_scripts项目的任何脚本的使用者都应仔细阅读此声明。ClassmateLin保留随时更改或补充此免责声明的权利。一旦使用并复制了任何相关脚本或jd_scripts项目的规则，则视为您已接受此免责声明.
 
 **您必须在下载后的24小时内从计算机或手机中完全删除以上内容.**  </br>
 ***您使用或者复制了本仓库且本人制作的任何脚本，则视为`已接受`此声明，请仔细阅读*** 

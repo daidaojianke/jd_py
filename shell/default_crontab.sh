@@ -24,6 +24,9 @@
 # 抽金豆
 6 0 * * * /usr/local/bin/python /scripts/jd_lottery_bean.py >> /scripts/logs/jd_lottery_bean_`date "+%Y-%m-%d"`.log 2>&1
 
+# 领金豆
+6 1 * * * /usr/local/bin/python /scripts/jd_collar_bean.py >> /scripts/logs/jd_collar_bean_`date "+%Y-%m-%d"`.log 2>&1
+
 # 幸运大转盘
 10 10,23 * * * /usr/local/bin/python /scripts/jd_lucky_turntable.py >> /scripts/logs/jd_lucky_turntable_`date "+%Y-%m-%d"`.log 2>&1
 
