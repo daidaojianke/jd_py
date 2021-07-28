@@ -584,8 +584,8 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-    start(*JD_COOKIES[1].values())
-    # from utils.process import process_start
-    #
-    # process_start(start, '到家果园')
+    # from config import JD_COOKIES
+    # start(*JD_COOKIES[1].values())
+    from utils.process import process_start
+
+    process_start(start, '到家果园')
