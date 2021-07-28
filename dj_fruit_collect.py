@@ -20,11 +20,11 @@ class DjFruitCollect(DjFruit):
         """
         :return:
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             dj_cookies = await self.login(session)
             if not dj_cookies:
                 return
-            println('{}, 登录成功...'.format(self._account))
+            println('{}, 登录成功...'.format(self.account))
 
         async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
             await self.receive_water_wheel(session)  # 领取水车水滴

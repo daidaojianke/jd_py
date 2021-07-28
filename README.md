@@ -67,6 +67,7 @@
 | jd_gold_creator.py | 京东APP-京东排行榜->金榜创造营| 100%|
 | dj_fruit.py | 京东APP-京东到家->领免费水果| 100%|
 | dj_fruit_collect.py | 京东APP-京东到家->领免费水果->点水车| 100%|
+| dj_bean.py | 京东APP-京东到家->签到/赚鲜豆| 100%|
 | jd_beauty.py          | 京东APP->美丽研究院   | 0%        |
 | jx_factory.py | 京喜APP->京喜工厂 | 0% |
 | jx_farm.py | 京喜APP->京喜农场| 0% |
