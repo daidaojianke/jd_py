@@ -10,7 +10,6 @@ import json
 import time
 import random
 import asyncio
-import base64
 from utils.console import println
 from urllib.parse import unquote, urlencode
 from config import USER_AGENT, DJ_FRUIT_CODE, DJ_FRUIT_KEEP_WATER
@@ -23,8 +22,7 @@ def uuid():
     """
 
     def s4():
-        return hex(math.floor((1 + random.random()) * 10000))[2:]
-
+        return hex(math.floor((1 + random.random()) * 0x10000))[3:]
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4()
 
 
@@ -49,7 +47,7 @@ class DjFruit:
         self._lng = '114.' + str(math.floor(random.random() * (99999 - 10000) + 10000))
         self._city_id = str(math.floor(random.random() * (1500 - 1000) + 1000))
         self._device_id = uuid()
-        self._trance_id = self._device_id + str(int(time.time() * 1000))
+        self._trace_id = self._device_id + str(int(time.time() * 1000))
         self._nickname = None
         self._pin = pt_pin
         self._account = unquote(self._pin)
@@ -85,7 +83,7 @@ class DjFruit:
                 '_funid_': function_id,
                 'functionId': function_id,
                 'body': json.dumps(body),
-                'tranceId': self._trance_id,
+                'tranceId': self._trace_id,
                 'deviceToken': self._device_id,
                 'deviceId': self._device_id,
                 'deviceModel': 'appmodel',
@@ -163,12 +161,9 @@ class DjFruit:
         self._dj_pin = res['result']['PDJ_H5_PIN']
 
         cookies = {
-            'pt_pin': self._cookies['pt_pin'],
-            'pt_key': self._cookies['pt_key'],
             'o2o_m_h5_sid': res['result']['o2o_m_h5_sid'],
             'deviceid_pdj_jd': self._device_id,
             'PDJ_H5_PIN': res['result']['PDJ_H5_PIN'],
-            'PDJ_H5_JDPIN': res['result']['PDJ_H5_JDPIN']
         }
         return cookies
 
@@ -447,13 +442,13 @@ class DjFruit:
         :param session:
         :return:
         """
-        water_info = await self.get_water_info(session)
-        if not water_info:
-            println('{}, 查询水滴信息失败!'.format(self._account))
-            return
-        if water_info['waterStorage'] < water_info['capacityLimit']:
-            println('{}, 水车水滴未满, 暂不收取!'.format(self._account))
-            return
+        # water_info = await self.get_water_info(session)
+        # if not water_info:
+        #     println('{}, 查询水滴信息失败!'.format(self._account))
+        #     return
+        # if water_info['waterStorage'] < water_info['capacityLimit']:
+        #     println('{}, 水车水滴未满, 暂不收取!'.format(self._account))
+        #     return
 
         res = await self.get(session, 'fruit/collectWater')
         if res['code'] != '0':
@@ -497,7 +492,12 @@ class DjFruit:
         res = await self.post(session, 'fruit/initFruit', {
             "cityId": str(self._city_id), "longitude": self._lng, "latitude": self._lat})
         if res['code'] != '0':
-            println('{}, 初始化失败!'.format(self._account))
+            message = '未知'
+            if 'msg' in res:
+                message = res['msg']
+            println('{}, 初始化失败, 原因:{}'.format(self._account, message))
+            notify_message = '活动名称】到家果园\n【京东账号】{}【任务状态】执行失败\n【错误信息】{}\n'.format(self._account, message)
+            self._message = notify_message
             return False
         return res['result']
 
@@ -532,15 +532,21 @@ class DjFruit:
                 await asyncio.sleep(1)
 
     async def set_notify_message(self, session):
+        """
+        设置通知消息
+        :param session:
+        :return:
+        """
         data = await self.init(session)
         if not data:
             return
         active_info = data['activityInfoResponse']
         message = '【活动名称】到家果园\n【活动账号】{}\n【活动昵称】{}\n'.format(self._pin, self._nickname)
         message += '【奖品名称】{}\n'.format(active_info['fruitName'])
-        message += '【{}进度】{}/{}\n'.format(active_info['stageName'],
-                                          active_info['curStageTotalProcess'] - active_info['curStageLeftProcess'],
-                                          active_info['curStageTotalProcess'])
+        message += '【{}进度】{}/{}\n'.format(
+            active_info['stageName'],
+            float(active_info['curStageTotalProcess']) - float(active_info['curStageLeftProcess']),
+            active_info['curStageTotalProcess'])
         if active_info['ifMaxProcess']:
             message += '【温馨提示】奖品可领取，请前往京东APP-京东到家-领免费水果领取, 并种植新一轮奖品!'
 
@@ -578,6 +584,8 @@ def start(pt_pin, pt_key):
 
 
 if __name__ == '__main__':
-    from utils.process import process_start
-
-    process_start(start, '到家果园')
+    from config import JD_COOKIES
+    start(*JD_COOKIES[1].values())
+    # from utils.process import process_start
+    #
+    # process_start(start, '到家果园')
