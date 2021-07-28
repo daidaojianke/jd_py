@@ -61,3 +61,10 @@ user_agent: jdapp;iPhone;10.0.2;14.3;network/wifi;Mozilla/5.0 (iPhone; CPU iPhon
 # 京喜工厂团ID
 jx_factory_tuan_id:
   - null
+
+# 到家果园助力码
+dj_fruit_code:
+  - null
+
+# 到家果园保留水滴
+dj_fruit_keep_water: 80

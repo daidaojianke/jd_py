@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/6/23 9:41 上午
 # @File    : jd_shark_bean.py

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/13 3:31 下午
 # @File    : jd_smash_golden_egg.py

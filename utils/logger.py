@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/6/14 15:12
 # @File    : logger.py

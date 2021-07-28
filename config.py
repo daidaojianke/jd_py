@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/6/16 11:31 上午
 # @File    : conf.py
@@ -68,10 +68,12 @@ USER_AGENT = cfg.get('user_agent', None) if cfg.get('user_agent', None) else DEF
 
 # 种豆得豆互助码
 JD_PLANTING_BEAN_CODE = list(set(cfg.get('jd_planting_bean_code') if cfg.get('jd_planting_bean_code') else []))
+JD_PLANTING_BEAN_CODE = [code for code in JD_PLANTING_BEAN_CODE if code]
 JD_PLANTING_BEAN_CODE.append('mlrdw3aw26j3x3vxi2qvp7xj5llrsmtd3tde64i')
 
 # 东东农场互助码
 JD_FARM_CODE = list(set(cfg.get('jd_farm_code') if cfg.get('jd_farm_code') else []))
+JD_FARM_CODE = [code for code in JD_FARM_CODE if code]
 JD_FARM_CODE.append('f9a5389ab473423e83a746e03a82dddc')
 
 # 东东农场是否使用水滴换豆卡
@@ -82,36 +84,50 @@ JD_FARM_RETAIN_WATER = cfg.get('jd_farm_retain_water') if cfg.get('jd_farm_retai
 
 # 京东金融摇钱树助力码
 JR_MONEY_TREE_CODE = list(set(cfg.get('jr_money_tree_code') if cfg.get('jr_money_tree_code') else []))
+JR_MONEY_TREE_CODE = [code for code in JR_MONEY_TREE_CODE if code]
 JR_MONEY_TREE_CODE.append('GEwzybOwKgTmY4q07j9ZiMAdoUJQ3Dik')
 
 # 东东工厂助力码
 JD_FACTORY_CODE = list(set(cfg.get('jd_factory_code') if cfg.get('jd_factory_code') else []))
+JD_FACTORY_CODE = [code for code in JD_FACTORY_CODE if code]
 JD_FACTORY_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjVWnYaS5kRrbA')
 
 # 东东萌宠互助码
 JD_CUTE_PET_CODE = list(set(cfg.get('jd_cute_pet_code') if cfg.get('jd_cute_pet_code') else []))
+JD_CUTE_PET_CODE = [code for code in JD_CUTE_PET_CODE if code]
 JD_CUTE_PET_CODE.append('MTAxNzIxMDc1MTAwMDAwMDA0OTQ4ODA1Mw==')
 
 # 京东领现金互助码
 JD_CASH_CODE = list(set(cfg.get('jd_cash_code') if cfg.get('jd_cash_code') else []))
+JD_CASH_CODE = [code for code in JD_CASH_CODE if code]
 JD_CASH_CODE.append('eU9YaeS6bq4j8z2Bz3Eahw@IRs1bey1Z_0')
 
 
 # 众筹许愿池助力码
 JD_WISHING_POOL_CODE = list(set(cfg.get('jd_wishing_pool_code') if cfg.get('jd_wishing_pool_code') else []))
+JD_WISHING_POOL_CODE = [code for code in JD_WISHING_POOL_CODE if code]
 JD_WISHING_POOL_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjRXnYaU5kRrbA')
 
 # 燃动夏季互助码
 JD_BURNING_SUMMER_CODE = list(set(cfg.get('jd_burning_summer_code') if cfg.get('jd_burning_summer_code') else []))
+JD_BURNING_SUMMER_CODE = [code for code in JD_BURNING_SUMMER_CODE if code]
 JD_BURNING_SUMMER_CODE.append('HcmphLbwLg-rdovIEtZgglnd0kl-mHlZa0Ke_B87Q4TD1WVgIqaoiXX1QhzVv6-3sgm6uBAKzq2l_Ym0jB6fZQ')
 
 # 疯狂砸金蛋助力码
 JD_SMASH_GOLDEN_EGG_CODE = list(set(cfg.get('jd_smash_golden_egg_code') if cfg.get('jd_smash_golden_egg_code') else []))
+JD_SMASH_GOLDEN_EGG_CODE = [code for code in JD_SMASH_GOLDEN_EGG_CODE if code]
 
 # TG 用户ID
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token
 TG_BOT_TOKEN = cfg.get('notify', dict()).get('tg_bot_token', None)
 
+# 是否开启京豆夺宝
 JD_BEAN_INDIANA_OPEN = cfg.get('jd_bean_indiana', False)
 
+# 到家果园助力码
+DJ_FRUIT_CODE = list(set(cfg.get('dj_fruit_code') if cfg.get('dj_fruit_code') else []))
+DJ_FRUIT_CODE = [code for code in DJ_FRUIT_CODE if code]
+
+# 到家果园保留水滴
+DJ_FRUIT_KEEP_WATER = cfg.get('dj_fruit_keep_water', 80)

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/13 11:58 上午
 # @File    : jd_good_morning.py

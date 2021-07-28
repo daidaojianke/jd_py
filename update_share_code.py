@@ -1,15 +1,13 @@
-#!/usr/bin/env python
+#!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/9 2:19 下午
 # @File    : update_share_code.py
 # @Project : jd_scripts
 # @Desc    : 获取助力码, 并更新到配置文件中
 import asyncio
-import yaml
 import copy
 
 from utils.console import println
-from config import JD_COOKIES, CONF_PATH
 from jd_planting_bean import JdPlantingBean
 from jd_cash import JdCash
 from jd_factory import JdFactory
@@ -19,6 +17,7 @@ from jr_money_tree import JrMoneyTree
 from jd_wishing_pool import JdWishingPool
 from jd_burning_summer import JdBurningSummer
 from jd_smash_golden_egg import JdSmashGoldenEgg
+from dj_fruit import DjFruit
 import shutil
 import yaml
 from config import CONF_PATH, EXAMPLE_CONFIG_PATH, BAK_CONFIG_PATH, JD_COOKIES
@@ -50,7 +49,8 @@ def update_config(old_cfg=None, new_cfg=None):
         'jd_farm_retain_water': '# 每日保留水滴, 默认80g， 用于完成第二天的10次浇水任务',
         'jd_wishing_pool_code':  '# 众筹许愿池助力码',
         'jd_burning_summer_code':  '# 燃动夏季助力码',
-        'jd_smash_golden_egg_code': '# 疯狂砸金蛋助力码'
+        'jd_smash_golden_egg_code': '# 疯狂砸金蛋助力码',
+        'dj_fruit_code': '# 到家果园助力码',
     }
     if not old_cfg:
         # 加载配置文件
@@ -170,6 +170,10 @@ class UpdateShareCode:
             'jd_smash_golden_egg_code': {
                 'cls': JdSmashGoldenEgg,
                 'name': '疯狂砸金蛋'
+            },
+            'dj_fruit_code': {
+                'cls': DjFruit,
+                'name': '到家果园'
             }
 
         }

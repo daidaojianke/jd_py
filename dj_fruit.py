@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/27 2:00 下午
 # @File    : dj_fruit.py
@@ -10,10 +10,10 @@ import json
 import time
 import random
 import asyncio
-
+import base64
 from utils.console import println
 from urllib.parse import unquote, urlencode
-from config import USER_AGENT
+from config import USER_AGENT, DJ_FRUIT_CODE, DJ_FRUIT_KEEP_WATER
 
 
 def uuid():
@@ -21,6 +21,7 @@ def uuid():
     生成设备ID
     :return:
     """
+
     def s4():
         return hex(math.floor((1 + random.random()) * 10000))[2:]
 
@@ -48,10 +49,11 @@ class DjFruit:
         self._lng = '114.' + str(math.floor(random.random() * (99999 - 10000) + 10000))
         self._city_id = str(math.floor(random.random() * (1500 - 1000) + 1000))
         self._device_id = uuid()
-        self._trance_id = self._device_id + str(int(time.time()*1000))
+        self._trance_id = self._device_id + str(int(time.time() * 1000))
         self._nickname = None
         self._pin = pt_pin
         self._account = unquote(self._pin)
+        self._dj_pin = None
 
         self._cookies = {
             'pt_pin': pt_pin,
@@ -79,7 +81,7 @@ class DjFruit:
             if not body:
                 body = {}
             params = {
-                '_jdrandom': int(time.time()*1000),
+                '_jdrandom': int(time.time() * 1000),
                 '_funid_': function_id,
                 'functionId': function_id,
                 'body': json.dumps(body),
@@ -158,14 +160,15 @@ class DjFruit:
         else:
             self._nickname = self._account
 
-        self._pin = res['result']['PDJ_H5_JDPIN']
+        self._dj_pin = res['result']['PDJ_H5_PIN']
 
         cookies = {
             'pt_pin': self._cookies['pt_pin'],
             'pt_key': self._cookies['pt_key'],
             'o2o_m_h5_sid': res['result']['o2o_m_h5_sid'],
             'deviceid_pdj_jd': self._device_id,
-            'PDJ_H5_PIN': res['result']['PDJ_H5_JDPIN'],
+            'PDJ_H5_PIN': res['result']['PDJ_H5_PIN'],
+            'PDJ_H5_JDPIN': res['result']['PDJ_H5_JDPIN']
         }
         return cookies
 
@@ -306,7 +309,7 @@ class DjFruit:
             times = int((water_balance - keep_water) / 10)
 
         if water_balance - times * 10 < keep_water:
-            println('{}, 执行完浇水, 剩余水滴将小于保留水滴, 故不浇水!'.format(self._account))
+            println('{}, 执行完浇水, 剩余水滴将小于保留水滴:{}g, 故不浇水!'.format(self._account, keep_water))
             return
 
         if water_balance < times * 10:
@@ -352,7 +355,7 @@ class DjFruit:
             println('{}, 浇水红包差{}可以打开!'.format(self._account, rest_progress))
             return
 
-        res = await self.request(session, 'fruit/getWaterRedPackInfo')
+        res = await self.get(session, 'fruit/receiveWaterRedPack')
         if res['code'] != '0':
             println('{}, 打开浇水红包失败!'.format(self._account))
         else:
@@ -405,17 +408,16 @@ class DjFruit:
             if task_type == 1101:  # 签到任务
                 await self.daily_sign(session, task)
             elif task_type == 1102:  # 定时领水滴
-                await self.receive_water(session, task)
+                await self.finish_task(session, task_name, {"modelId": task['modelId'], "taskId": task['taskId'],
+                                                            "taskType": task['taskType'], "plateCode": 3})
             elif task_type == 1103:  # 每日领水滴
                 await self.daily_water_award(session, task)
             elif task_type in [307, 310, 901]:  # 浏览类型任务
                 await self.browse_task(session, task)
                 await self.get_task_award(session, task)
-            elif task_type == 1201:  # 好友助力任务
-                pass
             elif task_type == 1104:  # 邀请好友领水果
                 pass
-            elif task_type == 502:  # 鲜豆签到
+            elif task_type == [502, 1201]:  # 鲜豆签到, 好友助力任务
                 await self.receive_task(session, task_name, {"modelId": task['modelId'], "taskId": task['taskId'],
                                                              "taskType": task['taskType'], "plateCode": 3})
             elif task_type == 0:  # 浇水任务
@@ -459,12 +461,34 @@ class DjFruit:
         else:
             println('{}, 成功收取水车水滴!'.format(self._account))
 
-    async def get_share_code(self, session):
+    async def get_share_code(self):
         """
         获取助力码
         """
-        res = await self.post(session, 'fruit/ShareMaterialRequest', {"scene": 1})
-        println(res)
+        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+            dj_cookies = await self.login(session)
+            if not dj_cookies:
+                return
+            println('{}, 登录成功...'.format(self._account))
+
+        async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
+            res = await self.get(session, 'task/list', {"modelId": "M10007", "plateCode": 4})
+            if res['code'] != '0':
+                println('{}, 无法获取助力码!'.format(self._account))
+                return None
+            code = None
+            task_list = res['result']['taskInfoList']
+            for task in task_list:
+                if task['taskType'] == 1201:
+                    body = {
+                        'taskId': task['taskId'],
+                        'uniqueId': task['uniqueId'],
+                        'assistTargetPin': self._dj_pin,
+                    }
+                    code = json.dumps(body)
+            if code:
+                println('{}, 助力码:{}'.format(self._account, code))
+            return code
 
     async def init(self, session):
         """
@@ -477,6 +501,36 @@ class DjFruit:
             return False
         return res['result']
 
+    async def help_friend(self, session):
+        """
+        助力好友
+        :return:
+        """
+        for code in DJ_FRUIT_CODE:
+            try:
+                params = json.loads(code)
+            except Exception as e:
+                println('{}, 助力失败, 助力码错误, {}'.format(self._account, e.args))
+                continue
+            if 'assistTargetPin' not in params:
+                println('{}, 助力码错误, 无法助力!'.format(self._account))
+                continue
+
+            params.update({
+                "plateCode": 5,
+                "modelId": "M10007",
+                "taskType": 1201,
+            })
+            user_pin = params['assistTargetPin']
+
+            res = await self.get(session, 'task/finished', params)
+            if res['code'] != '0':
+                println('{}, 助力好友:{}失败!'.format(self._account, user_pin))
+                break
+            else:
+                println('{}, 成功助力好友:{}!'.format(self._account, user_pin))
+                await asyncio.sleep(1)
+
     async def set_notify_message(self, session):
         data = await self.init(session)
         if not data:
@@ -484,8 +538,9 @@ class DjFruit:
         active_info = data['activityInfoResponse']
         message = '【活动名称】到家果园\n【活动账号】{}\n【活动昵称】{}\n'.format(self._pin, self._nickname)
         message += '【奖品名称】{}\n'.format(active_info['fruitName'])
-        message += '【{}进度】{}/{}\n'.format(active_info['stageName'], active_info['curStageLeftProcess'],
-                                        active_info['curStageTotalProcess'])
+        message += '【{}进度】{}/{}\n'.format(active_info['stageName'],
+                                          active_info['curStageTotalProcess'] - active_info['curStageLeftProcess'],
+                                          active_info['curStageTotalProcess'])
         if active_info['ifMaxProcess']:
             message += '【温馨提示】奖品可领取，请前往京东APP-京东到家-领免费水果领取, 并种植新一轮奖品!'
 
@@ -507,24 +562,22 @@ class DjFruit:
             result = await self.init(session)
             if not result:
                 return
+            await self.help_friend(session)
             await self.do_task(session)  # 做任务
             await self.receive_water_red_packet(session)  # 领取浇水红包
             await self.receive_water_bottle(session)  # 领取水瓶
             await self.receive_water_wheel(session)  # 领取水车
-            await self.watering(session, batch=True, keep_water=100)
+            await self.watering(session, batch=True, keep_water=DJ_FRUIT_KEEP_WATER)
             await self.set_notify_message(session)
 
 
 def start(pt_pin, pt_key):
-
     app = DjFruit(pt_pin, pt_key)
     asyncio.run(app.run())
     return app.message
 
 
 if __name__ == '__main__':
-    # from config import JD_COOKIES
-    # start(*JD_COOKIES[5].values())
     from utils.process import process_start
-    process_start(start, '到家果园')
 
+    process_start(start, '到家果园')
