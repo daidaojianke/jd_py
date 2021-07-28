@@ -118,7 +118,7 @@ class DjBean(DjBase):
                 println('{}, 任务:《{}》今日已完成!'.format(self.account, task_name))
                 continue
 
-            if task_type in [506, 513]:  # 下单返鲜豆 7天三单任务
+            if task_type in [506, 513, 801]:  # 下单返鲜豆 7天三单任务
                 println('{}, 任务:《{}》无法完成, 请手动完成!'.format(self.account, task_name))
                 continue
             elif task_type in [901, 310]:
@@ -127,28 +127,6 @@ class DjBean(DjBase):
                 await self.get_task_award(session, task)
             else:
                 await self.receive_task(session, task)
-
-    # async def _get_total_bean(self, session):
-    #     """
-    #     鲜豆总数
-    #     :return:
-    #     """
-    #     body = {
-    #         "longitude": self.lng,
-    #         "latitude": self.lat,
-    #         "areaCode": self.city_id,
-    #         "refPageSource": "myinfo",
-    #         "pageSource": "Integral",
-    #         "ref": "myinfo",
-    #         "ctp": "mypoint"
-    #     }
-    #     res = await self.get(session, 'pointTask/logsWithTaskList')
-    #
-    #     if res['code'] != '0' or 'points' not in res['result']:
-    #         println('{}, 获取鲜豆基本总数失败!'.format(self.account))
-    #         return 0
-    #
-    #     return res['result']['points']
 
     async def _get_bean_detail(self, session, page=1, page_size=30):
         """

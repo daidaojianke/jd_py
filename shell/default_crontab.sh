@@ -105,6 +105,12 @@
 # 京东到家赚鲜豆
 45 12,19 * * * /scripts/dj_bean.py >> /scripts/logs/dj_bean_`date "+\%Y-\%m-\%d"`.log 2>&1
 
+# 京东到家鲜豆庄园任务
+30 6,21 * * * /scripts/dj_bean_manor.py >> /scripts/logs/dj_bean_manor_`date "+\%Y-\%m-\%d"`.log 2>&1
+
+# 京东到家鲜豆庄园任务
+*/40 * * * * /scripts/dj_bean_manor_water.py >> /scripts/logs/dj_bean_manor_water_`date "+\%Y-\%m-\%d"`.log 2>&1
+
 # 每天23:30清除前一天日志
 30 23 * * * /scripts/clean_log.py
 

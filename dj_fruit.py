@@ -182,12 +182,12 @@ class DjFruit(DjBase):
                                                             "taskType": task['taskType'], "plateCode": 3})
             elif task_type == 1103:  # 每日领水滴
                 await self.daily_water_award(session, task)
-            elif task_type in [307, 310, 901]:  # 浏览类型任务
+            elif task_type in [307, 310, 901, 502]:  # 浏览类型任务
                 await self.browse_task(session, task)
                 await self.get_task_award(session, task)
             elif task_type == 1104:  # 邀请好友领水果
                 pass
-            elif task_type == [502, 1201]:  # 鲜豆签到, 好友助力任务
+            elif task_type == [1201]:  # 鲜豆签到, 好友助力任务
                 await self.receive_task(session, task)
             elif task_type == 0:  # 浇水任务
                 if 'todayFinishNum' in task:
