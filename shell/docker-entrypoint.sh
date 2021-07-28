@@ -54,6 +54,7 @@ crontab -r
 cat $CODE_DIR/shell/default_crontab.sh >> /var/spool/cron/crontabs/root
 echo -e "\n" >> /var/spool/cron/crontabs/root
 cat $CODE_DIR/conf/crontab.sh >> /var/spool/cron/crontabs/root
+crontab /var/spool/cron/crontabs/root
 echo "重启cron进程..."
 /etc/init.d/cron restart
 
