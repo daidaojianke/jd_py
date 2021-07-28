@@ -1,4 +1,7 @@
 # 默认定时任务
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
 
 # 京豆夺宝
 0 9 * * * /scripts/jd_bean_indiana.py >> /scripts/logs/jd_bean_indiana_`date "+\%Y-\%m-\%d"`.log 2>&1
