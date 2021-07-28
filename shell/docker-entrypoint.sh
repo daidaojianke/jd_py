@@ -51,9 +51,9 @@ chmod a+x /bin/docker-entrypoint
 
 echo "更新cron任务..."
 crontab -r
-cat $CODE_DIR/shell/default_crontab.sh >> /etc/crontab
-echo -e "\n" >> /etc/crontab
-cat $CODE_DIR/conf/crontab.sh >>/etc/crontab
+cat $CODE_DIR/shell/default_crontab.sh >> /var/spool/cron/crontabs/root
+echo -e "\n" >> /var/spool/cron/crontabs/root
+cat $CODE_DIR/conf/crontab.sh >> /var/spool/cron/crontabs/root
 echo "重启cron进程..."
 /etc/init.d/cron restart
 
