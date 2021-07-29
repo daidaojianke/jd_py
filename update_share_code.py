@@ -163,10 +163,10 @@ class UpdateShareCode:
                 'cls': JdWishingPool,
                 'name': '众筹许愿池'
             },
-            'jd_burning_summer_code': {
-                'cls': JdBurningSummer,
-                'name': '燃动夏季',
-            },
+            # 'jd_burning_summer_code': {
+            #     'cls': JdBurningSummer,
+            #     'name': '燃动夏季',
+            # },
             'jd_smash_golden_egg_code': {
                 'cls': JdSmashGoldenEgg,
                 'name': '疯狂砸金蛋'

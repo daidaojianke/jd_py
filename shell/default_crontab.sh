@@ -82,7 +82,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 46 8,12,16 * * * /scripts/jd_cash.py >> /scripts/logs/jd_cash_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 # 燃动夏季
-30 7,15,19 * * * /scripts/jd_burning_summer.py >> /scripts/logs/jd_burning_summer_`date "+\%Y-\%m-\%d"`.log 2>&1
+# 30 7,15,19 * * * /scripts/jd_burning_summer.py >> /scripts/logs/jd_burning_summer_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 # 众筹许愿池
 45 8,10,14,16,18 * * * /scripts/jd_wishing_pool.py >> /scripts/logs/jd_wishing_pool_`date "+\%Y-\%m-\%d"`.log 2>&1
