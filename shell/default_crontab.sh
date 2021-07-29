@@ -2,9 +2,8 @@
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
-
 # 京豆夺宝
-0 9 * * * /scripts/jd_bean_indiana.py >> /scripts/logs/jd_bean_indiana_`date "+\%Y-\%m-\%d"`.log 2>&1
+10 9 * * * /scripts/jd_bean_indiana.py >> /scripts/logs/jd_bean_indiana_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 # 美丽研究院
 41 7,12,19 * * * /scripts/jd_beauty.py >> /scripts/logs/jd_beauty_`date "+\%Y-\%m-\%d"`.log 2>&1
@@ -58,13 +57,19 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 0 10 * * *  /scripts/jd_try.py >> /scripts/logs/jd_try_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 # 天天提鹅
-28 * * * * /scripts/jr_daily_take_goose.py >> /scripts/logs/jr_daily_take_goose_`date "+\%Y-\%m-\%d"`.log 2>&1
+35 9,22 * * * /scripts/jr_daily_take_goose.py >> /scripts/logs/jr_daily_take_goose_`date "+\%Y-\%m-\%d"`.log 2>&1
+
+# 天天提鹅收蛋
+5 */1 * * * /scripts/jr_daily_take_goose_collect.py >> /scripts/logs/jr_daily_take_goose_collect_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 # 金果摇钱树
-23 */2 * * * /scripts/jr_money_tree.py >> /scripts/logs/jr_money_tree_`date "+\%Y-\%m-\%d"`.log 2>&1
+5 10,21 * * * /scripts/jr_money_tree.py >> /scripts/logs/jr_money_tree_`date "+\%Y-\%m-\%d"`.log 2>&1
+
+# 金果摇钱树收金果
+35  */1 * * * /scripts/jr_money_tree.py >> /scripts/logs/jr_money_tree_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 # 金融养猪
-32 0-23/6 * * * /scripts/jr_pet_pig.py >> /scripts/logs/jr_pet_pig_`date "+\%Y-\%m-\%d"`.log 2>&1
+23 0-23/8 * * * /scripts/jr_pet_pig.py >> /scripts/logs/jr_pet_pig_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 # 京喜工厂
 50 * * * * /scripts/jx_factory.py >> /scripts/logs/jx_factory_`date "+\%Y-\%m-\%d"`.log 2>&1
