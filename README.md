@@ -3,7 +3,12 @@
 ## 安裝
 
 ### 使用docker
+
 - docker一键安装: `docker run -d --name jd classmatelin/hhl:latest`.
+
+## 更新
+
+- `docker exec -it jd /bin/docker-entrypoint`
 
 ### 
 
