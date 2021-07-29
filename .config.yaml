@@ -47,6 +47,9 @@ notify:
   # TG用户ID
   tg_user_id: xxx
 
+  # push+ token: https://pushplus.hxtrip.com/
+  push_p_token: xxx
+
 # 众筹许愿池助力码
 jd_wishing_pool_code:
   - null
@@ -69,6 +72,6 @@ dj_fruit_code:
 # 到家果园保留水滴
 dj_fruit_keep_water: 80
 
-
+# 抢金豆助力码
 jd_grab_bean_code:
   - null

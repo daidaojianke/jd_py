@@ -27,6 +27,9 @@ BAK_CONFIG_PATH = os.path.join(BASE_DIR, 'conf/config.yaml.bak')
 # 配置文件路径
 CONF_PATH = os.path.join(BASE_DIR, 'conf/config.yaml')
 
+# sqlite3保存路径
+DB_PATH = os.path.join(BASE_DIR, 'sqlite.db')
+
 IMAGES_DIR = os.path.join(BASE_DIR, 'static/images')
 
 if platform.system() == 'Windows':
@@ -56,8 +59,8 @@ JOY_PROCESS_NUM = cfg.get('joy_process_num', 1)
 # JD COOKIES
 JD_COOKIES = [j for j in [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1),
                            'pt_key': re.search('pt_key=(.*?);', i).group(1)}
-              for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)
-              or re.search('pt_key=(.*?);pt_pin=(.*?);', i)] if j['pt_pin'] != '']
+                          for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)
+                          or re.search('pt_key=(.*?);pt_pin=(.*?);', i)] if j['pt_pin'] != '']
 
 # 默认请求头
 DEFAULT_USER_AGENT = 'jdapp;iPhone;12.0.1;15.1.1;network/wifi;Mozilla/5.0 (iPhone; CPU iPhone OS 15_1_1 like Mac OS ' \
@@ -102,7 +105,6 @@ JD_CASH_CODE = list(set(cfg.get('jd_cash_code') if cfg.get('jd_cash_code') else 
 JD_CASH_CODE = [code for code in JD_CASH_CODE if code]
 JD_CASH_CODE.append('eU9YaeS6bq4j8z2Bz3Eahw@IRs1bey1Z_0')
 
-
 # 众筹许愿池助力码
 JD_WISHING_POOL_CODE = list(set(cfg.get('jd_wishing_pool_code') if cfg.get('jd_wishing_pool_code') else []))
 JD_WISHING_POOL_CODE = [code for code in JD_WISHING_POOL_CODE if code]
@@ -122,20 +124,24 @@ TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token
 TG_BOT_TOKEN = cfg.get('notify', dict()).get('tg_bot_token', None)
 
+# push+ token配置
+PUSH_P_TOKEN = cfg.get('notify', dict()).get('push_p_token', None)
+
 # 是否开启京豆夺宝
 JD_BEAN_INDIANA_OPEN = cfg.get('jd_bean_indiana', False)
 
 # 到家果园助力码
 DJ_FRUIT_CODE = list(set(cfg.get('dj_fruit_code') if cfg.get('dj_fruit_code') else []))
 DJ_FRUIT_CODE = [code for code in DJ_FRUIT_CODE if code]
-DJ_FRUIT_CODE.insert(0, '{"taskId": "23eee1c043c01bc", "uniqueId": "24235b93454d163", "assistTargetPin": '
-                        '"JD_bc324c22ed29000"}')
+DJ_FRUIT_CODE.append('{"taskId": "23eee1c043c01bc", "uniqueId": "24235b93454d163", "assistTargetPin": '
+                     '"JD_bc324c22ed29000"}')
 
 # 到家果园保留水滴
 DJ_FRUIT_KEEP_WATER = cfg.get('dj_fruit_keep_water', 80)
 
-
 # 抢京豆助力码
 JD_GRAB_BEAN_CODE = list(set(cfg.get('jd_grab_bean_code') if cfg.get('jd_grab_bean_code') else []))
 JD_GRAB_BEAN_CODE = [code for code in JD_GRAB_BEAN_CODE if code]
-JD_GRAB_BEAN_CODE.insert(0, '{"activeType": 2, "groupCode": "870220604684259328", "shareCode": "E4B67F1082996A784C57E73D428DD364AD1DAAB9A3E3F6CBAFDE81EEB7393333","activeId": "136", "source": "guest"}')
+JD_GRAB_BEAN_CODE.append(
+    '{"activeType": 2, "groupCode": "870220604684259328", "shareCode": '
+    '"E4B67F1082996A784C57E73D428DD364AD1DAAB9A3E3F6CBAFDE81EEB7393333","activeId": "136", "source": "guest"}')

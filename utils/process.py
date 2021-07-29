@@ -59,8 +59,7 @@ def process_start(func, name='', process_num=None):
         notify_message += message + '\n'
 
     if notify_message != '':
-        message = '\n======📣{}📣======\n'.format(name) + notify_message
-        println(message)
-        notify(message)
+        title = '\n======📣{}📣======\n'.format(name)
+        notify(title, notify_message)
 
     println("\n{}执行完毕, 退出程序...".format(name), style='bold green')
