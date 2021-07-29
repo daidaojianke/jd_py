@@ -43,7 +43,6 @@ async def open_browser():
             '--use-fake-ui-for-media-stream'
         ]
     })
-
     return browser
 
 
@@ -52,23 +51,26 @@ async def open_page(browser, url, user_agent, cookies):
     打开页面
     :return:
     """
-    context = await browser.createIncognitoBrowserContext()
-    pages = await context.pages()
-    if len(pages) > 0:
-        page = pages[0]
-    else:
-        page = await browser.newPage()
+    try:
+        context = await browser.createIncognitoBrowserContext()
+        pages = await context.pages()
+        if len(pages) > 0:
+            page = pages[0]
+        else:
+            page = await browser.newPage()
 
-    await page.setUserAgent(user_agent)  # 设置USER-AGENT
+        await page.setUserAgent(user_agent)  # 设置USER-AGENT
 
-    await page.setViewport({
-        'width': 500,
-        'height': 845,
-        'isMobile': True
-    })
+        await page.setViewport({
+            'width': 500,
+            'height': 845,
+            'isMobile': True
+        })
 
-    await page.setCookie(*cookies)  # 设置cookies
-    print('正在打开页面...')
-    await page.goto(url, timeout=40000)  # 打开活动页面
+        await page.setCookie(*cookies)  # 设置cookies
+        print('正在打开页面...')
+        await page.goto(url, timeout=40000)  # 打开活动页面
 
-    return page
+        return page
+    except Exception as e:
+        await browser.close()

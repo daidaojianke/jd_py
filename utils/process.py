@@ -6,6 +6,7 @@
 from urllib.parse import unquote
 import multiprocessing
 import random
+import os
 
 from utils.console import println
 from utils.notify import notify
@@ -61,5 +62,8 @@ def process_start(func, name='', process_num=None):
     if notify_message != '':
         title = '\n======📣{}📣======\n'.format(name)
         notify(title, notify_message)
+
+    # if '宠汪汪' in name:  # 杀浏览器进程
+    #     os.system("ps -ef |grep chrome |grep -v ^root |awk '{print $2}' | xargs kill")
 
     println("\n{}执行完毕, 退出程序...".format(name), style='bold green')

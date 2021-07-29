@@ -32,15 +32,19 @@ class JdJoyExchange(JdJoy):
             println('{}, 获取奖品列表失败!'.format(self._pt_pin))
             return
 
-        if datetime.now().hour >= 23:  # 0点场
+        # 23~6点运行兑换8点场
+        if datetime.now().hour >= 23 or datetime.now().hour < 7:  # 0点场
             start_time = datetime.strftime((datetime.now() + relativedelta(days=1)), "%Y-%m-%d 00:00:00")
             key = 'beanConfigs0'
-        elif datetime.now().hour < 8 or 8 < datetime.now().hour < 16:  # 8点场
+        # 7~14点运行兑换16点场
+        elif datetime.now().hour > 7 or datetime.now().hour < 15:  # 8点场
             start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 08:00:00")
             key = 'beanConfigs8'
-        elif datetime.now().hour < 16 or 16 < datetime.now().hour < 23:  # 16点场
+        # 15~22点运行兑换16点场
+        elif datetime.now().hour > 15 or 16 < datetime.now().hour < 23:  # 16点场
             start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 16:00:00")
             key = 'beanConfigs16'
+        # 其他兑换16点场
         else:  # 默认16点场
             start_time = datetime.now().strftime("%Y-%m-%d 16:00:00")
             key = 'beanConfigs16'
@@ -103,8 +107,7 @@ class JdJoyExchange(JdJoy):
                                          json_serialize=ujson.dumps) as session:
             await self.exchange_bean(session)
 
-        if self.browser:
-            await self.browser.close()
+        await self.close_browser()
 
 
 def start(pt_pin, pt_key):

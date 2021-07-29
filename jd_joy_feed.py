@@ -40,6 +40,8 @@ class JdJoyFeed(JdJoy):
                                          json_serialize=ujson.dumps) as session:
             await self.feed_food(session)
 
+        await self.close_browser()
+
 
 def start(pt_pin, pt_key):
     """

@@ -39,6 +39,17 @@ class JdJoy:
         "User-Agent": USER_AGENT
     }
 
+    async def close_browser(self):
+        """
+        关闭浏览器
+        :return:
+        """
+        try:
+            if self.browser:
+                await self.browser.close()
+        except Exception as e:
+            println(e.args)
+
     def __init__(self, pt_pin, pt_key):
         """
         :param pt_pin:
@@ -500,8 +511,7 @@ class JdJoy:
             await self.help_friend_feed(session)
             await self.do_task(session)
 
-        if self.browser:
-            await self.browser.close()
+        await self.close_browser()
 
 
 def start(pt_pin, pt_key):

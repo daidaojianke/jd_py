@@ -18,7 +18,10 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 15 * * * * /scripts/jd_esports_manager.py >> /scripts/logs/jd_esports_manager_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 # 东东工厂
-26 * * * * /scripts/jd_factory.py >> /scripts/logs/jd_factory_`date "+\%Y-\%m-\%d"`.log 2>&1
+30 6-18/6 * * * /scripts/jd_factory.py >> /scripts/logs/jd_factory_`date "+\%Y-\%m-\%d"`.log 2>&1
+
+# 东东工厂收电力
+10 */1 * * * /scripts/jd_factory_collect.py >> /scripts/logs/jd_factory_collect_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 # 东东农场
 15 6-18/6 * * * /scripts/jd_farm.py >> /scripts/logs/jd_farm_`date "+\%Y-\%m-\%d"`.log 2>&1
