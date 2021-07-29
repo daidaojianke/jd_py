@@ -119,11 +119,17 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 # 京东到家鲜豆庄园任务
 */40 * * * * /scripts/dj_bean_manor_water.py >> /scripts/logs/dj_bean_manor_water_`date "+\%Y-\%m-\%d"`.log 2>&1
 
+# 抢京豆
+3 */16 * * * /scripts/jd_grab_bean.py /scripts/logs/jd_grab_bean_`date "+\%Y-\%m-\%d"`.log 2>&1
+
 # 每天23:30清除前一天日志
 30 23 * * * /scripts/clean_log.py
 
 # 每2个小时检查一次cookies是否过期
 0 */2 * * * /scripts/check_cookies.py >> /scripts/logs/check_cookies_`date "+\%Y-\%m-\%d"`.log 2>&1
+
+### 更新助力码
+3 0,16 * * * /scripts/update_share_code.py >> /scripts/logs/update_share_code_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 ### 每天15点30分执行一次更新
 30 15 * * * /bin/docker-entrypoint >> /dev/null  2>&1

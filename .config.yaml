@@ -53,7 +53,7 @@ jd_wishing_pool_code:
 
 
 # 是否开启京豆夺宝功能
-jd_bean_indiana_open: false
+jd_bean_indiana: false
 
 # 请求头, 默认不需要修改
 user_agent: jdapp;iPhone;10.0.2;14.3;network/wifi;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1
@@ -68,3 +68,7 @@ dj_fruit_code:
 
 # 到家果园保留水滴
 dj_fruit_keep_water: 80
+
+
+jd_grab_bean_code:
+  - null

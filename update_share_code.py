@@ -15,9 +15,10 @@ from jd_cute_pet import JdCutePet
 from jd_farm import JdFarm
 from jr_money_tree import JrMoneyTree
 from jd_wishing_pool import JdWishingPool
-from jd_burning_summer import JdBurningSummer
+# from jd_burning_summer import JdBurningSummer
 from jd_smash_golden_egg import JdSmashGoldenEgg
 from dj_fruit import DjFruit
+from jd_grab_bean import JdGrabBean
 import shutil
 import yaml
 from config import CONF_PATH, EXAMPLE_CONFIG_PATH, BAK_CONFIG_PATH, JD_COOKIES
@@ -51,6 +52,7 @@ def update_config(old_cfg=None, new_cfg=None):
         'jd_burning_summer_code':  '# 燃动夏季助力码',
         'jd_smash_golden_egg_code': '# 疯狂砸金蛋助力码',
         'dj_fruit_code': '# 到家果园助力码',
+        'jd_grab_bean_code': '# 抢京豆助力码',
     }
     if not old_cfg:
         # 加载配置文件
@@ -135,45 +137,49 @@ class UpdateShareCode:
     async def run(cls):
         println('#############自动获取助力码##############')
         code_func_map = {
-            'jd_planting_bean_code': {
-                'cls': JdPlantingBean,
-                'name': '种豆得豆',
-            },
-            'jd_cash_code': {
-                'cls': JdCash,
-                'name': '签到领现金'
-            },
-            'jd_cute_pet_code': {
-                'cls': JdCutePet,
-                'name': '东东萌宠',
-            },
-            'jd_factory_code': {
-                'cls': JdFactory,
-                'name': '东东工厂'
-            },
-            'jd_farm_code': {
-                'cls': JdFarm,
-                'name': '东东农场',
-            },
-            'jr_money_tree_code': {
-                'cls': JrMoneyTree,
-                'name': '金果摇钱树',
-            },
-            'jd_wishing_pool_code': {
-                'cls': JdWishingPool,
-                'name': '众筹许愿池'
-            },
+            # 'jd_planting_bean_code': {
+            #     'cls': JdPlantingBean,
+            #     'name': '种豆得豆',
+            # },
+            # 'jd_cash_code': {
+            #     'cls': JdCash,
+            #     'name': '签到领现金'
+            # },
+            # 'jd_cute_pet_code': {
+            #     'cls': JdCutePet,
+            #     'name': '东东萌宠',
+            # },
+            # 'jd_factory_code': {
+            #     'cls': JdFactory,
+            #     'name': '东东工厂'
+            # },
+            # 'jd_farm_code': {
+            #     'cls': JdFarm,
+            #     'name': '东东农场',
+            # },
+            # 'jr_money_tree_code': {
+            #     'cls': JrMoneyTree,
+            #     'name': '金果摇钱树',
+            # },
+            # 'jd_wishing_pool_code': {
+            #     'cls': JdWishingPool,
+            #     'name': '众筹许愿池'
+            # },
             # 'jd_burning_summer_code': {
             #     'cls': JdBurningSummer,
             #     'name': '燃动夏季',
             # },
-            'jd_smash_golden_egg_code': {
-                'cls': JdSmashGoldenEgg,
-                'name': '疯狂砸金蛋'
-            },
-            'dj_fruit_code': {
-                'cls': DjFruit,
-                'name': '到家果园'
+            # 'jd_smash_golden_egg_code': {
+            #     'cls': JdSmashGoldenEgg,
+            #     'name': '疯狂砸金蛋'
+            # },
+            # 'dj_fruit_code': {
+            #     'cls': DjFruit,
+            #     'name': '到家果园'
+            # },
+            'jd_grab_bean_code': {
+                'cls': JdGrabBean,
+                'name': '抢京豆'
             }
 
         }

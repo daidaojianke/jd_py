@@ -128,6 +128,14 @@ JD_BEAN_INDIANA_OPEN = cfg.get('jd_bean_indiana', False)
 # 到家果园助力码
 DJ_FRUIT_CODE = list(set(cfg.get('dj_fruit_code') if cfg.get('dj_fruit_code') else []))
 DJ_FRUIT_CODE = [code for code in DJ_FRUIT_CODE if code]
+DJ_FRUIT_CODE.insert(0, '{"taskId": "23eee1c043c01bc", "uniqueId": "24235b93454d163", "assistTargetPin": '
+                        '"JD_bc324c22ed29000"}')
 
 # 到家果园保留水滴
 DJ_FRUIT_KEEP_WATER = cfg.get('dj_fruit_keep_water', 80)
+
+
+# 抢京豆助力码
+JD_GRAB_BEAN_CODE = list(set(cfg.get('jd_grab_bean_code') if cfg.get('jd_grab_bean_code') else []))
+JD_GRAB_BEAN_CODE = [code for code in JD_GRAB_BEAN_CODE if code]
+JD_GRAB_BEAN_CODE.insert(0, '{"activeType": 2, "groupCode": "870220604684259328", "shareCode": "E4B67F1082996A784C57E73D428DD364AD1DAAB9A3E3F6CBAFDE81EEB7393333","activeId": "136", "source": "guest"}')
