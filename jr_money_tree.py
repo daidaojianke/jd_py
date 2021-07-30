@@ -147,8 +147,10 @@ class JrMoneyTree:
 
         if 'realName' not in data or not data['realName']:
             if output:
-                println('{}运行失败, 此账号未实名认证或者未参与过此活动: \n  ①如未参与活动,请先去京东app参加摇钱树活动入口：我的->游戏与互动->查看更多\n  '
-                        '②如未实名认证,请进行实名认证!'.format(self._pt_pin))
+                self._message = '【活动名称】金果摇钱树\n【京东账号】{}\n【温馨提示】此账号未实名认证或者未参与过此活动: \n  ①如未参与活动,' \
+                                '请先去京东app参加摇钱树活动入口：我的->游戏与互动->查看更多\n②如未实名认证,请进行实名认证!\n'.\
+                    format(unquote(self._pt_pin))
+                println(self._message)
             return False
 
         self._nickname = data['nick']
@@ -174,11 +176,14 @@ class JrMoneyTree:
             println('{}, 无法获取签到数据!'.format(self._pt_pin))
             return
         index_data = index_data['data']
-        if index_data['canSign'] != 2:
+        if 'canSign' in index_data and index_data['canSign'] != 2:
             println('{}, 今日已签到!'.format(self._pt_pin))
             return
-
-        sign_params = {"source": 0, "signDay": index_data['signDay'], "riskDeviceParam": "{}"}
+        if 'signDay' in index_data:
+            sign_day = index_data['signDay']
+        else:
+            sign_day = 1
+        sign_params = {"source": 0, "signDay": sign_day, "riskDeviceParam": "{}"}
         data = await self.post(session, 'signOne', sign_params)
         if data['code'] == '200' and data['data']['result']:
             println('{}, 签到成功!'.format(self._pt_pin))

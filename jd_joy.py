@@ -9,12 +9,7 @@ import json
 import os
 import random
 import aiohttp
-import moment
 import ujson
-from dateutil.relativedelta import relativedelta
-
-from datetime import datetime
-
 from utils.console import println
 from urllib.parse import unquote, urlencode
 from config import USER_AGENT, IMAGES_DIR

@@ -73,11 +73,11 @@ class JdJoyExchange(JdJoy):
                 println('{}, 当前时间大于兑换时间, 去兑换:{}'.format(self._pt_pin, gift_name))
                 break
             else:
-                remain_seconds = abs(int((now - nx_start_time).total_seconds()))
+                remain_seconds = int((now - nx_start_time).total_seconds())
                 if remain_seconds < 10:
                     timeout = 1
                 else:
-                    timeout = remain_seconds - 1
+                    timeout = abs(remain_seconds) - 1
 
                     # 防止兑换的时候需要验证码，尝试先触发验证码
                     path = 'gift/getBeanConfigs'
