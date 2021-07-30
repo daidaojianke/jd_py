@@ -4,6 +4,7 @@
 # @File    : logger.py
 # @Project : jd_scripts
 import os
+import sys
 from loguru import logger
 from config import LOG_DIR
 
@@ -23,3 +24,4 @@ logger.add(log_path,
            backtrace=True,
            diagnose=True,
            catch=True)
+logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> <level>{message}</level>")

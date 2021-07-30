@@ -184,6 +184,4 @@ DJ_FRUIT_KEEP_WATER = cfg.get('dj_fruit_keep_water', 80)
 # 抢京豆助力码
 JD_GRAB_BEAN_CODE = list(set(cfg.get('jd_grab_bean_code') if cfg.get('jd_grab_bean_code') else []))
 JD_GRAB_BEAN_CODE = [code for code in JD_GRAB_BEAN_CODE if code]
-JD_GRAB_BEAN_CODE.append(
-    '{"activeType": 2, "groupCode": "870220604684259328", "shareCode": '
-    '"E4B67F1082996A784C57E73D428DD364AD1DAAB9A3E3F6CBAFDE81EEB7393333","activeId": "136", "source": "guest"}')
+JD_GRAB_BEAN_CODE.append('{"modelId":"M10007","taskType":1201,"taskId":"23eee1c043c01bc","plateCode":5,"assistTargetPin":"JD_bc324c22ed29000","uniqueId":"2423b2ae041f2c7"}')

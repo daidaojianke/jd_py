@@ -169,14 +169,15 @@ class UpdateShareCode:
                 'cls': JdSmashGoldenEgg,
                 'name': '疯狂砸金蛋'
             },
+
+            'jd_grab_bean_code': {
+                'cls': JdGrabBean,
+                'name': '抢京豆'
+            },
             'dj_fruit_code': {
                 'cls': DjFruit,
                 'name': '到家果园'
             },
-            'jd_grab_bean_code': {
-                'cls': JdGrabBean,
-                'name': '抢京豆'
-            }
 
         }
         cfg = cls.read_config()

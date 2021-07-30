@@ -169,7 +169,10 @@ class DjBase:
         :return:
         """
         println('{}, 正在登录京东到家!'.format(self.account))
-        return get_dj_ck_by_jd_ck(self.headers, self.cookies)
+        ck = get_dj_ck_by_jd_ck(self.headers, self.cookies)
+        if ck and 'PDJ_H5_PIN' in ck:
+            self.dj_pin = ck['PDJ_H5_PIN']
+        return ck
         # body = {"fromSource": 5, "businessChannel": 150, "subChannel": "", "regChannel": ""}
         # res = await self.get(session, 'xapp/loginByPtKeyNew', body)
         # if res['code'] != '0':

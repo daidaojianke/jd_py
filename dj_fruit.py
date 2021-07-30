@@ -300,7 +300,8 @@ class DjFruit(DjBase):
 
             res = await self.get(session, 'task/finished', params)
             if res['code'] != '0':
-                println('{}, 助力好友:{}失败!'.format(self.account, user_pin))
+                println(res)
+                println('{}, 助力好友:{}失败, {}'.format(self.account, user_pin, res))
                 break
             else:
                 println('{}, 成功助力好友:{}!'.format(self.account, user_pin))
