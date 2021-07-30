@@ -157,7 +157,7 @@ def start(pt_pin, pt_key, name='金榜创造营'):
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-    start(*JD_COOKIES[2].values())
-    # from utils.process import process_start
-    # process_start(start, '金榜创造营')
+    # from config import JD_COOKIES
+    # start(*JD_COOKIES[2].values())
+    from utils.process import process_start
+    process_start(start, '金榜创造营')
