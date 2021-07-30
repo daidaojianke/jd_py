@@ -19,7 +19,7 @@
 
 - 获取JD_COOKIES: `python get_jd_cookies.py`, 扫描登录成功后控制台会打印JD_COOKIES.
 
-- vim /scripts/conf/config.yaml, 填入上一步获取的JD_COOKIES， `pt_pin=xxx;pt_key=xxx;`和`pt_pin=xxx;pt_key=xxx;`是一样的。
+- vim /scripts/conf/config.yaml, 填入上一步获取的JD_COOKIES， `pt_pin=xxx;pt_key=xxx;`和`pt_key=xxx;pt_pin=xxx;`是一样的。
 
     ```yaml
     debug: true
