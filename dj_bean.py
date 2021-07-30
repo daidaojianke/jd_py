@@ -241,7 +241,6 @@ def start(pt_pin, pt_key, name='京东到家-赚鲜豆'):
         return message
 
 
-
 if __name__ == '__main__':
     # from config import JD_COOKIES
     # start(*JD_COOKIES[0].values())

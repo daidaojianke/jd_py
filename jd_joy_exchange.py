@@ -36,12 +36,12 @@ class JdJoyExchange(JdJoy):
         if datetime.now().hour >= 23 or datetime.now().hour < 7:  # 0点场
             start_time = datetime.strftime((datetime.now() + relativedelta(days=1)), "%Y-%m-%d 00:00:00")
             key = 'beanConfigs0'
-        # 7~14点运行兑换16点场
-        elif datetime.now().hour > 7 or datetime.now().hour < 15:  # 8点场
+        # 7~14点运行兑换8点场
+        elif 7 < datetime.now().hour < 15:  # 8点场
             start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 08:00:00")
             key = 'beanConfigs8'
         # 15~22点运行兑换16点场
-        elif datetime.now().hour > 15 or 16 < datetime.now().hour < 23:  # 16点场
+        elif 15 < datetime.now().hour < 23:  # 16点场
             start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 16:00:00")
             key = 'beanConfigs16'
         # 其他兑换16点场
@@ -125,4 +125,6 @@ def start(pt_pin, pt_key, name='宠汪汪兑换'):
 if __name__ == '__main__':
     from utils.process import process_start
     from config import JOY_PROCESS_NUM
-    process_start(start, '宠汪汪兑换', process_num=JOY_PROCESS_NUM)
+    from config import JD_COOKIES
+    start(*JD_COOKIES[6].values())
+    # process_start(start, '宠汪汪兑换', process_num=JOY_PROCESS_NUM)

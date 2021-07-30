@@ -6,8 +6,9 @@
 from urllib.parse import unquote
 import multiprocessing
 import random
-import os
 
+from urllib.parse import unquote
+from utils.cookie import sync_check_cookie
 from utils.console import println
 from utils.notify import notify
 from config import JD_COOKIES, PROCESS_NUM
@@ -43,9 +44,15 @@ def process_start(func, name='', process_num=None):
 
     for i in range(len(JD_COOKIES)):
         jd_cookie = JD_COOKIES[i]
+        account = unquote(jd_cookie['pt_pin'])
+        # println('{}, 正在检测cookie状态!'.format(account))
+        ok = sync_check_cookie(jd_cookie)
+        if not ok:
+            println('{}.账号:{}, cookie已过期, 无法执行:{}!'.format(i+1, account, name))
+            continue
         process = pool.apply_async(func, args=(jd_cookie['pt_pin'], jd_cookie['pt_key'],))
         process_list.append(process)
-        println("  {}.账号:{}, 正在进行{}...".format(i + 1, unquote(jd_cookie['pt_pin']), name),
+        println("  {}.账号:{}, 正在进行{}...".format(i + 1, account, name),
                 style=random.choice(['bold yellow', 'bold green']))
     pool.close()
 
