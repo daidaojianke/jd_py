@@ -97,7 +97,6 @@ class JdPlantingBean:
             response = await session.post(url=url, data=body)
             text = await response.text()
             await asyncio.sleep(1)
-            logger.info('种豆得豆:{}'.format(text))
             data = json.loads(text)
             return data
 
@@ -106,6 +105,7 @@ class JdPlantingBean:
 
     async def get(self, session, function_id, body=None, wait_time=1):
         """
+        :param wait_time:
         :param session:
         :param function_id:
         :param body:
@@ -294,7 +294,7 @@ class JdPlantingBean:
                 println('{}, 帮:{}收取营养液失败!'.format(self._account, item['plantNickName']))
                 continue
 
-            msg = '{}, 成功帮{}收取{}瓶营养液, '.format(self._account, item['plantNickName'], res['data']['friendNutrRewards'])
+            msg = '{}, 成功帮{}收取营养液, {}'.format(self._account, item['plantNickName'], res['data'])
             if int(res['data']['collectNutrRewards']) > 0:
                 msg += '恭喜获得{}瓶奖励!'.format(res['data']['collectNutrRewards'])
             else:
@@ -396,6 +396,9 @@ class JdPlantingBean:
             }
             data = await self.post(session, 'plantBeanIndex', body)
             if data['code'] == '0':
+                if 'helpShareRes' not in data:
+                    println('{}, 助力结果:{}'.format(self._account, '未知'))
+                    continue
                 if data['data']['helpShareRes']['state'] == '2':
                     println('{}, 助力结果:{}'.format(self._account, '您今日助力的机会已耗尽，已不能再帮助好友助力了!'))
                     break
@@ -405,6 +408,7 @@ class JdPlantingBean:
                     println('{}, 助力结果:{}'.format(self._account, data['data']['helpShareRes']['promptText']))
             else:
                 println('{}, 助力结果:{}'.format(self._account, '无法为该好友助力！'))
+            await asyncio.sleep(1)
 
     async def do_tasks(self, session):
         """
@@ -532,4 +536,6 @@ def start(pt_pin, pt_key, name='种豆得豆'):
 
 
 if __name__ == '__main__':
+    # from config import JD_COOKIES
+    # start(*JD_COOKIES[2].values())
     process_start(start, '种豆得豆')
