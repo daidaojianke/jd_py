@@ -34,7 +34,8 @@ def process_start(func, name='', process_num=None):
         process_count = process_num
 
     if process_count < 1:
-        println('未配置jd_cookie, 脚本无法运行!')
+        println('未配置jd_cookie, 脚本无法运行, 请在conf/config.yaml中配置jd_cookie!')
+        return
 
     pool = multiprocessing.Pool(process_count)
     process_list = []
