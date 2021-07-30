@@ -8,11 +8,15 @@ import json
 import time
 import math
 import random
+import urllib3
 import asyncio
 
 from urllib.parse import unquote, urlencode
 from config import USER_AGENT
 from utils.console import println
+from requests import Session
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def uuid():
@@ -25,6 +29,30 @@ def uuid():
         return hex(math.floor((1 + random.random()) * 0x10000))[3:]
 
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4()
+
+
+def get_dj_ck_by_jd_ck(headers, cookies):
+    """
+    :return:
+    """
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    session = Session()
+    session.cookies.update(cookies)
+    session.headers.update(headers)
+    login_url = 'https://daojia.jd.com/client?functionId=login/passport&platCode=H5&appName=paidaojia&appVersion' \
+                '=6.4.0&body=%7B%22returnLink%22%3A%20%22https%3A%2F%2Fdaojia.jd.com%2Ftaro2orchard%2Fh5dist%2F' \
+                '%23%2Fpages%2Forchard-t%2Findex%22%7D'
+    try:
+        session.get(url=login_url, verify=False)
+        session_cookies = session.cookies.get_dict()
+        result = dict()
+        for key, val in session_cookies.items():
+            result[key] = val
+        return result
+    except Exception as e:
+        println(e.args)
+        return None
 
 
 class DjBase:
@@ -90,6 +118,7 @@ class DjBase:
                 'lng': self.lng,
                 'lat': self.lat,
                 'isNeedDealError': 'true',
+                'signKeyV1': ''
             }
 
             if function_id == 'xapp/loginByPtKeyNew':
@@ -140,24 +169,25 @@ class DjBase:
         :return:
         """
         println('{}, 正在登录京东到家!'.format(self.account))
-        body = {"fromSource": 5, "businessChannel": 150, "subChannel": "", "regChannel": ""}
-        res = await self.get(session, 'xapp/loginByPtKeyNew', body)
-        if res['code'] != '0':
-            println('{}, 登录失败, 退出程序!'.format(self.account))
-            return False
-        if 'nickname' in res['result']:
-            self.nickname = res['result']['nickname']
-        else:
-            self.nickname = self.account
-
-        self.dj_pin = res['result']['PDJ_H5_PIN']
-
-        cookies = {
-            'o2o_m_h5_sid': res['result']['o2o_m_h5_sid'],
-            'deviceid_pdj_jd': self.device_id,
-            'PDJ_H5_PIN': res['result']['PDJ_H5_PIN'],
-        }
-        return cookies
+        return get_dj_ck_by_jd_ck(self.headers, self.cookies)
+        # body = {"fromSource": 5, "businessChannel": 150, "subChannel": "", "regChannel": ""}
+        # res = await self.get(session, 'xapp/loginByPtKeyNew', body)
+        # if res['code'] != '0':
+        #     println('{}, 登录失败, 退出程序!'.format(self.account))
+        #     return False
+        # if 'nickname' in res['result']:
+        #     self.nickname = res['result']['nickname']
+        # else:
+        #     self.nickname = self.account
+        #
+        # self.dj_pin = res['result']['PDJ_H5_PIN']
+        #
+        # cookies = {
+        #     'o2o_m_h5_sid': res['result']['o2o_m_h5_sid'],
+        #     'deviceid_pdj_jd': self.device_id,
+        #     'PDJ_H5_PIN': res['result']['PDJ_H5_PIN'],
+        # }
+        # return cookies
 
     async def finish_task(self, session, task_name, body):
         """

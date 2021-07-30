@@ -263,6 +263,7 @@ class DjFruit(DjBase):
         """
         初始化
         """
+        await self.request(session, 'userInfo/login')
         res = await self.post(session, 'fruit/initFruit', {
             "cityId": str(self.city_id), "longitude": self.lng, "latitude": self.lat})
         if res['code'] != '0':
@@ -339,16 +340,16 @@ class DjFruit(DjBase):
             println('{}, 登录成功...'.format(self.account))
 
         async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
-            result = await self.init(session)
-            if not result:
-                return
+            # result = await self.init(session)
+            # if not result:
+            #     return
             await self.help_friend(session)
             await self.do_task(session)  # 做任务
             await self.receive_water_red_packet(session)  # 领取浇水红包
             await self.receive_water_bottle(session)  # 领取水瓶
             await self.receive_water_wheel(session)  # 领取水车
             await self.watering(session, batch=True, keep_water=DJ_FRUIT_KEEP_WATER)
-            await self.set_notify_message(session)
+            # await self.set_notify_message(session)
 
 
 def start(pt_pin, pt_key, name='到家果园'):
