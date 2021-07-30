@@ -133,14 +133,19 @@ class JdGoldCreator:
             await self.do_vote(session, index_data=data)  # 投票
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='金榜创造营'):
     """
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    app = JdGoldCreator(pt_pin, pt_key)
-    asyncio.run(app.run())
+    try:
+        app = JdGoldCreator(pt_pin, pt_key)
+        asyncio.run(app.run())
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

@@ -43,12 +43,16 @@ class JdJoyFeed(JdJoy):
         await self.close_browser()
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='宠汪汪喂食'):
     """
     宠汪汪商品兑换
     """
-    app = JdJoyFeed(pt_pin, pt_key)
-    asyncio.run(app.run())
+    try:
+        app = JdJoyFeed(pt_pin, pt_key)
+        asyncio.run(app.run())
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

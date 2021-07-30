@@ -142,15 +142,20 @@ class JdGrabBean:
             await self.help(session)
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='抢京豆'):
     """
     程序入口
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    app = JdGrabBean(pt_pin, pt_key)
-    asyncio.run(app.run())
+    try:
+        app = JdGrabBean(pt_pin, pt_key)
+        asyncio.run(app.run())
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

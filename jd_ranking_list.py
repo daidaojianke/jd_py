@@ -111,15 +111,20 @@ class JdRankingList:
         #notify(message)
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='京东排行榜'):
     """
     程序入口
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    app = JdRankingList(pt_pin, pt_key)
-    asyncio.run(app.run())
+    try:
+        app = JdRankingList(pt_pin, pt_key)
+        asyncio.run(app.run())
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

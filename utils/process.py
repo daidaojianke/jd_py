@@ -33,6 +33,9 @@ def process_start(func, name='', process_num=None):
     if process_num:
         process_count = process_num
 
+    if process_count < 1:
+        println('未配置jd_cookie, 脚本无法运行!')
+
     pool = multiprocessing.Pool(process_count)
     process_list = []
     println("开始执行{}, 共{}个账号, 启动{}个进程!\n".format(name, len(JD_COOKIES), process_count), style='bold green')

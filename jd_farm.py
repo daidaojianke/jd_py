@@ -778,16 +778,21 @@ class JdFarm:
             await self.notify_result(session)  # 结果通知
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='东东农场'):
     """
     程序入口
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    app = JdFarm(pt_pin, pt_key)
-    asyncio.run(app.run())
-    return app.message
+    try:
+        app = JdFarm(pt_pin, pt_key)
+        asyncio.run(app.run())
+        return app.message
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

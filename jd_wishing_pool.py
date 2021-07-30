@@ -169,12 +169,16 @@ class JdWishingPool:
             await self.lottery(session)
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='众筹许愿池'):
     """
     程序入口
     """
-    app = JdWishingPool(pt_pin, pt_key)
-    asyncio.run(app.run())
+    try:
+        app = JdWishingPool(pt_pin, pt_key)
+        asyncio.run(app.run())
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

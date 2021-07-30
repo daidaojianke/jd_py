@@ -277,16 +277,21 @@ class JdSharkBean:
         await self.notify()
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='摇京豆'):
     """
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    app = JdSharkBean(pt_pin, pt_key)
-    asyncio.run(app.run())
-    return app.message
+    try:
+        app = JdSharkBean(pt_pin, pt_key)
+        asyncio.run(app.run())
+        return app.message
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':
-    process_start(start, '摇金豆')
+    process_start(start, '摇京豆')

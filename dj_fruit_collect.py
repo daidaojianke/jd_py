@@ -30,12 +30,16 @@ class DjFruitCollect(DjFruit):
             await self.receive_water_wheel(session)  # 领取水车水滴
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='到家果园领水滴'):
     """
     程序入口
     """
-    app = DjFruitCollect(pt_pin, pt_key)
-    asyncio.run(app.run())
+    try:
+        app = DjFruitCollect(pt_pin, pt_key)
+        asyncio.run(app.run())
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

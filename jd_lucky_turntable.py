@@ -212,15 +212,20 @@ class LuckyTurntable:
         await self.notify()
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='幸运大转盘'):
     """
     程序入口
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    app = LuckyTurntable(pt_pin=pt_pin, pt_key=pt_key)
-    asyncio.run(app.run())
+    try:
+        app = LuckyTurntable(pt_pin=pt_pin, pt_key=pt_key)
+        asyncio.run(app.run())
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
     # return app.message
 
 

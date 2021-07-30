@@ -351,16 +351,21 @@ class DjFruit(DjBase):
             await self.set_notify_message(session)
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='到家果园'):
     """
     程序入口
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    app = DjFruit(pt_pin, pt_key)
-    asyncio.run(app.run())
-    return app.message
+    try:
+        app = DjFruit(pt_pin, pt_key)
+        asyncio.run(app.run())
+        return app.message
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

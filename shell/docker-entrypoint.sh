@@ -26,7 +26,7 @@ fi
 
 if [ ! -d $CODE_DIR/logs ]; then
   echo "日志目录不存在, 创建目录..."
-  mkdir -p $CODE_DIR/conf
+  mkdir -p $CODE_DIR/logs
 fi
 
 if [ ! -f "$CODE_DIR/conf/config.yaml" ]; then

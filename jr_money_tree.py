@@ -408,6 +408,7 @@ class JrMoneyTree:
             is_success = await self.login(session)
             if not is_success:
                 println('{}, 登录失败, 退出程序...'.format(self._pt_pin))
+                return
             await self.daily_sign(session)  # 每日签到
             await self.daily_work(session)  # 每日任务
             await self.harvest(session)  # 收金果
@@ -417,15 +418,20 @@ class JrMoneyTree:
             await self.notify_result(session)
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='金果摇钱树'):
     """
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    app = JrMoneyTree(pt_pin, pt_key)
-    asyncio.run(app.run())
-    return app.message
+    try:
+        app = JrMoneyTree(pt_pin, pt_key)
+        asyncio.run(app.run())
+        return app.message
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

@@ -97,11 +97,15 @@ class JxCfd:
                 println('{}, 无法获取数据, 退出!'.format(self._pt_pin))
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='京喜财富岛'):
     """
     """
-    app = JxCfd(pt_pin, pt_key)
-    asyncio.run(app.run())
+    try:
+        app = JxCfd(pt_pin, pt_key)
+        asyncio.run(app.run())
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

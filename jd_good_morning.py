@@ -41,13 +41,18 @@ async def jd_good_morning(pt_pin, pt_key):
         println('{}, 早起福利执行结果:{}'.format(unquote(pt_pin), data))
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='早起福利'):
     """
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    asyncio.run(jd_good_morning(pt_pin, pt_key))
+    try:
+        asyncio.run(jd_good_morning(pt_pin, pt_key))
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':

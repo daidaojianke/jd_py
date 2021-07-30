@@ -461,15 +461,20 @@ class JdFactory:
             await self.notify_result(session)
 
 
-def start(pt_pin, pt_key):
+def start(pt_pin, pt_key, name='东东工厂'):
     """
+    :param name:
     :param pt_pin:
     :param pt_key:
     :return:
     """
-    app = JdFactory(pt_pin, pt_key)
-    asyncio.run(app.run())
-    return app.message
+    try:
+        app = JdFactory(pt_pin, pt_key)
+        asyncio.run(app.run())
+        return app.message
+    except Exception as e:
+        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
+        return message
 
 
 if __name__ == '__main__':
