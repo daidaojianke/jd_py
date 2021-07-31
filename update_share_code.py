@@ -17,6 +17,7 @@ from jd_farm import JdFarm
 from jr_money_tree import JrMoneyTree
 from jd_wishing_pool import JdWishingPool
 # from jd_burning_summer import JdBurningSummer
+from jd_flash_sale_box import JdFlashSaleBox
 from jd_smash_golden_egg import JdSmashGoldenEgg
 from dj_fruit import DjFruit
 from jd_grab_bean import JdGrabBean
@@ -39,7 +40,7 @@ def update_config(old_cfg=None, new_cfg=None):
         'jd_factory_code': '# 东东工厂互助码, 一行一个, 按填写顺序助力!',
         'jd_farm_code': '# 东东农场互助码, 一行一个, 按填写顺序助力!',
         'jr_money_tree_code': '# 金果摇钱树互助码, 一行一个, 按填写顺序助力!',
-        'jd_sgmh_code': '# 闪购盲盒互助码, 一行一个, 按填写顺序助力!',
+        'jd_flash_sale_box_code': '# 闪购盲盒互助码, 一行一个, 按填写顺序助力!',
         'jx_factory_share_code': '# 京喜工厂互助码， 一行一个, 按填写顺序助力!',
         'jx_farm_code': '# 京喜农场互助码, 一行一个, 按填写顺序助力!',
         'jd_cash_code': '# 京东签到领现金助力码, 一行一个, 按填写顺序助力!',
@@ -179,6 +180,10 @@ class UpdateShareCode:
                 'cls': DjFruit,
                 'name': '到家果园'
             },
+            'jd_flash_sale_box_code': {
+                'cls': JdFlashSaleBox,
+                'name': '闪购盲盒'
+            }
 
         }
         cfg = cls.read_config()

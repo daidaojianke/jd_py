@@ -78,3 +78,7 @@ dj_fruit_keep_water: 80
 # 抢京豆助力码
 jd_grab_bean_code:
   - null
+
+# 闪购盲盒助力码
+jd_flash_sale_box_code:
+  - null

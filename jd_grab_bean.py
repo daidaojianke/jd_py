@@ -3,7 +3,7 @@
 # @Time    : 2021/7/29 10:34 上午
 # @File    : jd_grab_bean.py
 # @Project : jd_scripts
-# @Cron    : 3 */16 * * *
+# @Cron    : #3 */16 * * *
 # @Desc    : 京东APP->首页->领京豆->抢京豆
 import time
 import aiohttp
@@ -160,5 +160,6 @@ def start(pt_pin, pt_key, name='抢京豆'):
 
 
 if __name__ == '__main__':
-    from utils.process import process_start
-    process_start(start, '抢京豆', process_num=1)
+    # from utils.process import process_start
+    # process_start(start, '抢京豆', process_num=1)
+    println('抢京豆活动已过期!')

@@ -89,6 +89,7 @@
 | dj_bean.py | 京东APP-京东到家->签到/赚鲜豆| 100%|
 | dj_bean_manor.py| 京东APP-京东到家->鲜豆庄园任务| 90%|
 | dj_bean_manor_water.py| 京东APP-京东到家->鲜豆庄园->领水/浇水| 100%|
+| jd_flash_sale_box.py| 京东APP->品牌闪购->闪购盲盒|100%|
 | jd_beauty.py          | 京东APP->美丽研究院   | 0%        |
 | jx_factory.py | 京喜APP->京喜工厂 | 0% |
 | jx_farm.py | 京喜APP->京喜农场| 0% |

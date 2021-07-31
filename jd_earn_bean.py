@@ -3,7 +3,7 @@
 # @Time    : 2021/6/24 19:43
 # @File    : jd_earn_bean.py
 # @Project : jd_scripts
-# @Cron    : 15 5,15 * * *
+# @Cron    : #15 5,15 * * *
 # @Desc    : 赚京豆(微信小程序)-赚京豆-签到领京豆
 import asyncio
 import time
@@ -235,4 +235,5 @@ def start(pt_pin, pt_key, name='赚京豆'):
 
 
 if __name__ == '__main__':
-    process_start(start, '微信小程序-赚京豆')
+    # process_start(start, '微信小程序-赚京豆')
+    println('微信小程序-赚京豆活动已过期！')

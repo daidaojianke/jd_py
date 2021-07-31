@@ -182,8 +182,6 @@ JD_BEAN_INDIANA_OPEN = cfg.get('jd_bean_indiana', False)
 # 到家果园助力码
 DJ_FRUIT_CODE = list(set(cfg.get('dj_fruit_code') if cfg.get('dj_fruit_code') else []))
 DJ_FRUIT_CODE = [code for code in DJ_FRUIT_CODE if code]
-DJ_FRUIT_CODE.append('{"taskId": "23eee1c043c01bc", "uniqueId": "24235b93454d163", "assistTargetPin": '
-                     '"JD_bc324c22ed29000"}')
 
 # 到家果园保留水滴
 DJ_FRUIT_KEEP_WATER = cfg.get('dj_fruit_keep_water', 80)
@@ -191,4 +189,8 @@ DJ_FRUIT_KEEP_WATER = cfg.get('dj_fruit_keep_water', 80)
 # 抢京豆助力码
 JD_GRAB_BEAN_CODE = list(set(cfg.get('jd_grab_bean_code') if cfg.get('jd_grab_bean_code') else []))
 JD_GRAB_BEAN_CODE = [code for code in JD_GRAB_BEAN_CODE if code]
-JD_GRAB_BEAN_CODE.append('{"modelId":"M10007","taskType":1201,"taskId":"23eee1c043c01bc","plateCode":5,"assistTargetPin":"JD_bc324c22ed29000","uniqueId":"2423b2ae041f2c7"}')
+
+# 闪购盲盒助力码 jd_flash_sale_box_code
+JD_FLASH_SALE_BOX_CODE = list(set(cfg.get('jd_flash_sale_box_code') if cfg.get('jd_flash_sale_box_code') else []))
+JD_FLASH_SALE_BOX_CODE = [code for code in JD_FLASH_SALE_BOX_CODE if code]
+JD_FLASH_SALE_BOX_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjVQmoaT5kRrbA')
