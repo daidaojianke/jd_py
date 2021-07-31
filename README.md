@@ -1,6 +1,17 @@
 # 薅薅乐
 
+- python:3.7+
+
 ## 安裝
+
+### 本地运行
+
+- `pip install virtualenv`
+- `git clone https://github.com/ClassmateLin/jd_scripts.git`
+- `cd jd_scripts`
+- `virtualenv venv && source ./venv/bin/activate`
+- `pip install -r requirements.txt`
+- `mkdir conf && cp .config.yaml ./conf/`
 
 ### 使用docker
 
