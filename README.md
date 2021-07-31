@@ -49,6 +49,7 @@
 - 消息通知, 配置config.yaml中的notify块
   - TG机器人: 配置tg_bot_token和tg_user_id
   - PUSH+: 配置push_p_token
+  - 企业微信应用消息推送的：配置qywx_am  （依次填上corpid的值,corpsecret的值,touser的值,agentid,media_id的值，注意用,号隔开。）
 
 ## 注意
 - 脚本都是短短一两个小时写的, 没有经过完全的测试，避免不了有Bug, 如有问题请提issues。
