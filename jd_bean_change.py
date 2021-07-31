@@ -202,9 +202,8 @@ class JdBeanChange:
             data = json.loads(text)
             if data['errcode'] != 0:
                 return res
-
-            res['total_amount'] = float(data['data']['balance'])
-            res['expire_amount'] = float(data['data']['expiredBalance'])
+            res['total_amount'] = data['data']['balance'].strip()
+            res['expire_amount'] = data['data']['expiredBalance'].strip()
             return res
 
         except Exception as e:
