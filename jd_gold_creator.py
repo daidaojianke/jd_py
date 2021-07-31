@@ -45,6 +45,7 @@ class JdGoldCreator:
             text = await response.text()
             temp = re.search(r'\((.*)\);', text).group(1)
             data = json.loads(temp)
+            await asyncio.sleep(3)
             return data
         except Exception as e:
             println('{}, 获取数据失败:{}'.format(self._pt_pin, e.args))
@@ -89,6 +90,8 @@ class JdGoldCreator:
             else:
                 println('{}, 获取主题:《{}》商品列表成功, 开始投票!'.format(self._pt_pin, subject['shortTitle']))
 
+            await asyncio.sleep(2)
+
             task_list = res['result']['taskList']
             sku_list = res['result']['skuList']
             item_id = res['result']['signTask']['taskItemInfo']['itemId']
@@ -127,9 +130,6 @@ class JdGoldCreator:
                 res = await self.request(session, 'goldCreatorDoTask', body)
 
                 println('{}, 做额外任务: 《{}》, 结果:{}!'.format(self._pt_pin, task[0]['taskItemInfo']['title'], res))
-                await asyncio.sleep(2)
-
-            await asyncio.sleep(2)
 
     async def run(self):
         """
