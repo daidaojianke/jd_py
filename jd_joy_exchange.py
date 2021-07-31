@@ -125,6 +125,6 @@ def start(pt_pin, pt_key, name='宠汪汪兑换'):
 if __name__ == '__main__':
     from utils.process import process_start
     from config import JOY_PROCESS_NUM
-    from config import JD_COOKIES
-    start(*JD_COOKIES[6].values())
-    # process_start(start, '宠汪汪兑换', process_num=JOY_PROCESS_NUM)
+    # from config import JD_COOKIES
+    # start(*JD_COOKIES[6].values())
+    process_start(start, '宠汪汪兑换', process_num=JOY_PROCESS_NUM)

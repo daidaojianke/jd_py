@@ -50,6 +50,8 @@
   - TG机器人: 配置tg_bot_token和tg_user_id
   - PUSH+: 配置push_p_token
 
+## 注意
+- 脚本都是短短一两个小时写的, 没有经过完全的测试，避免不了有Bug, 如有问题请提issues。
 
 ## 脚本列表
 
