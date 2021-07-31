@@ -3,6 +3,7 @@
 # @Time    : 2021/7/28 2:06 下午
 # @File    : dj_bean.py
 # @Project : jd_scripts
+# @Cron    : 45 7,12,19 * * *
 # @Desc    : 京东到家 签到赚鲜豆
 import moment
 import aiohttp

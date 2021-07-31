@@ -3,6 +3,7 @@
 # @Time    : 2021/7/28 5:58 下午
 # @File    : dj_bean_manor_water.py
 # @Project : jd_scripts
+# @Cron    : */40 * * * *
 # @Desc    : 京东到家鲜豆庄园领水浇水
 import asyncio
 import aiohttp

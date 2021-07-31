@@ -3,6 +3,7 @@
 # @Time    : 2021/6/14 14:38
 # @File    : jd_sign_collection.py
 # @Project : jd_scripts
+# @Cron    : 7 0,17 * * *
 # @Desc    : 京东签到合集
 import json
 import asyncio
@@ -480,7 +481,7 @@ class JdSignCollection:
                 else:
                     message = ''
                     if award['bean_count'] > 0:
-                        message = '获得{}金豆,'.format(award['bean_count'])
+                        message = '获得{}京豆,'.format(award['bean_count'])
                     message += award['coupon']
                     self._result.append({
                         'name': name,
@@ -1351,7 +1352,7 @@ class JdSignCollection:
             await self.jd_shop_school(session)  # 京东商城-校园
             await self.jd_kd_sign()
             await self.get_total_steel(session)  # 总钢镚查询
-            await self.get_total_bean(session)  # 总金豆查询
+            await self.get_total_bean(session)  # 总京豆查询
             await self.get_total_cash(session)  # 红包查询
             await self.get_total_subsidy(session)  # 金贴查询
 

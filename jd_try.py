@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/3 10:53
 # @File    : jd_try.py
-# @Project : 京东试用
+# @Project : jd_scripts
+# @Cron    : #0 10 * * *
+# @Desc    : 京东试用
 
 class JdTry:
 

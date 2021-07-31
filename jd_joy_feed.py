@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/25 下午8:45 
 # @File    : jd_joy_feed.py
-# @Project : jd_scripts 
+# @Project : jd_scripts
+# @Cron    : 10 */3 * * *
 # @Desc    : 宠汪汪喂狗
 import aiohttp
 import ujson

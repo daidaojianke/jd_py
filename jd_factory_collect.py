@@ -3,6 +3,7 @@
 # @Time    : 2021/7/29 9:41 上午
 # @File    : jd_factory_collect.py
 # @Project : jd_scripts
+# @Cron    : 10 */1 * * *
 # @Desc    : 东东工厂收电量
 import asyncio
 import aiohttp

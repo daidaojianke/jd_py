@@ -3,7 +3,9 @@
 # @Time    : 2021/6/25 1:27 下午
 # @File    : jd_farm.py
 # @Project : jd_scripts
+# @Cron    : 15 6-18/6 * * *
 # @Desc    : 京东APP-东东农场
+
 import asyncio
 import math
 import time

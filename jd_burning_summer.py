@@ -3,6 +3,7 @@
 # @Time    : 2021/7/10 22:23 下午
 # @File    : jd_beauty.py
 # @Project : jd_scripts
+# @Cron    : #
 # @Desc    : 京东APP->燃动夏季
 import random
 import re

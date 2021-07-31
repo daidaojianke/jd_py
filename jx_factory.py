@@ -3,6 +3,7 @@
 # @Time    : 2021/6/25 1:25 下午
 # @File    : jx_factory.py
 # @Project : jd_scripts
+# @Cron    : 38 7,12,18 * * *
 # @Desc    : 京喜App->惊喜工厂
 import moment
 import time

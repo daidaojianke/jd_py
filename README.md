@@ -71,18 +71,18 @@
 | jd_joy_feed.py | 京东APP-> 宠汪汪 -> 喂狗粮 | 100% |
 | jd_planting_bean.py | 京东APP->种豆得豆|  100% |
 | jd_ranking_list.py | 京东APP->排行榜 | 100% |
-| jd_shark_bean.py | 京东APP->摇金豆 | 100%|
-| jd_collar_bean.py | 京东APP->领金豆 | 99%|
+| jd_shark_bean.py | 京东APP->摇京豆 | 100%|
+| jd_collar_bean.py | 京东APP->领京豆 | 99%|
 | jd_sign_collection.py| 京东签到合集 | 100% |
 | jr_daily_task_goose.py| 京东金融->天天提鹅 | 100% |
 | jr_pet_pig.py | 京东金融->养猪猪| 100% |
 | jr_money_tree.py| 京东金融->摇钱树| 100%|
-| jd_bean_lottery.py | 京东APP->签到领京豆->摇金豆->京豆夺宝| 100% |
-| jd_earn_bean.py | 微信小程序-赚金豆 | 100% |
+| jd_bean_lottery.py | 京东APP->签到领京豆->摇京豆->京豆夺宝| 100% |
+| jd_earn_bean.py | 微信小程序-赚京豆 | 100% |
 | jd_cash.py | 京东APP-领现金 | 100% |
 | jd_burning_summer.py | 京东APP-燃动夏季| 100% |
 | jd_wishing_pool.py | 京东APP-京东众筹-许愿池| 100% |
-| jd_good_morning.py | 京东APP-领金豆->早起福利| 100% |
+| jd_good_morning.py | 京东APP-领京豆->早起福利| 100% |
 | jd_gold_creator.py | 京东APP-京东排行榜->金榜创造营| 100%|
 | dj_fruit.py | 京东APP-京东到家->领免费水果| 100%|
 | dj_fruit_collect.py | 京东APP-京东到家->领免费水果->点水车| 100%|

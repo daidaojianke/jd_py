@@ -90,6 +90,7 @@ class JDCookies:
             token = data['token']
             println(token)
             qr_code_url = 'https://plogin.m.jd.com/cgi-bin/m/tmauth?appid=300&client_type=m&token=' + token
+
             qr = qrcode.QRCode(
                 version=None,
                 error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -108,6 +109,8 @@ class JDCookies:
             except Exception as e:
                 println("显示二维码异常:{}".format(e.args))
                 # qr.print_ascii(invert=True)
+            println('如二维码不正常, 可使用在线二维码生成工具, 输入以下内容生成二维码:\n{}'.format(qr_code_url))
+
             return token
 
         except requests.RequestException as e:

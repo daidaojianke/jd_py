@@ -2,6 +2,9 @@
 # 默认为True, 控制台打印消息
 debug: true
 
+# 日志保留天数
+log_days: 3
+
 # 指定进程数
 process_num: 4
 
@@ -72,6 +75,6 @@ dj_fruit_code:
 # 到家果园保留水滴
 dj_fruit_keep_water: 80
 
-# 抢金豆助力码
+# 抢京豆助力码
 jd_grab_bean_code:
   - null

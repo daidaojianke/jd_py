@@ -3,6 +3,7 @@
 # @Time    : 2021/6/21 9:58 上午
 # @File    : jd_ranking_list.py
 # @Project : jd_scripts
+# @Cron    : 21 9 * * *
 # @Desc    : 京东排行榜
 import asyncio
 import json
@@ -40,7 +41,7 @@ class JdRankingList:
             'pt_key': pt_key
         }
         self._account = '账号:{}'.format(unquote(pt_pin))
-        self._bean_count = 0  # 获得金豆总数
+        self._bean_count = 0  # 获得京豆总数
         self._msg_list = []
 
     async def query_task(self, session):

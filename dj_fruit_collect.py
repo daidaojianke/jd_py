@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/27 下午8:28 
 # @File    : dj_fruit_collect.py
-# @Project : jd_scripts 
+# @Project : jd_scripts
+# @Cron    : 42 */1 * * *
 # @Desc    : 到家果园收水滴
 import aiohttp
 import asyncio

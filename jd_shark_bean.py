@@ -3,7 +3,8 @@
 # @Time    : 2021/6/23 9:41 上午
 # @File    : jd_shark_bean.py
 # @Project : jd_scripts
-# @Desc    : 京东APP->我的->签到领豆->摇金豆
+# @Cron    : 6 0,18,23 * * *
+# @Desc    : 京东APP->我的->签到领豆->摇京豆
 import asyncio
 import time
 import aiohttp
@@ -20,7 +21,7 @@ from config import USER_AGENT
 
 class JdSharkBean:
     """
-    摇金豆
+    摇京豆
     """
     headers = {
         'origin': 'https://spa.jd.com',
@@ -86,7 +87,7 @@ class JdSharkBean:
             'appid': 'sharkBean',
             'body': {"paramData": {"token": "dd2fb032-9fa3-493b-8cd0-0d57cd51812d"}}
         }
-        println('{}, 获取摇金豆首页数据...'.format(self._pt_pin))
+        println('{}, 获取摇京豆首页数据...'.format(self._pt_pin))
         data = await self.request(session, params, self.METHOD_GET)
         return data
 
@@ -238,7 +239,7 @@ class JdSharkBean:
                     println('{}未中奖, 提升京享值可以提高中奖几率和京豆中奖数量!'.format(self._pt_pin))
 
                 elif res['data']['lotteryType'] == 0:  # 京豆奖励
-                    println('{}, 获得{}金豆'.format(self._pt_pin, res['data']['rewardBeanAmount']))
+                    println('{}, 获得{}京豆'.format(self._pt_pin, res['data']['rewardBeanAmount']))
                     self._bean_count += res['data']['rewardBeanAmount']
                 else:
                     println('{}, 获得:{}'.format(self._pt_pin, res['data']))
@@ -254,7 +255,7 @@ class JdSharkBean:
         """
         :return:
         """
-        message = '\n【活动名称】摇金豆\n【用户ID】{}\n【获得金豆】{}\n【获得红包】{}\n【获得优惠券】'.format(self._pt_pin,
+        message = '\n【活动名称】摇京豆\n【用户ID】{}\n【获得京豆】{}\n【获得红包】{}\n【获得优惠券】'.format(self._pt_pin,
                                                                               self._bean_count, self._red_packet_num)
 
         if len(self._coupon_list) > 0:

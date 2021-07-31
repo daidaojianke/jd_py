@@ -3,6 +3,7 @@
 # @Time    : 2021/6/24 11:08 上午
 # @File    : jr_daily_take_goose.py
 # @Project : jd_scripts
+# @Cron    : 35 9,22 * * *
 # @Desc    : 京东金融APP->天天提鹅
 import asyncio
 import json

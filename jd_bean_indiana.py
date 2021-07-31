@@ -3,7 +3,9 @@
 # @Time    : 2021/6/26 8:55
 # @File    : jd_bean_indiana.py
 # @Project : jd_scripts
-# @Desc    ： 京豆APP->摇金豆->金豆夺宝
+# @Cron    :  10 9 * * *
+# @Desc    : 京豆APP->摇京豆->豆夺宝
+
 import asyncio
 import aiohttp
 import json
@@ -18,7 +20,7 @@ from config import USER_AGENT, JD_BEAN_INDIANA_OPEN
 
 class JdBeanIndiana:
     """
-    金豆夺宝,
+    京豆夺宝,
     https://jdjoy.jd.com获取token和lkEPin,lkToken, 然后https://pf.moxigame.cn/jddb/duobao/login获取真正需要使用的token。
     夺宝功能都是在https://pf.moxigame.cn/这个域名里面操作的。
     """

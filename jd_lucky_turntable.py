@@ -3,7 +3,8 @@
 # @Time    : 2021/6/19 10:30
 # @File    : jd_lucky_turntable.py
 # @Project : jd_scripts
-# @Desc    : 幸运大转盘, 活动地址: https://pro.m.jd.com/mall/active/3ryu78eKuLyY5YipWWVSeRQEpLQP/index.html
+# @Cron    : 10 10,23 * * *
+# @Desc    : 幸运大转盘
 import asyncio
 import json
 import re

@@ -3,6 +3,7 @@
 # @Time    : 2021/7/27 2:00 下午
 # @File    : dj_fruit.py
 # @Project : jd_scripts
+# @Cron    : 10 7,11,18 * * *
 # @Desc    : 京东APP->京东到家->领免费水果
 import aiohttp
 import json

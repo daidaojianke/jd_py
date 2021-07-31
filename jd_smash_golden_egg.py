@@ -3,6 +3,7 @@
 # @Time    : 2021/7/13 3:31 下午
 # @File    : jd_smash_golden_egg.py
 # @Project : jd_scripts
+# @Cron    : 45 5,19 * * *
 # @Desc    : 京东APP->每日特价->疯狂砸金蛋
 import aiohttp
 import asyncio

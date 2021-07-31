@@ -3,7 +3,8 @@
 # @Time    : 2021/6/28 9:35 上午
 # @File    : jd_lottery_bean.py
 # @Project : jd_scripts
-# @Desc    : 京东APP->签到领金豆->摇京豆
+# @Cron    : 6 0 * * *
+# @Desc    : 京东APP->签到领京豆->抽京豆
 import aiohttp
 import asyncio
 import re
@@ -35,7 +36,7 @@ class JdLotteryBean:
 
     async def lottery(self, session):
         """
-        抽金豆
+        抽京豆
         :param session:
         :return:
         """

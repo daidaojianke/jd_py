@@ -3,6 +3,7 @@
 # @Time    : 2021/7/29 9:29 上午
 # @File    : jr_daily_take_goose_collect.py.py
 # @Project : jd_scripts
+# @Cron    : 5 */1 * * *
 # @Desc    : 天天提额收鹅蛋
 import asyncio
 import aiohttp

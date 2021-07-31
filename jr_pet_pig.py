@@ -3,6 +3,7 @@
 # @Time    : 2021/6/25 1:18 下午
 # @File    : jr_pet_pig.py
 # @Project : jd_scripts
+# @Cron    : 23 0-23/8 * * *
 # @Desc    : 京东金融->养猪猪
 import json
 import time

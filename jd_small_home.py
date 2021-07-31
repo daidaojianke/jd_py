@@ -3,7 +3,9 @@
 # @Time    : 2021/7/8 11:37 上午
 # @File    : jd_small_home.py
 # @Project : jd_scripts
-# @Desc    : 东东小窝, 活动地址: https://h5.m.jd.com/babelDiy/Zeus/2HFSytEAN99VPmMGZ6V4EYWus1x/index.html
+# @Cron    : #
+# @Desc    : 东东小窝
+
 import aiohttp
 import asyncio
 

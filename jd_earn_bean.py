@@ -3,6 +3,7 @@
 # @Time    : 2021/6/24 19:43
 # @File    : jd_earn_bean.py
 # @Project : jd_scripts
+# @Cron    : 15 5,15 * * *
 # @Desc    : 赚京豆(微信小程序)-赚京豆-签到领京豆
 import asyncio
 import time

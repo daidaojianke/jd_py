@@ -3,6 +3,7 @@
 # @Time    : 2021/6/18 6:33 下午
 # @File    : jd_big_winner.py
 # @Project : jd_scripts
+# @Cron    : 3 */1 * * *
 # @Desc    : 省钱大赢家翻翻乐
 import asyncio
 import json

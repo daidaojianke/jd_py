@@ -3,6 +3,7 @@
 # @Time    : 2021/6/25 9:29 上午
 # @File    : jd_joy.py
 # @Project : jd_scripts
+# @Cron    : 45 8,12,17 * * *
 # @Desc    : 京东APP->我的->宠汪汪
 import asyncio
 import json

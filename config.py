@@ -44,12 +44,19 @@ if not os.path.exists(LOG_DIR):
 if not os.path.exists(IMAGES_DIR):
     os.makedirs(IMAGES_DIR)
 
-# 加载配置文件
-with open(CONF_PATH, 'r', encoding='utf-8-sig') as f:
-    cfg = yaml.safe_load(f)
+try:
+    # 加载配置文件
+    with open(CONF_PATH, 'r', encoding='utf-8-sig') as f:
+        cfg = yaml.safe_load(f)
+except Exception as e:
+    print('无法读取config.yaml配置, 请检查配置！！!')
+    sys.exit(1)
 
 # 是否开启调试模式, 关闭不会显示控制台输出
 JD_DEBUG = cfg.get('debug', True)
+
+# 日志保留天数
+LOG_DAYS = int(cfg.get('log_days', '3'))
 
 # 默认进程数量
 PROCESS_NUM = cfg.get('process_num', 4)

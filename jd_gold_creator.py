@@ -3,6 +3,7 @@
 # @Time    : 2021/7/13 1:58 下午
 # @File    : jd_gold_creator.py
 # @Project : jd_scripts
+# @Cron    : 30 7,19 * * *
 # @Desc    : 京东APP->排行榜->金榜创造营
 import asyncio
 import aiohttp

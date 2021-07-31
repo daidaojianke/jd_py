@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/25 下午8:20 
 # @File    : jd_joy_exchange.py
-# @Project : jd_scripts 
+# @Project : jd_scripts
+# @Cron    : 58 7,15,23 * * *
 # @Desc    : 宠汪汪商品兑换
 import asyncio
 import aiohttp

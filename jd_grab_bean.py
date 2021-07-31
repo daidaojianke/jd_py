@@ -3,6 +3,7 @@
 # @Time    : 2021/7/29 10:34 上午
 # @File    : jd_grab_bean.py
 # @Project : jd_scripts
+# @Cron    : 3 */16 * * *
 # @Desc    : 京东APP->首页->领京豆->抢京豆
 import time
 import aiohttp

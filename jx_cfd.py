@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/12 下午9:16 
 # @File    : jx_cfd.py
-# @Project : jd_scripts 
+# @Project : jd_scripts
+# @Cron    : #
 # @Desc    : 京喜财富岛
 import json
 import re

@@ -3,6 +3,7 @@
 # @Time    : 2021/7/8 5:43 下午
 # @File    : jd_cash.py
 # @Project : jd_scripts
+# @Cron    : 46 */12 * * *
 # @Desc    : 签到领现金
 import aiohttp
 import asyncio

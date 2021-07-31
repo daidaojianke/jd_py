@@ -3,6 +3,7 @@
 # @Time    : 2021/7/29 9:37 上午
 # @File    : jr_money_tree_collect.py
 # @Project : jd_scripts
+# @Cron    : 35  */1 * * *
 # @Desc    : 摇钱树收金果
 import asyncio
 import aiohttp

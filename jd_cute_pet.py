@@ -3,6 +3,7 @@
 # @Time    : 2021/6/25 1:21 下午
 # @File    : jd_cute_pet.py
 # @Project : jd_scripts
+# @Cron    : 35 6-18/6 * * *
 # @Desc    : 京东APP->我的->东东萌宠
 import aiohttp
 import asyncio

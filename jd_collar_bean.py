@@ -3,7 +3,8 @@
 # @Time    : 2021/7/26 9:55 上午
 # @File    : jd_collar_bean.py
 # @Project : jd_scripts
-# @Desc    : 京东APP->领金豆
+# @Cron : 6 1 * * *
+# @Desc    : 京东APP->领京豆
 import json
 import math
 import random
@@ -30,7 +31,7 @@ def random_string(e=40):
 
 class JdCollarBean:
     """
-    领金豆
+    领京豆
     """
     headers = {
         'User-Agent': USER_AGENT,
@@ -145,7 +146,7 @@ class JdCollarBean:
             println('{}, 任务已做完!'.format(self._account))
 
 
-def start(pt_pin, pt_key, name='领金豆'):
+def start(pt_pin, pt_key, name='领京豆'):
     """
     :param name:
     :param pt_pin:

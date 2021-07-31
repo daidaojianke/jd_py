@@ -3,6 +3,7 @@
 # @Time    : 2021/7/9 2:19 下午
 # @File    : update_share_code.py
 # @Project : jd_scripts
+# @Cron    : 1 0,16 * * *
 # @Desc    : 获取助力码, 并更新到配置文件中
 import asyncio
 import copy

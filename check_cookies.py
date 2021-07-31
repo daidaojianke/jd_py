@@ -3,6 +3,7 @@
 # @Time    : 2021/7/21 2:17 下午
 # @File    : check_cookies.py
 # @Project : jd_scripts
+# @Cron    : 0 */2 * * *
 # @Desc    : 检查cookies是否过期, 过期则发送通知
 import asyncio
 from urllib.parse import unquote

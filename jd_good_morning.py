@@ -3,6 +3,7 @@
 # @Time    : 2021/7/13 11:58 上午
 # @File    : jd_good_morning.py
 # @Project : jd_scripts
+# @Cron    : 30 6 * * *
 # @Desc    : 京东APP早起福利
 import aiohttp
 import asyncio

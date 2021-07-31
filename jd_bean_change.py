@@ -3,6 +3,7 @@
 # @Time    : 2021/7/8 11:38 上午
 # @File    : jd_bean_change.py
 # @Project : jd_scripts
+# @Cron    : 15 */8 * * *
 # @Desc    : 资产变动通知
 import aiohttp
 import asyncio
@@ -38,7 +39,7 @@ class JdBeanChange:
         self._pt_pin = unquote(pt_pin)
 
         self._message = None
-        # self._total_bean = 0  # 当前总金豆
+        # self._total_bean = 0  # 当前总京豆
         # self._today_income_bean = 0  # 今日收入
         # self._yesterday_income_bean = 0  # 昨日收入京豆
         # self._yesterday_used_bean = 0  # 昨日支出京豆
@@ -105,7 +106,7 @@ class JdBeanChange:
         :param session:
         :return:
         """
-        bean_amount = await self.get_bean_amount(session)  # 当前总金豆
+        bean_amount = await self.get_bean_amount(session)  # 当前总京豆
         expire_record = await self.get_expire_bean(session)  # 获取过期京豆数据
         today_income = 0   # 今日收入
         today_used = 0   # 今日支出
@@ -174,7 +175,7 @@ class JdBeanChange:
             else:
                 return 0
         except Exception as e:
-            println('{}, 获取金豆总数失败:{}!'.format(self._pt_pin, e.args))
+            println('{}, 获取京豆总数失败:{}!'.format(self._pt_pin, e.args))
             return 0
 
     async def total_red_packet(self, session):

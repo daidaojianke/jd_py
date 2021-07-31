@@ -3,6 +3,7 @@
 # @Time    : 2021/7/28 4:37 下午
 # @File    : dj_bean_manor.py
 # @Project : jd_scripts
+# @Cron    : 30 6,21 * * *
 # @Desc    : 京东到家->鲜豆庄园
 import asyncio
 import aiohttp

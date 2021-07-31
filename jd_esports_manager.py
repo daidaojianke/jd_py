@@ -3,4 +3,5 @@
 # @Time    : 2021/6/25 1:28 下午
 # @File    : jd_esports_manager.py
 # @Project : jd_scripts
+# @Cron    : #15 */8 * * *
 # @Desc    : 京东APP-电竞经理
