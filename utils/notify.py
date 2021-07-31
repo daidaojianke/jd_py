@@ -6,6 +6,8 @@
 # @Desc    : 通知模块
 import requests
 import telegram
+import os, re
+import json
 from config import TG_BOT_TOKEN, TG_USER_ID, PUSH_P_TOKEN,  QYWX_AM
 from utils.console import println
 
@@ -40,6 +42,62 @@ def wecom_app(title, content):
             print('推送失败！错误信息如下：\n', response)
     except Exception as e:
         print(e)
+        
+class WeCom:
+    def __init__(self, corpid, corpsecret, agentid):
+        self.CORPID = corpid
+        self.CORPSECRET = corpsecret
+        self.AGENTID = agentid
+
+    def get_access_token(self):
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken'
+        values = {'corpid': self.CORPID,
+                  'corpsecret': self.CORPSECRET,
+                  }
+        req = requests.post(url, params=values)
+        data = json.loads(req.text)
+        return data["access_token"]
+
+    def send_text(self, message, touser="@all"):
+        send_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=' + self.get_access_token()
+        send_values = {
+            "touser": touser,
+            "msgtype": "text",
+            "agentid": self.AGENTID,
+            "text": {
+                "content": message
+            },
+            "safe": "0"
+        }
+        send_msges = (bytes(json.dumps(send_values), 'utf-8'))
+        respone = requests.post(send_url, send_msges)
+        respone = respone.json()
+        return respone["errmsg"]
+
+    def send_mpnews(self, title, message, media_id, touser="@all"):
+        send_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=' + self.get_access_token()
+        send_values = {
+            "touser": touser,
+            "msgtype": "mpnews",
+            "agentid": self.AGENTID,
+            "mpnews": {
+                "articles": [
+                    {
+                        "title": title,
+                        "thumb_media_id": media_id,
+                        "author": "Author",
+                        "content_source_url": "",
+                        "content": message.replace('\n', '<br/>'),
+                        "digest": message
+                    }
+                ]
+            }
+        }
+        send_msges = (bytes(json.dumps(send_values), 'utf-8'))
+        respone = requests.post(send_url, send_msges)
+        respone = respone.json()
+        return respone["errmsg"]
+
 
 
 def push_plus_notify(title, content):
