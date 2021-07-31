@@ -43,12 +43,12 @@ jd_cash_code:
 # 消息通知
 notify:
   # TG机器人Token
-  tg_bot_token: 1xxx
+  tg_bot_token: null
   # TG用户ID
-  tg_user_id: xxx
+  tg_user_id: null
 
   # push+ token: https://pushplus.hxtrip.com/
-  push_p_token: xxx
+  push_p_token: null
 
 # 众筹许愿池助力码
 jd_wishing_pool_code:

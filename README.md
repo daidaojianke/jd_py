@@ -46,7 +46,9 @@
 
 - 内置定时任务, 配好JD_COOKIES自动会执行脚本。
 
-- 消息通知支持TG机器人, 需要在config.yaml文件中填写 tg_bot_token和tg_user_id配置.
+- 消息通知, 配置config.yaml中的notify块
+  - TG机器人: 配置tg_bot_token和tg_user_id
+  - PUSH+: 配置push_p_token
 
 
 ## 脚本列表
