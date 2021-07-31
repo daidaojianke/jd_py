@@ -97,6 +97,7 @@ def notify(title, content):
     :return:
     """
     push_plus_notify(title, content)
+    wecom_app(title, content)
     # TG通知
     tg_bot_notify(title + '\n' + content)
 
