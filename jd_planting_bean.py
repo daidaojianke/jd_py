@@ -3,7 +3,7 @@
 # @Time    : 2021/6/21 21:47
 # @File    : jd_planting_bean.py
 # @Project : jd_scripts
-# @Cron    : 10 7-22/2 * * *
+# @Cron    : 10 3,15 * * *
 # @Desc    : 种豆得豆
 import asyncio
 import json
