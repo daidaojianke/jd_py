@@ -48,6 +48,7 @@ pip install -r $CODE_DIR/requirements.txt
 echo "更新docker-entrypoint..."
 cp $CODE_DIR/shell/docker-entrypoint.sh /bin/docker-entrypoint
 chmod a+x /bin/docker-entrypoint
+chmod a+x /scripts/*.py
 
 echo "更新cron任务..."
 crontab -r
