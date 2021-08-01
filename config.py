@@ -176,6 +176,9 @@ TG_BOT_TOKEN = cfg.get('notify', dict()).get('tg_bot_token', None)
 # push+ token配置
 PUSH_P_TOKEN = cfg.get('notify', dict()).get('push_p_token', None)
 
+#  企业微信配置
+QYWX_AM = cfg.get('notify', dict()).get('qywx_am', None)
+
 # 是否开启京豆夺宝
 JD_BEAN_INDIANA_OPEN = cfg.get('jd_bean_indiana', False)
 
