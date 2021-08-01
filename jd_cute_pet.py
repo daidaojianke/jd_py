@@ -232,7 +232,7 @@ class JdCutePet:
             println('{}, 获取活动数据失败!'.format(self._pt_pin))
             return
 
-        food_amount = data['foodAmount']  # 狗粮总数
+        food_amount = data.get('foodAmount', 0)  # 狗粮总数
         keep_amount = 80  # 保留80狗粮用于完成明天的10次喂食任务
 
         if (int(food_amount) - keep_amount) > 10:

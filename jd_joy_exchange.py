@@ -3,8 +3,10 @@
 # @Time    : 2021/7/25 下午8:20 
 # @File    : jd_joy_exchange.py
 # @Project : jd_scripts
-# @Cron    : 58 7,15,23 * * *
+# @Cron    : 57 7,15,23 * * *
 # @Desc    : 宠汪汪商品兑换
+import random
+import time
 import asyncio
 import aiohttp
 import ujson
@@ -37,8 +39,8 @@ class JdJoyExchange(JdJoy):
         if datetime.now().hour >= 23 or datetime.now().hour < 7:  # 0点场
             start_time = datetime.strftime((datetime.now() + relativedelta(days=1)), "%Y-%m-%d 00:00:00")
             key = 'beanConfigs0'
-        # 7~14点运行兑换8点场
-        elif 7 < datetime.now().hour < 15:  # 8点场
+        # 7~15点运行兑换8点场
+        elif 7 < datetime.now().hour < 16:  # 8点场
             start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 08:00:00")
             key = 'beanConfigs8'
         # 15~22点运行兑换16点场
@@ -51,7 +53,11 @@ class JdJoyExchange(JdJoy):
             key = 'beanConfigs16'
 
         gift_list = data[key]
-        pet_coin = data['petCoin']  # 当前积分
+        pet_coin = data.get('petCoin')  # 当前积分
+        if not pet_coin:
+            pet_coin = 0
+
+        println('{}, 当前积分:{}!'.format(self._pt_pin, pet_coin))
         gift_id = None
         gift_name = None
         for gift in gift_list:
@@ -67,36 +73,48 @@ class JdJoyExchange(JdJoy):
         exchange_path = 'gift/new/exchange'
         exchange_params = {"buyParam": {"orderSource": 'pet', "saleInfoId": gift_id}, "deviceInfo": {}}
 
+        exchange_start_datetime = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+        exchange_start_timestamp = int(time.mktime(time.strptime(start_time, "%Y-%m-%d %H:%M:%S")) * 1000)
+        delay = random.randint(1, 5) / 10
+
         while True:
-            now = datetime.now()
-            nx_start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-            if now >= nx_start_time:
+            now = int(time.time()*1000)
+            if now + delay * 1000 >= exchange_start_timestamp or now >= exchange_start_timestamp:
                 println('{}, 当前时间大于兑换时间, 去兑换:{}'.format(self._pt_pin, gift_name))
                 break
             else:
-                remain_seconds = int((now - nx_start_time).total_seconds())
-                if remain_seconds < 10:
-                    timeout = 1
-                else:
-                    timeout = abs(remain_seconds) - 1
+                now = datetime.now()
+                seconds = int((exchange_start_datetime - now).seconds)
+                millisecond = int((exchange_start_datetime - now).seconds * 1000 +
+                                  (exchange_start_datetime - now).microseconds / 1000)
+                println('{}, 距离兑换开始还有{}秒!'.format(self._pt_pin, seconds), millisecond)
 
-                    # 防止兑换的时候需要验证码，尝试先触发验证码
-                    path = 'gift/getBeanConfigs'
-                    await self.request(session, path)
+                if seconds < 5:
+                    timeout = millisecond / 1000
+                else:
+                    if millisecond - seconds * 1000 > 0:
+                        timeout = seconds
+                    else:
+                        timeout = seconds - 1 + delay
+
                 println('{}, 当前时间小于兑换时间, 等待{}秒!'.format(self._pt_pin, timeout))
                 await asyncio.sleep(timeout)
 
         exchange_success = False
 
         for i in range(10):
+            println('{}, 正在尝试第{}次兑换!'.format(self._pt_pin, i+1))
             data = await self.request(session, exchange_path, exchange_params, method='POST')
             if data and data['errorCode'] and 'success' in data['errorCode']:
                 exchange_success = True
                 break
             elif data and data['errorCode'] and 'limit' in data['errorCode']:
                 println('{}, 今日已兑换商品:{}!'.format(self._pt_pin, gift_name))
-                return
-            await asyncio.sleep(0.1)
+                break
+            elif data and data['errorCode'] and 'empty' in data['errorCode']:
+                println('{}, 奖品:{}已无库存!'.format(self._pt_pin, gift_name))
+                break
+            await asyncio.sleep(0.5)
 
         if exchange_success:
             println('{}, 成功兑换商品:{}!'.format(self._pt_pin, gift_name))
@@ -119,13 +137,15 @@ def start(pt_pin, pt_key, name='宠汪汪兑换'):
         app = JdJoyExchange(pt_pin, pt_key)
         asyncio.run(app.run())
     except Exception as e:
+        println(e.args)
         message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
         return message
 
 
 if __name__ == '__main__':
+    # from config import JD_COOKIES
+    # start(*JD_COOKIES[0].values())
+
     from utils.process import process_start
     from config import JOY_PROCESS_NUM
-    # from config import JD_COOKIES
-    # start(*JD_COOKIES[6].values())
     process_start(start, '宠汪汪兑换', process_num=JOY_PROCESS_NUM)
