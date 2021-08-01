@@ -31,6 +31,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #  资产变动通知
 15 */8 * * * /scripts/jd_bean_change.py >> /scripts/logs/jd_bean_change_`date "+\%Y-\%m-\%d"`.log 2>&1
 
+#  京东APP->我的->签到领京豆->领额外奖励
+45 0 * * * /scripts/jd_bean_home.py >> /scripts/logs/jd_bean_home_`date "+\%Y-\%m-\%d"`.log 2>&1
+
 #  京豆APP->摇京豆->豆夺宝
 10 9 * * * /scripts/jd_bean_indiana.py >> /scripts/logs/jd_bean_indiana_`date "+\%Y-\%m-\%d"`.log 2>&1
 
