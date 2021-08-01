@@ -83,6 +83,7 @@
 | jd_burning_summer.py | 京东APP-燃动夏季| 100% |
 | jd_wishing_pool.py | 京东APP-京东众筹-许愿池| 100% |
 | jd_good_morning.py | 京东APP-领京豆->早起福利| 100% |
+| jd_bean_home.py | 京东APP-签到领豆->额外京豆/浏览商品| 100% |
 | jd_gold_creator.py | 京东APP-京东排行榜->金榜创造营| 100%|
 | dj_fruit.py | 京东APP-京东到家->领免费水果| 100%|
 | dj_fruit_collect.py | 京东APP-京东到家->领免费水果->点水车| 100%|
