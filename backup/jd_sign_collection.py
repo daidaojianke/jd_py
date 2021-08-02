@@ -1190,10 +1190,6 @@ class JdSignCollection:
         :param pt_key:
         :return:
         """
-        cookies = {
-            'pt_pin': self.pt_pin,
-            'pt_key': self.pt_key,
-        }
         headers = {
             'Host': 'lop-proxy.jd.com',
             'lop-dn': 'jingcai.jd.com',
@@ -1217,7 +1213,7 @@ class JdSignCollection:
             'user-agent': USER_AGENT
         }
 
-        async with aiohttp.ClientSession(headers=headers, cookies=cookies) as session:
+        async with aiohttp.ClientSession(headers=headers, cookies=self.cookies) as session:
             try:
                 url = 'https://lop-proxy.jd.com/jiFenApi/signInAndGetReward'
                 body = '[{"userNo":"$cooMrdGatewayUid$"}]'
@@ -1237,7 +1233,7 @@ class JdSignCollection:
                         'msg': '签到失败',
                     })
             except Exception as e:
-                println('{}, 程序出错:{}!'.format(self.pt_pin, e.args))
+                println('{}, 程序出错:{}!'.format(self.account, e.args))
 
     async def get_total_subsidy(self, session):
         """
@@ -1279,7 +1275,7 @@ class JdSignCollection:
         :return:
         """
         println('\n')
-        start_line = "============================账号: {}==============================".format(self.pt_pin)
+        start_line = "============================账号: {}==============================".format(self.account)
         println(start_line, style='bold blue')
         for i in range(len(self.result)):
             res = self.result[i]
@@ -1289,22 +1285,18 @@ class JdSignCollection:
         println('=' * (len(start_line) + 2), style='bold blue')
         println('\n')
 
-    async def start(self):
+    async def run(self):
         """
         开始签到
         :return:
         """
-        cookies = {
-            'pt_pin': self.pt_pin,
-            'pt_key': self.pt_key,
-        }
         headers = {
             'user-agent': 'okhttp/3.12.1;jdmall;android;version/10.0.4;build/88623;screen/1080x2293;os/11;network/wifi;',
         }
-        async with aiohttp.ClientSession(headers=headers, cookies=cookies) as session:
+        async with aiohttp.ClientSession(headers=headers, cookies=self.cookies) as session:
             is_login = await self.is_login(session)
             if not is_login:
-                println("  账号: {}, cookies已过期, 请重新获取...".format(self.pt_pin), style='bold red')
+                println("  账号: {}, cookies已过期, 请重新获取...".format(self.account), style='bold red')
                 return
             await self.jd_bean(session)  # 京东京豆
             await self.jd_store(session)  # 京东超市
@@ -1362,7 +1354,7 @@ class JdSignCollection:
         :return:
         """
         message = '===============京东签到合集===============\n'
-        message += '账号: {}\n'.format(self.pt_pin)
+        message += '账号: {}\n'.format(self.account)
 
         for i in range(len(self.result)):
             res = self.result[i]
