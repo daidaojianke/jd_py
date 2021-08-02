@@ -40,7 +40,6 @@ async def open_browser():
             '--disable-setuid-sandbox',
             '--disable-xss-auditor',
             '--ignore-certificate-errors',
-            '--use-fake-ui-for-media-stream'
         ]
     })
     return browser
