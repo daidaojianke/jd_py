@@ -101,12 +101,15 @@ class JdJoyExchange(JdJoy):
                 await asyncio.sleep(timeout)
 
         exchange_success = False
+        exchange_success_datetime = None
 
         for i in range(10):
             println('{}, 正在尝试第{}次兑换!'.format(self.account, i+1))
             data = await self.request(session, exchange_path, exchange_params, method='POST')
             if data and data['errorCode'] and 'success' in data['errorCode']:
                 exchange_success = True
+                exchange_success_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+
                 break
             elif data and data['errorCode'] and 'limit' in data['errorCode']:
                 println('{}, 今日已兑换商品:{}!'.format(self.account, gift_name))
@@ -117,7 +120,9 @@ class JdJoyExchange(JdJoy):
             await asyncio.sleep(0.5)
 
         if exchange_success:
-            println('{}, 成功兑换商品:{}!'.format(self.account, gift_name))
+            println('{}, 成功兑换商品:{}, 兑换时间:{}'.format(self.account, gift_name, exchange_success_datetime))
+            self.message = '【活动名称】宠汪汪\n【兑换奖品】{}【兑换状态】成功\n【兑换时间】{}\n'.\
+                format(gift_name, exchange_success_datetime)
         else:
             println('{}, 无法兑换商品:{}!'.format(self.account, gift_name))
 
