@@ -22,7 +22,7 @@ class JrMoneyTreeCollect(JrMoneyTree):
         async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
             is_success = await self.login(session)
             if not is_success:
-                println('{}, 登录失败, 退出程序...'.format(self._pt_pin))
+                println('{}, 登录失败, 退出程序...'.format(self.account))
             await self.harvest(session)  # 收金果
 
 

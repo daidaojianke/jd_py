@@ -170,7 +170,7 @@ class JdBeanHome:
         """
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             await self.do_task(session)
             await self.get_award(session)
             await self.do_goods_task(session)

@@ -212,14 +212,14 @@ class JdBeanChange:
             message += item + '\n'
         message += '【当前红包余额】{}￥\n'.format(red_packet_data['total_amount'])
         message += '【即将过期红包】{}￥\n'.format(red_packet_data['expire_amount'])
-        self._message = message
+        self.message = message
 
     async def run(self):
         """
         程序入库
         :return:
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             await self.notify(session)
 
 

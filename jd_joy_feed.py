@@ -29,9 +29,9 @@ class JdJoyFeed(JdJoy):
         }
         data = await self.request(session, path, params)
         if data and data['errorCode'] and 'ok' in data['errorCode']:
-            println('{}, 成功喂狗一次, 消耗狗粮:{}!'.format(self._pt_pin, feed_count))
+            println('{}, 成功喂狗一次, 消耗狗粮:{}!'.format(self.account, feed_count))
         else:
-            println('{}, 喂狗失败!'.format(self._pt_pin))
+            println('{}, 喂狗失败!'.format(self.account))
 
     async def run(self):
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies,

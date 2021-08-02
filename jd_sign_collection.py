@@ -34,7 +34,6 @@ class JdSignCollection:
 
     result = []
 
-
     async def is_login(self, session):
         """
         判断cookies是否有效
@@ -73,7 +72,7 @@ class JdSignCollection:
             data = json.loads(text)
             println("{}: {}".format(name, data))
             if data['code'] != '0':
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['echo']
@@ -82,7 +81,7 @@ class JdSignCollection:
                 data = data['data']
 
                 if 'sessionId' in data:  # 需要拼图验证
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_fail,
                         'message': '需要拼图验证!'
@@ -91,20 +90,20 @@ class JdSignCollection:
 
                 if int(data['status']) == 2 or int(data['status']) == 1:
                     daily_award = data['dailyAward']
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_signed,
                         'message': daily_award['subTitle'] + ':{}京豆.'.format(daily_award['beanAward']['beanCount'])
                     })
                 else:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_fail,
                         'message': '原因未知'
                     })
         except Exception as e:
             println("{}, 异常: {}".format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -127,27 +126,27 @@ class JdSignCollection:
 
             if data['code'] != 0:
                 message = data['data']['bizMsg'].replace('\n', ',')
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': message,
                 })
             else:
                 if data['data']['bizCode'] == 811:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_signed,
                         'message': '',
                     })
                 else:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_success,
                         'message': data['data']['bizMsg'],
                     })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -171,27 +170,27 @@ class JdSignCollection:
             data = json.loads(text)
 
             if data['resultCode'] != 0:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['resultMsg']
                 })
             else:
                 if data['resultData']['resBusiCode'] == 15:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_signed,
                         'message': data['resultData']['resBusiMsg'] + '奖励.',
                     })
                 else:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_success,
                         'message': data['resultData']['resBusiMsg']
                     })
         except Exception as e:
             println('签到失败, 异常:{}'.format(e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -212,14 +211,14 @@ class JdSignCollection:
             data = json.loads(text)
 
             if data['code'] != '0':
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['echo']
                 })
             else:
                 if 'lotteryCode' in data['data']:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_success,
                         'message': '',
@@ -227,7 +226,7 @@ class JdSignCollection:
                     println('{}, 助力码: {}'.format(name, data['data']['lotteryCode']))
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -250,27 +249,27 @@ class JdSignCollection:
             data = json.loads(text)
 
             if data['code'] != '0':
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['echo']
                 })
             else:
                 if data['result']['code'] == '0':
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_success,
                         'message': data['result']['signText']
                     })
 
                 elif data['result']['code'] == '2020':
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_fail,
                         'message': '请稍后重试!'
                     })
                 else:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_fail,
                         'message': '未知错误!'
@@ -278,7 +277,7 @@ class JdSignCollection:
 
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -306,20 +305,20 @@ class JdSignCollection:
             data = json.loads(text)
 
             if data['success']:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': data['message'],
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['message'],
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -341,20 +340,20 @@ class JdSignCollection:
             text = await response.text()
             data = json.loads(text)
             if data['result']['code'] != 0:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': ''
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': ''
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -377,13 +376,13 @@ class JdSignCollection:
             if data['resultCode'] == 0:
                 amount = data['resultData']['data']['thisAmount']
                 amount_str = str(data['resultData']['data']['thisAmountStr'])
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': '金贴: {}'.format(amount_str + '元' if amount > 0 else '无')
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['resultMsg']
@@ -391,7 +390,7 @@ class JdSignCollection:
 
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -413,7 +412,7 @@ class JdSignCollection:
             data = json.loads(text)
 
             if data['code'] != 0:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['echo']
@@ -421,19 +420,19 @@ class JdSignCollection:
             else:
                 data = data['data']
                 if data['bizCode'] == 0:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_success,
                         'message': '明细: {}现金'.format(data['result']['signCash'] if data['result']['signCash'] else '无')
                     })
                 elif data['bizCode'] == 201:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_signed,
                         'message': data['bizMsg'].split('\n')[-1]
                     })
                 else:
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_fail,
                         'message': data['result']['bizMsg']
@@ -441,7 +440,7 @@ class JdSignCollection:
 
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -481,7 +480,7 @@ class JdSignCollection:
                     if award['bean_count'] > 0:
                         message = '获得{}京豆,'.format(award['bean_count'])
                     message += award['coupon']
-                    self._result.append({
+                    self.result.append({
                         'name': name,
                         'status': self.status_success,
                         'message': message,
@@ -491,14 +490,14 @@ class JdSignCollection:
                     message = '已摇过!'
                 else:
                     message = data['message']
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': message,
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -521,26 +520,26 @@ class JdSignCollection:
             data = json.loads(text)
 
             if data['code'] == '1':
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': '暂无有效活动!'
                 })
             elif data['code'] == '0':
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': ''
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': '原因未知',
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -564,26 +563,26 @@ class JdSignCollection:
             data = json.loads(text)
 
             if data['code'] == -101:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': data['msg'],
                 })
             elif data['code'] == -1:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_signed,
                     'message': data['msg']
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['msg']
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -604,20 +603,20 @@ class JdSignCollection:
             data = json.loads(text)
 
             if data['status']:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': ''
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['error']['msg']
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -633,20 +632,20 @@ class JdSignCollection:
             data = json.loads(text)
 
             if 'resultCode' in data and data['resultCode'] == 0:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': ''
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['resultMsg']
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -747,13 +746,13 @@ class JdSignCollection:
             data = json.loads(text)
 
             if data['success']:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': ''
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['errorMessage'],
@@ -761,7 +760,7 @@ class JdSignCollection:
 
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -782,26 +781,26 @@ class JdSignCollection:
             text = await response.text()
             data = json.loads(text)
             if len(re.findall('签到成功', text)):
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': ''
                 })
             elif data['code'] == '3':
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_signed,
                     'message': '请勿重复签到!',
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['subCodeMsg'] if data['msg'] else '原因:未知',
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -849,7 +848,7 @@ class JdSignCollection:
                     if floor['template'] == 'signIn':
                         sign_info = floor['signInfos']
                         if sign_info['signStat'] == '1':
-                            self._result.append({
+                            self.result.append({
                                 'name': name,
                                 'status': self.status_signed,
                                 'message': '请勿重复签到!'
@@ -860,7 +859,7 @@ class JdSignCollection:
                         }  # 签到数据
 
             if not sign_params and not turn_table_id:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': '活动查找异常!'
@@ -875,7 +874,7 @@ class JdSignCollection:
 
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -1086,20 +1085,20 @@ class JdSignCollection:
             text = await response.text()
             data = json.loads(text)
             if 'gbBalance' in data:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': '钢镚:{}￥'.format(data['gbBalance']),
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': '原因未知!'
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -1119,13 +1118,13 @@ class JdSignCollection:
             data = json.loads(text)
             if data['retcode'] == '0':
                 bean_num = data['data']['assetInfo']['beanNum']
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': '京豆余额: {}'.format(bean_num)
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['msg']
@@ -1133,7 +1132,7 @@ class JdSignCollection:
 
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -1164,14 +1163,14 @@ class JdSignCollection:
             text = await response.text()
             data = json.loads(text)
             if 'resultCode' in data and data['resultCode'] == 200:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': '总余额:{}￥, 可用余额:{}￥！'.format(data['balanceMap']['allOrgBalance'],
                                                            data['balanceMap']['totalUsableBalance'])
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['echo']
@@ -1179,7 +1178,7 @@ class JdSignCollection:
 
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -1192,8 +1191,8 @@ class JdSignCollection:
         :return:
         """
         cookies = {
-            'pt_pin': self._pt_pin,
-            'pt_key': self._pt_key,
+            'pt_pin': self.pt_pin,
+            'pt_key': self.pt_key,
         }
         headers = {
             'Host': 'lop-proxy.jd.com',
@@ -1226,19 +1225,19 @@ class JdSignCollection:
                 text = await response.text()
                 data = json.loads(text)
                 if data['code'] == 1:
-                    self._result.append({
+                    self.result.append({
                         'name': '京东快递',
                         'status': self.status_success,
                         'msg': '签到成功',
                     })
                 else:
-                    self._result.append({
+                    self.result.append({
                         'name': '京东快递',
                         'status': self.status_fail,
                         'msg': '签到失败',
                     })
             except Exception as e:
-                println('{}, 程序出错:{}!'.format(self._pt_pin, e.args))
+                println('{}, 程序出错:{}!'.format(self.pt_pin, e.args))
 
     async def get_total_subsidy(self, session):
         """
@@ -1255,20 +1254,20 @@ class JdSignCollection:
             data = json.loads(text)
 
             if 'resultCode' in data and data['resultCode'] == 0:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_success,
                     'message': '金贴余额:{}￥!'.format(data['resultData']['data']['balance'])
                 })
             else:
-                self._result.append({
+                self.result.append({
                     'name': name,
                     'status': self.status_fail,
                     'message': data['resultMsg']
                 })
         except Exception as e:
             println('{}, 异常:{}'.format(name, e.args))
-            self._result.append({
+            self.result.append({
                 'name': name,
                 'status': self.status_fail,
                 'message': '程序异常出错',
@@ -1280,10 +1279,10 @@ class JdSignCollection:
         :return:
         """
         println('\n')
-        start_line = "============================账号: {}==============================".format(self._pt_pin)
+        start_line = "============================账号: {}==============================".format(self.pt_pin)
         println(start_line, style='bold blue')
-        for i in range(len(self._result)):
-            res = self._result[i]
+        for i in range(len(self.result)):
+            res = self.result[i]
             println("\t{}.{}: {}! {}".format(i + 1, res['name'], self.status_msg[res['status']], res['message']),
                     style='bold green')
 
@@ -1296,8 +1295,8 @@ class JdSignCollection:
         :return:
         """
         cookies = {
-            'pt_pin': self._pt_pin,
-            'pt_key': self._pt_key,
+            'pt_pin': self.pt_pin,
+            'pt_key': self.pt_key,
         }
         headers = {
             'user-agent': 'okhttp/3.12.1;jdmall;android;version/10.0.4;build/88623;screen/1080x2293;os/11;network/wifi;',
@@ -1305,7 +1304,7 @@ class JdSignCollection:
         async with aiohttp.ClientSession(headers=headers, cookies=cookies) as session:
             is_login = await self.is_login(session)
             if not is_login:
-                println("  账号: {}, cookies已过期, 请重新获取...".format(self._pt_pin), style='bold red')
+                println("  账号: {}, cookies已过期, 请重新获取...".format(self.pt_pin), style='bold red')
                 return
             await self.jd_bean(session)  # 京东京豆
             await self.jd_store(session)  # 京东超市
@@ -1363,10 +1362,10 @@ class JdSignCollection:
         :return:
         """
         message = '===============京东签到合集===============\n'
-        message += '账号: {}\n'.format(self._pt_pin)
+        message += '账号: {}\n'.format(self.pt_pin)
 
-        for i in range(len(self._result)):
-            res = self._result[i]
+        for i in range(len(self.result)):
+            res = self.result[i]
             line = "\t{}.{}: {}! {}\n".format(i + 1, res['name'], self.status_msg[res['status']], res['message'])
             message += line
 

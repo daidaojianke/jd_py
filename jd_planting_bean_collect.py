@@ -20,10 +20,10 @@ class JdPlantingBeanCollect(JdPlantingBean):
         """
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.accountcookies) as session:
             is_success = await self.planting_bean_index(session)
             if not is_success:
-                println('{}, 无法获取活动数据!'.format(self._account))
+                println('{}, 无法获取活动数据!'.format(self.accountaccount))
                 return
             await self.receive_nutrient(session)
             await self.collect_nutriments(session)

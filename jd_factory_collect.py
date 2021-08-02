@@ -25,7 +25,7 @@ class JdFactoryCollect(JdFactory):
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
             is_success = await self.init(session)
             if not is_success:
-                println('{}, 无法初始化数据, 退出程序!'.format(self._pt_pin))
+                println('{}, 无法初始化数据, 退出程序!'.format(self.account))
                 return
             await self.collect_electricity(session)
 

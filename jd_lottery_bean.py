@@ -52,7 +52,7 @@ class JdLotteryBean:
         程序入口
         :return:
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             await self.lottery(session)
 
 

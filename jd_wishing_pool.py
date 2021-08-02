@@ -178,7 +178,7 @@ class JdWishingPool:
         """
         获取助力码
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             data = await self.get_task_list(session)
             if not data:
                 return None
@@ -192,7 +192,7 @@ class JdWishingPool:
         """
         程序入口
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             task_list = await self.get_task_list(session)
             if not task_list:
                 println('{}， 无法获取数据, 退出程序!'.format(self.account))

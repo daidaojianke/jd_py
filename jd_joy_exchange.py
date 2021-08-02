@@ -22,8 +22,6 @@ class JdJoyExchange(JdJoy):
     """
     宠汪汪兑换京豆
     """
-    def __init__(self, pt_pin, pt_key):
-        super(JdJoyExchange, self).__init__(pt_pin, pt_key)
 
     @logger.catch
     async def exchange_bean(self, session):
@@ -33,7 +31,7 @@ class JdJoyExchange(JdJoy):
         path = 'gift/getBeanConfigs'
         data = await self.request(session, path)
         if not data:
-            println('{}, 获取奖品列表失败!'.format(self._pt_pin))
+            println('{}, 获取奖品列表失败!'.format(self.account))
             return
 
         # 23~6点运行兑换8点场
@@ -58,7 +56,7 @@ class JdJoyExchange(JdJoy):
         if not pet_coin:
             pet_coin = 0
 
-        println('{}, 当前积分:{}!'.format(self._pt_pin, pet_coin))
+        println('{}, 当前积分:{}!'.format(self.account, pet_coin))
         gift_id = None
         gift_name = None
         for gift in gift_list:
@@ -67,10 +65,10 @@ class JdJoyExchange(JdJoy):
                 gift_id = gift['id']
                 gift_name = gift['giftName']
         if not gift_id:
-            println('{}, 当前不满足兑换商品条件!'.format(self._pt_pin))
+            println('{}, 当前不满足兑换商品条件!'.format(self.account))
             return
 
-        println('{}, 正在兑换, 商品: {}!'.format(self._pt_pin, gift_name))
+        println('{}, 正在兑换, 商品: {}!'.format(self.account, gift_name))
 
         exchange_path = 'gift/new/exchange'
         exchange_params = {"buyParam": {"orderSource": 'pet', "saleInfoId": gift_id}, "deviceInfo": {}}
@@ -82,14 +80,14 @@ class JdJoyExchange(JdJoy):
         while True:
             now = int(time.time()*1000)
             if now + delay * 1000 >= exchange_start_timestamp or now >= exchange_start_timestamp:
-                println('{}, 当前时间大于兑换时间, 去兑换:{}'.format(self._pt_pin, gift_name))
+                println('{}, 当前时间大于兑换时间, 去兑换:{}'.format(self.account, gift_name))
                 break
             else:
                 now = datetime.now()
                 seconds = int((exchange_start_datetime - now).seconds)
                 millisecond = int((exchange_start_datetime - now).seconds * 1000 +
                                   (exchange_start_datetime - now).microseconds / 1000)
-                println('{}, 距离兑换开始还有{}秒!'.format(self._pt_pin, seconds), millisecond)
+                println('{}, 距离兑换开始还有{}秒!'.format(self.account, seconds), millisecond)
 
                 if seconds < 5:
                     timeout = millisecond / 1000
@@ -99,29 +97,29 @@ class JdJoyExchange(JdJoy):
                     else:
                         timeout = seconds - 1 + delay
 
-                println('{}, 当前时间小于兑换时间, 等待{}秒!'.format(self._pt_pin, timeout))
+                println('{}, 当前时间小于兑换时间, 等待{}秒!'.format(self.account, timeout))
                 await asyncio.sleep(timeout)
 
         exchange_success = False
 
         for i in range(10):
-            println('{}, 正在尝试第{}次兑换!'.format(self._pt_pin, i+1))
+            println('{}, 正在尝试第{}次兑换!'.format(self.account, i+1))
             data = await self.request(session, exchange_path, exchange_params, method='POST')
             if data and data['errorCode'] and 'success' in data['errorCode']:
                 exchange_success = True
                 break
             elif data and data['errorCode'] and 'limit' in data['errorCode']:
-                println('{}, 今日已兑换商品:{}!'.format(self._pt_pin, gift_name))
+                println('{}, 今日已兑换商品:{}!'.format(self.account, gift_name))
                 break
             elif data and data['errorCode'] and 'empty' in data['errorCode']:
-                println('{}, 奖品:{}已无库存!'.format(self._pt_pin, gift_name))
+                println('{}, 奖品:{}已无库存!'.format(self.account, gift_name))
                 break
             await asyncio.sleep(0.5)
 
         if exchange_success:
-            println('{}, 成功兑换商品:{}!'.format(self._pt_pin, gift_name))
+            println('{}, 成功兑换商品:{}!'.format(self.account, gift_name))
         else:
-            println('{}, 无法兑换商品:{}!'.format(self._pt_pin, gift_name))
+            println('{}, 无法兑换商品:{}!'.format(self.account, gift_name))
 
     async def run(self):
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies,

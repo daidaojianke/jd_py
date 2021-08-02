@@ -338,7 +338,7 @@ class JrPetPig:
         入口
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             is_login = await self.login(session)
             if not is_login:
                 println('{},登录失败, 退出程序...'.format(self.account))
