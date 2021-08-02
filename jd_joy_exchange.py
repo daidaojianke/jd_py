@@ -122,7 +122,7 @@ class JdJoyExchange(JdJoy):
             println('{}, 无法兑换商品:{}!'.format(self.account, gift_name))
 
     async def run(self):
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies,
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies,
                                          json_serialize=ujson.dumps) as session:
             await self.exchange_bean(session)
 

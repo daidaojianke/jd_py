@@ -34,26 +34,14 @@ class JdJoyFeed(JdJoy):
             println('{}, 喂狗失败!'.format(self.account))
 
     async def run(self):
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._aiohttp_cookies,
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies,
                                          json_serialize=ujson.dumps) as session:
             await self.feed_food(session)
 
         await self.close_browser()
 
 
-def start(pt_pin, pt_key, name='宠汪汪喂食'):
-    """
-    宠汪汪商品兑换
-    """
-    try:
-        app = JdJoyFeed(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
     from utils.process import process_start
     from config import JOY_PROCESS_NUM
-    process_start(start, '宠汪汪喂狗', process_num=JOY_PROCESS_NUM)
+    process_start(JdJoyFeed, '宠汪汪喂狗', process_num=JOY_PROCESS_NUM)
