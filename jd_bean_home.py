@@ -9,9 +9,11 @@ import asyncio
 import json
 import random
 import time
-from urllib.parse import unquote, urlencode
+from urllib.parse import urlencode
 from utils.console import println
 from utils.process import process_start
+from utils.logger import logger
+from utils.wraps import jd_init
 import aiohttp
 
 from config import USER_AGENT
@@ -31,6 +33,7 @@ def random_string(n=16):
     return s
 
 
+@jd_init
 class JdBeanHome:
     """
     领额外京豆
@@ -42,26 +45,8 @@ class JdBeanHome:
         # 'content-type': 'application/x-www-form-urlencoded;'
     }
 
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self.account = unquote(pt_pin)
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-        self.eu = random_string(16)
-        self.fv = random_string(16)
-        self._message = None
-
-    @property
-    def message(self):
-        """
-        :return:
-        """
-        return self._message
+    eu = random_string(16)
+    fv = random_string(16)
 
     async def request(self, session, function_id='', body=None, method='GET'):
         """
@@ -103,6 +88,7 @@ class JdBeanHome:
                 'code': 999
             }
 
+    @logger.catch
     async def get_award(self, session, source='home'):
         """
         领取奖励
@@ -119,6 +105,7 @@ class JdBeanHome:
 
         await asyncio.sleep(2)
 
+    @logger.catch
     async def do_task(self, session):
         """
         :param session:
@@ -145,6 +132,7 @@ class JdBeanHome:
                 println('{}, 第{}个领额外京豆任务完成失败, {}!'.format(self.account, i, message))
             await asyncio.sleep(2)
 
+    @logger.catch
     async def do_goods_task(self, session):
         """
         浏览商品任务
@@ -189,21 +177,5 @@ class JdBeanHome:
             await self.get_award(session, source='feeds')
 
 
-def start(pt_pin, pt_key, name='签到领豆-额外京豆'):
-    """
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdBeanHome(pt_pin, pt_key)
-        asyncio.run(app.run())
-        return app.message
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name, pt_pin, e.args)
-        return message
-
-
 if __name__ == '__main__':
-    process_start(start, '签到领豆-额外京豆')
+    process_start(JdBeanHome, '签到领豆-额外京豆')

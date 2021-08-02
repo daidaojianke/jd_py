@@ -11,6 +11,7 @@ import re
 
 def get_script_list(dir_path=None):
     """
+    获取脚本列表
     :return:
     """
     script_list = []

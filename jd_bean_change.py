@@ -11,12 +11,16 @@ import json
 import moment
 import time
 
-from utils.notify import notify
+from urllib.parse import quote
+
+from utils.logger import logger
 from utils.console import println
-from urllib.parse import unquote, quote
+from utils.wraps import jd_init
+
 from config import USER_AGENT
 
 
+@jd_init
 class JdBeanChange:
     """
     资产变动通知
@@ -26,27 +30,6 @@ class JdBeanChange:
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': USER_AGENT,
     }
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key,
-        }
-        self._pt_pin = unquote(pt_pin)
-
-        self._message = None
-        # self._total_bean = 0  # 当前总京豆
-        # self._today_income_bean = 0  # 今日收入
-        # self._yesterday_income_bean = 0  # 昨日收入京豆
-        # self._yesterday_used_bean = 0  # 昨日支出京豆
-
-    @property
-    def message(self):
-        return self._message
 
     async def get_bean_detail(self, session, page=1, timeout=0.5):
         """
@@ -67,7 +50,7 @@ class JdBeanChange:
             data = json.loads(text)
             return data['detailList']
         except Exception as e:
-            println('{}, 获取服务器数据失败, {}!'.format(self._pt_pin, e.args))
+            println('{}, 获取服务器数据失败, {}!'.format(self.account, e.args))
             return []
 
     async def get_expire_bean(self, session, timeout=0.5):
@@ -77,7 +60,7 @@ class JdBeanChange:
         :return:
         """
         try:
-            println('{}, 正在获取即将过期京豆数据...'.format(self._pt_pin, timeout))
+            println('{}, 正在获取即将过期京豆数据...'.format(self.account, timeout))
             await asyncio.sleep(timeout)
             session.headers.add('Referer', 'https://wqs.jd.com/promote/201801/bean/mybean.html')
             session.headers.add('Host', 'wq.jd.com')
@@ -97,7 +80,7 @@ class JdBeanChange:
                 res.append(msg)
             return res
         except Exception as e:
-            println('{}, 获取即将过期的京豆数据失败:{}.'.format(self._pt_pin, e.args))
+            println('{}, 获取即将过期的京豆数据失败:{}.'.format(self.account, e.args))
             return []
 
     async def total_bean(self, session):
@@ -117,7 +100,7 @@ class JdBeanChange:
         page = 1
         finished = False
 
-        println('{}, 正在获取京豆明细...'.format(self._pt_pin))
+        println('{}, 正在获取京豆明细...'.format(self.account))
         while True:
             detail_list = await self.get_bean_detail(session, page)
             if len(detail_list) < 1:
@@ -162,7 +145,7 @@ class JdBeanChange:
         :return:
         """
         try:
-            println('{}, 正在获取京豆总数...'.format(self._pt_pin, timeout))
+            println('{}, 正在获取京豆总数...'.format(self.account, timeout))
             await asyncio.sleep(timeout)
             url = 'https://me-api.jd.com/user_new/info/GetJDUserInfoUnion'
             session.headers.add('Host', 'me-api.jd.com')
@@ -175,7 +158,7 @@ class JdBeanChange:
             else:
                 return 0
         except Exception as e:
-            println('{}, 获取京豆总数失败:{}!'.format(self._pt_pin, e.args))
+            println('{}, 获取京豆总数失败:{}!'.format(self.account, e.args))
             return 0
 
     async def total_red_packet(self, session):
@@ -207,14 +190,19 @@ class JdBeanChange:
             return res
 
         except Exception as e:
-            println('{}, 获取红包数据失败:{}!'.format(self._pt_pin, e.args))
+            println('{}, 获取红包数据失败:{}!'.format(self.account, e.args))
             return res
 
     async def notify(self, session):
+        """
+        设置消息通知
+        :param session:
+        :return:
+        """
         bean_data = await self.total_bean(session)  # 京豆统计数据
         red_packet_data = await self.total_red_packet(session)  # 红包统计数据
 
-        message = '【京东账号】{}\n'.format(self._pt_pin)
+        message = '【京东账号】{}\n'.format(self.account)
         message += '【京豆总数】{}\n'.format(bean_data['bean_amount'])
         message += '【今日收入】{}京豆\n'.format(bean_data['today_income'])
         message += '【今日支出】{}京豆\n'.format(bean_data['today_used'])
@@ -235,22 +223,6 @@ class JdBeanChange:
             await self.notify(session)
 
 
-def start(pt_pin, pt_key, name='资产变动通知'):
-    """
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdBeanChange(pt_pin, pt_key)
-        asyncio.run(app.run())
-        return app.message
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(start, '资产变动通知')
+    process_start(JdBeanChange, '资产变动通知')

@@ -14,14 +14,9 @@ from utils.console import println
 
 
 class DjBeanManorWater(DjBeanManor):
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        super(DjBeanManorWater, self).__init__(pt_pin, pt_key)
-
+    """
+    到家庄园收水滴/浇水
+    """
     async def run(self):
         """
         程序入口
@@ -42,21 +37,5 @@ class DjBeanManorWater(DjBeanManor):
             await self.watering(session)
 
 
-def start(pt_pin, pt_key, name='鲜豆庄园领水/浇水'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = DjBeanManorWater(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    process_start(start, '鲜豆庄园领水/浇水')
+    process_start(DjBeanManorWater, '鲜豆庄园领水/浇水')

@@ -22,53 +22,41 @@ class Code(Model):
 
     code_key = CharField(verbose_name='邀请/助力码标示', max_length=30)
 
-    code_val = TextField(verbose_name='邀请/助力码内容')
+    code_val = CharField(verbose_name='邀请/助力码内容', max_length=255)
 
     sort = SmallIntegerField(verbose_name='排序字段', default=1)
 
-    created_at = DateField(verbose_name='创建日期')
+    created_at = DateField(verbose_name='创建日期', default=datetime.now().date())
 
-    updated_at = DateField(verbose_name='更新日期')
+    updated_at = DateField(verbose_name='更新日期', default=datetime.now().date())
 
     class Meta:
         database = db
         table_name = 'code'
 
     @classmethod
-    def insert_code(cls, code_key=None, account='', code_val='', code_type=1):
+    def insert_code(cls, code_key=None, account='', code_val='', code_type=1, sort=1):
         """
-        插入助力码
+        插入一条助力码
+        :param sort:
         :param code_val:
         :param account:
         :param code_key:
         :param code_type:
         :return:
         """
-        rowid = (cls.insert(code_key=code_key, account=account, code_val=code_val, code_type=code_type)
-                 .on_conflict(preserve=[cls.account, cls.code_type, cls.code_val]).execute())
-        print(rowid)
+        rowid = (cls.insert(code_key=code_key, account=account, code_val=code_val, code_type=code_type, sort=sort).execute())
+        return rowid
 
     @classmethod
-    def get_first_code(cls, code_key='', exclude_account=None):
-        """
-        获取第一条助力码
-        :param code_key: 助力码类型
-        :param exclude_account: 排除账号
-        :return:
-        """
-        pass
-
-    @classmethod
-    def get_code_list(cls, code_key='', exclude_account=None):
+    def get_code_list(cls, code_key=''):
         """
         获取助力码列表
         :param code_key: 助力码类型
-        :param exclude_account: 排除账号
         :return:
         """
-        pass
+        code_list = cls.select().where(cls.code_key == code_key, cls.created_at == datetime.now().date()).order_by(cls.sort)
+        return code_list
 
-
-db.connect()
 
 db.create_tables([Code])

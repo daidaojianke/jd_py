@@ -10,8 +10,11 @@ import math
 import random
 import asyncio
 import aiohttp
+
 from urllib.parse import unquote, quote
 from utils.console import println
+from utils.logger import logger
+from utils.wraps import jd_init
 from config import USER_AGENT
 
 
@@ -29,6 +32,7 @@ def random_string(e=40):
     return s
 
 
+@jd_init
 class JdCollarBean:
     """
     领京豆
@@ -41,23 +45,8 @@ class JdCollarBean:
         'Referer': 'https://h5.m.jd.com/rn/42yjy8na6pFsq1cx9MJQ5aTgu3kX/index.html',
     }
 
-    def __init__(self, pt_pin, pt_key, **kwargs):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key,
-        }
-        self._account = unquote(pt_pin)
-        self._queue = kwargs.get('queue', None)
-        self._id = random_string(40)
-
-    @property
-    def message(self):
-        return 'hello world'
-
+    id = random_string(40)
+    
     async def request(self, session, function_id='', body=None, method='GET'):
         """
         请求数据
@@ -68,7 +57,7 @@ class JdCollarBean:
                 body = {}
             url = 'https://api.m.jd.com/client.action?' \
                   'functionId={}&body={}&appid=ld&client=m&' \
-                  'uuid={}&openudid={}'.format(function_id, quote(json.dumps(body)), self._id, self._id)
+                  'uuid={}&openudid={}'.format(function_id, quote(json.dumps(body)), self.id, self.id)
             if method == 'GET':
                 response = await session.get(url)
             else:
@@ -77,18 +66,18 @@ class JdCollarBean:
             data = json.loads(text)
             return data
         except Exception as e:
-            println('{}, 获取数据失败:{}!'.format(self._account, e.args))
-
+            println('{}, 获取数据失败:{}!'.format(self.account, e.args))
+    
+    @logger.catch
     async def do_task(self, session):
         """
-        获取任务列表
+        做任务
         :param session:
         :return:
         """
-        do = False
         data = await self.request(session, 'beanTaskList', {"viewChannel": "AppHome"})
         if data['code'] != '0':
-            println('{}, 获取任务失败!'.format(self._account))
+            println('{}, 获取任务失败!'.format(self.account))
             return
         data = data['data']
         if not data['viewAppHome']['takenTask']:
@@ -114,11 +103,11 @@ class JdCollarBean:
             })
 
             if 'errorCode' in res:
-                println('{}, 任务:{}, {}'.format(self._account, task_name, res['errorMessage']))
+                println('{}, 任务:{}, {}'.format(self.account, task_name, res['errorMessage']))
             elif 'data' in res and 'bizMsg' in res['data']:
-                println('{}, 任务:{},  {}'.format(self._account, task_name, res['data']['bizMsg']))
+                println('{}, 任务:{},  {}'.format(self.account, task_name, res['data']['bizMsg']))
             else:
-                println('{}, 任务:{}, {}'.format(self._account, task_name, res))
+                println('{}, 任务:{}, {}'.format(self.account, task_name, res))
 
             if task['taskType'] != 3:
                 await asyncio.sleep(3)
@@ -126,11 +115,11 @@ class JdCollarBean:
                                          {"actionType": 0, "taskToken": task['subTaskVOS'][0]['taskToken']})
 
                 if 'data' in res and 'bizMsg' in res['data']:
-                    println('{}, 任务:{},  {}'.format(self._account, task_name, res['data']['bizMsg']))
+                    println('{}, 任务:{},  {}'.format(self.account, task_name, res['data']['bizMsg']))
                 elif 'errorCode' in res:
-                    println('{}, 任务:{}, {}'.format(self._account, task_name, res['errorMessage']))
+                    println('{}, 任务:{}, {}'.format(self.account, task_name, res['errorMessage']))
                 else:
-                    println('{}, 任务:{}, {}'.format(self._account, task_name, res))
+                    println('{}, 任务:{}, {}'.format(self.account, task_name, res))
 
             await asyncio.sleep(1)
 
@@ -139,28 +128,13 @@ class JdCollarBean:
         入口
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
-            println('{}, 正在做任务!'.format(self._account))
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
+            println('{}, 正在做任务!'.format(self.account))
             for i in range(3):
                 await self.do_task(session)
-            println('{}, 任务已做完!'.format(self._account))
-
-
-def start(pt_pin, pt_key, name='领京豆'):
-    """
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdCollarBean(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
+            println('{}, 任务已做完!'.format(self.account))
 
 
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(start, '领京豆')
+    process_start(JdCollarBean, '领京豆')

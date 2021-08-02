@@ -124,3 +124,6 @@ conf/
 logs/
 /jd
 !test/.gitignore
+
+sqlite.db
+test*.py

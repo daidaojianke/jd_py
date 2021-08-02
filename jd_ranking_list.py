@@ -10,16 +10,16 @@ import json
 
 import aiohttp
 from urllib.parse import unquote
-
-from utils.notify import notify
 from utils.console import println
 from utils.logger import logger
+from utils.wraps import jd_init
 from utils.process import process_start
 
 
+@jd_init
 class JdRankingList:
     """
-    京东排行榜
+    今日王牌
     """
 
     headers = {
@@ -30,19 +30,6 @@ class JdRankingList:
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'zh-cn'
     }
-
-    def __init__(self, pt_pin='', pt_key=''):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-        self._account = '账号:{}'.format(unquote(pt_pin))
-        self._bean_count = 0  # 获得京豆总数
-        self._msg_list = []
 
     async def query_task(self, session):
         """
@@ -59,13 +46,13 @@ class JdRankingList:
             data = json.loads(text)
             await asyncio.sleep(1)
             if data['code'] != '0':
-                println('{}, 获取任务列表失败...'.format(self._account))
+                println('{}, 获取任务列表失败...'.format(self.account))
             else:
                 task_list = data['result']['taskList']
                 task_list.append(data['result']['signTask'])
-                println('{}, 查询任务成功！'.format(self._account))
+                println('{}, 查询任务成功！'.format(self.account))
         except Exception as e:
-            logger.error('{}, 查询任务失败:{}'.format(self._account, e.args))
+            logger.error('{}, 查询任务失败:{}'.format(self.account, e.args))
 
         return task_list
 
@@ -85,48 +72,26 @@ class JdRankingList:
             text = await response.text()
             data = json.loads(text)
             if data['code'] != '0':
-                logger.info('{}, 做任务失败:{}'.format(self._account, data))
+                logger.info('{}, 做任务失败:{}'.format(self.account, data))
             else:
-                self._bean_count += int(data['result']['lotteryScore'])
-                self._msg_list.append('任务:{}, {}'.format(task['taskName'], data['result']['lotteryMsg']))
-                println('{}, 完成任务:{}, {}'.format(self._account, task['taskName'],
+
+                println('{}, 完成任务:{}, {}'.format(self.account, task['taskName'],
                                                  data['result']['lotteryMsg'].replace('\n', '')))
 
         except Exception as e:
-            logger.error('{}, 做任务失败: {}'.format(self._account, e.args))
+            logger.error('{}, 做任务失败: {}'.format(self.account, e.args))
 
     async def run(self):
         """
         :return:
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             task_list = await self.query_task(session)
             for task in task_list:
                 await self.do_task(session, task)
                 await asyncio.sleep(1)
 
-        message = '#########今日王牌#########\n\n{}\n'.format(self._account)
-        for msg in self._msg_list:
-            message += msg + '\n'
-        message += '总共获得:{}京豆!\n\n#########今日王牌#########\n'.format(self._bean_count)
-        #notify(message)
-
-
-def start(pt_pin, pt_key, name='京东排行榜'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdRankingList(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
 
 if __name__ == '__main__':
-    process_start(start, '京东排行榜')
+    process_start(JdRankingList, '今日王牌')
+

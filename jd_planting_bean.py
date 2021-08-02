@@ -5,17 +5,18 @@
 # @Project : jd_scripts
 # @Cron    : 10 3,15 * * *
 # @Desc    : 种豆得豆
+
 import asyncio
 import json
 from functools import wraps
-from urllib.parse import unquote, quote
+from urllib.parse import quote
 
 import aiohttp
 from furl import furl
 from utils.console import println
 from utils.logger import logger
 from utils.process import process_start
-from utils.notify import notify
+from utils.wraps import jd_init
 from config import USER_AGENT, JD_PLANTING_BEAN_CODE
 
 
@@ -25,7 +26,6 @@ def println_task(func=None):
     :param func:
     :return:
     """
-
     @wraps(func)
     async def wrapper(*args, **kwargs):
         task = args[-1]
@@ -45,6 +45,7 @@ def println_task(func=None):
     return wrapper
 
 
+@jd_init
 class JdPlantingBean:
     """
     种豆得豆
@@ -60,22 +61,15 @@ class JdPlantingBean:
         "Content-Type": "application/x-www-form-urlencoded"
     }
 
-    def __init__(self, pt_pin, pt_key):
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-        self._account = '账号:{}'.format(unquote(pt_pin))
-        self._cur_round_id = None  # 本期活动id
-        self._prev_round_id = None  # 上期活动id
-        self._next_round_id = None  # 下期活动ID
-        self._cur_round_list = None
-        self._prev_round_list = None
-        self._task_list = None  # 任务列表
-        self._nickname = None  # 京东昵称
-        self._message = ''
-        self._share_code = None
-
+    cur_round_id = None  # 本期活动id
+    prev_round_id = None  # 上期活动id
+    next_round_id = None  # 下期活动ID
+    cur_round_list = None
+    prev_round_list = None
+    task_list = None  # 任务列表
+    nickname = None  # 京东昵称
+    share_code = None
+    
     async def post(self, session, function_id, params=None):
         """
         :param session:
@@ -102,7 +96,7 @@ class JdPlantingBean:
             return data
 
         except Exception as e:
-            logger.error('{}, 种豆得豆访问服务器失败:[function_id={}], 错误信息:{}'.format(self._account, function_id, e.args))
+            logger.error('{}, 种豆得豆访问服务器失败:[function_id={}], 错误信息:{}'.format(self.account, function_id, e.args))
 
     async def get(self, session, function_id, body=None, wait_time=1):
         """
@@ -129,7 +123,7 @@ class JdPlantingBean:
             return data
 
         except Exception as e:
-            logger.error('{}, 种豆得豆访问服务器失败:[function_id={}], 错误信息:{}'.format(self._account, function_id, e.args))
+            logger.error('{}, 种豆得豆访问服务器失败:[function_id={}], 错误信息:{}'.format(self.account, function_id, e.args))
 
     async def planting_bean_index(self, session):
         """
@@ -138,19 +132,19 @@ class JdPlantingBean:
         data = await self.post(session=session, function_id='plantBeanIndex')
 
         if not data or data['code'] != '0' or 'errorMessage' in data:
-            println('{},访问种豆得豆首页失败, 退出程序！错误原因:{}'.format(self._account, data))
+            println('{},访问种豆得豆首页失败, 退出程序！错误原因:{}'.format(self.account, data))
             return False
         data = data['data']
 
         round_list = data['roundList']
-        self._cur_round_id = round_list[1]['roundId']
-        self._task_list = data['taskList']
-        self._cur_round_list = round_list[1]
-        self._prev_round_list = round_list[0]
-        self._message = '\n【活动名称】种豆得豆\n'
-        self._message += f"【京东昵称】:{data['plantUserInfo']['plantNickName']}\n"
-        self._message += f'【上期时间】:{round_list[0]["dateDesc"].replace("上期 ", "")}\n'
-        self._message += f'【上期成长值】:{round_list[0]["growth"]}\n'
+        self.cur_round_id = round_list[1]['roundId']
+        self.task_list = data['taskList']
+        self.cur_round_list = round_list[1]
+        self.prev_round_list = round_list[0]
+        self.message = '\n【活动名称】种豆得豆\n'
+        self.message += f"【京东昵称】:{data['plantUserInfo']['plantNickName']}\n"
+        self.message += f'【上期时间】:{round_list[0]["dateDesc"].replace("上期 ", "")}\n'
+        self.message += f'【上期成长值】:{round_list[0]["growth"]}\n'
         return True
 
     async def receive_nutrient(self, session):
@@ -159,10 +153,10 @@ class JdPlantingBean:
         :param session:
         :return:
         """
-        println('{}, 开始收取营养液!'.format(self._account))
+        println('{}, 开始收取营养液!'.format(self.account))
         data = await self.post(session, 'receiveNutrients',
-                               {"roundId": self._cur_round_id, "monitor_refer": "plant_receiveNutrients"})
-        println('{}, 完成收取营养液, {}'.format(self._account, data))
+                               {"roundId": self.cur_round_id, "monitor_refer": "plant_receiveNutrients"})
+        println('{}, 完成收取营养液, {}'.format(self.account, data))
 
     @println_task
     async def receive_nutrient_task(self, session, task):
@@ -176,7 +170,7 @@ class JdPlantingBean:
             "awardType": str(task['taskType'])
         }
         data = await self.get(session, 'receiveNutrientsTask', params)
-        println('{}, 收取营养液:{}'.format(self._account, data))
+        println('{}, 收取营养液:{}'.format(self.account, data))
 
     @println_task
     async def visit_shop_task(self, session, task):
@@ -188,7 +182,7 @@ class JdPlantingBean:
         """
         shop_data = await self.get(session, 'shopTaskList', {"monitor_refer": "plant_receiveNutrients"})
         if shop_data['code'] != '0':
-            println('{}, 获取{}任务失败!'.format(self._account, task['taskName']))
+            println('{}, 获取{}任务失败!'.format(self.account, task['taskName']))
 
         shop_list = shop_data['data']['goodShopList'] + shop_data['data']['moreShopList']
         for shop in shop_list:
@@ -199,9 +193,9 @@ class JdPlantingBean:
             }
             data = await self.get(session, 'shopNutrientsTask', body)
             if data['code'] == '0' and 'data' in data:
-                println('{}, 浏览店铺结果:{}'.format(self._account, data['data']))
+                println('{}, 浏览店铺结果:{}'.format(self.account, data['data']))
             else:
-                println('{}, 浏览店铺结果:{}'.format(self._account, data['errorMessage']))
+                println('{}, 浏览店铺结果:{}'.format(self.account, data['errorMessage']))
             await asyncio.sleep(1)
 
     @println_task
@@ -221,9 +215,9 @@ class JdPlantingBean:
                 }
                 res = await self.get(session, 'productNutrientsTask', body)
                 if 'errorCode' in res:
-                    println('{}, {}'.format(self._account, res['errorMessage']))
+                    println('{}, {}'.format(self.account, res['errorMessage']))
                 else:
-                    println('{}, {}'.format(self._account, res))
+                    println('{}, {}'.format(self.account, res))
 
                 await asyncio.sleep(1)
 
@@ -237,7 +231,7 @@ class JdPlantingBean:
         """
         data = await self.get(session, 'plantChannelTaskList')
         if data['code'] != '0':
-            println('{}, 获取关注频道任务列表失败!'.format(self._account))
+            println('{}, 获取关注频道任务列表失败!'.format(self.account))
             return
         data = data['data']
         channel_list = data['goodChannelList'] + data['normalChannelList']
@@ -249,11 +243,12 @@ class JdPlantingBean:
             }
             res = await self.get(session, 'plantChannelNutrientsTask', body)
             if 'errorCode' in res:
-                println('{}, 关注频道结果:{}'.format(self._account, res['errorMessage']))
+                println('{}, 关注频道结果:{}'.format(self.account, res['errorMessage']))
             else:
-                println('{}, 关注频道结果:{}'.format(self._account, res))
+                println('{}, 关注频道结果:{}'.format(self.account, res))
             await asyncio.sleep(1)
 
+    @logger.catch
     async def get_friend_nutriments(self, session, page=1):
         """
         获取好友营养液
@@ -263,48 +258,43 @@ class JdPlantingBean:
         """
         if page > 3:
             return
-        println('{}, 开始收取第{}页的好友营养液!'.format(self._account, page))
+        println('{}, 开始收取第{}页的好友营养液!'.format(self.account, page))
         body = {
             'pageNum': str(page),
         }
         data = await self.post(session, 'plantFriendList', body)
 
         if data['code'] != '0' or 'data' not in data:
-            println('{}, 无法获取好友列表!'.format(self._account))
+            println('{}, 无法获取好友列表!'.format(self.account))
             return
 
         data = data['data']
         msg = None
 
         if 'tips' in data:
-            println('{}, 今日偷取好友营养液已达上限!'.format(self._account))
+            println('{}, 今日偷取好友营养液已达上限!'.format(self.account))
             return
         if 'friendInfoList' not in data or len(data['friendInfoList']) < 0:
-            println('{}, 当前暂无可以获取的营养液的好友！'.format(self._account))
+            println('{}, 当前暂无可以获取的营养液的好友！'.format(self.account))
             return
 
         for item in data['friendInfoList']:
             if 'nutrCount' not in item or int(item['nutrCount']) <= 1:  # 小于两瓶基本无法活动奖励, 不收
                 continue
             body = {
-                'roundId': self._cur_round_id,
+                'roundId': self.cur_round_id,
                 'paradiseUuid': item['paradiseUuid']
             }
             res = await self.post(session, 'collectUserNutr', body)
             if res['code'] != '0' or 'errorMessage' in res:
-                println('{}, 帮:{}收取营养液失败!'.format(self._account, item['plantNickName']))
+                println('{}, 帮:{}收取营养液失败!'.format(self.account, item['plantNickName']))
                 continue
 
-            msg = '{}, 成功帮{}收取营养液, {}'.format(self._account, item['plantNickName'], res['data'])
-            if int(res['data']['collectNutrRewards']) > 0:
-                msg += '恭喜获得{}瓶奖励!'.format(res['data']['collectNutrRewards'])
-            else:
-                msg += '您暂未活动奖励！'
-            println(msg)
+            println(self.account, res['data']['collectMsg'])
             await asyncio.sleep(0.5)  # 短暂延时，避免出现活动火爆
 
         if not msg:
-            println('{}, 第{}页好友没有可收取的营养液!'.format(self._account, page))
+            println('{}, 第{}页好友没有可收取的营养液!'.format(self.account, page))
 
         await asyncio.sleep(1)
         await self.get_friend_nutriments(session, page+1)
@@ -316,7 +306,7 @@ class JdPlantingBean:
         :param task:
         :return:
         """
-        println('{}, 任务:{}, 请手动前往APP完成任务！'.format(self._account, task['taskName']))
+        println('{}, 任务:{}, 请手动前往APP完成任务！'.format(self.account, task['taskName']))
 
     @println_task
     async def visit_meeting_place_task(self, session, task):
@@ -327,7 +317,7 @@ class JdPlantingBean:
         :return:
         """
         data = await self.post(session, 'receiveNutrientsTask', {"awardType": '4'})
-        println('{}, {}:{}'.format(self._account, task['taskName'], data))
+        println('{}, {}:{}'.format(self.account, task['taskName'], data))
 
     @println_task
     async def free_fruit_task(self, session, task):
@@ -338,7 +328,7 @@ class JdPlantingBean:
         :return:
         """
         data = await self.post(session, 'receiveNutrientsTask', {"awardType": '36'})
-        println('{}, {}:{}'.format(self._account, task['taskName'], data))
+        println('{}, {}:{}'.format(self.account, task['taskName'], data))
 
     @println_task
     async def jx_red_packet(self, session, task):
@@ -349,7 +339,7 @@ class JdPlantingBean:
         :return:
         """
         data = await self.post(session, 'receiveNutrientsTask', {"awardType": '33'})
-        println('{}, {}:{}'.format(self._account, task['taskName'], data))
+        println('{}, {}:{}'.format(self.account, task['taskName'], data))
 
     @println_task
     async def double_sign_task(self, session, task):
@@ -360,20 +350,20 @@ class JdPlantingBean:
         :return:
         """
         data = await self.post(session, 'receiveNutrientsTask', {"awardType": '7'})
-        println('{}, {}:{}'.format(self._account, task['taskName'], data))
+        println('{}, {}:{}'.format(self.account, task['taskName'], data))
 
     async def get_share_code(self):
         """
         获取当前账号的助力码
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             data = await self.get(session, 'plantSharePageIndex', {'roundId': ''}, wait_time=0)
             if data['code'] != '0':
                 return None
             share_url = furl(data['data']['jwordShareInfo']['shareUrl'])
             share_code = share_url.args.get('plantUuid', '')
-            println('{} 助力码:{}'.format(self._account, share_code))
+            println('{} 助力码:{}'.format(self.account, share_code))
             return share_code
 
     @println_task
@@ -384,11 +374,11 @@ class JdPlantingBean:
         :param task:
         :return:
         """
-        println('开始助力{}的好友, 如有剩余助力将助力作者!'.format(self._account))
+        println('开始助力{}的好友, 如有剩余助力将助力作者!'.format(self.account))
         for planting_code in JD_PLANTING_BEAN_CODE:
-            if self._share_code == planting_code:  # 跳过自己的助力码
+            if self.share_code == planting_code:  # 跳过自己的助力码
                 continue
-            println('{}, 开始助力好友:{}'.format(self._account, planting_code))
+            println('{}, 开始助力好友:{}'.format(self.account, planting_code))
             body = {
                 "plantUuid": planting_code,
                 "wxHeadImgUrl": "",
@@ -398,17 +388,17 @@ class JdPlantingBean:
             data = await self.post(session, 'plantBeanIndex', body)
             if data['code'] == '0':
                 if 'helpShareRes' not in data:
-                    println('{}, 助力结果:{}'.format(self._account, '未知'))
+                    println('{}, 助力结果:{}'.format(self.account, '未知'))
                     continue
                 if data['data']['helpShareRes']['state'] == '2':
-                    println('{}, 助力结果:{}'.format(self._account, '您今日助力的机会已耗尽，已不能再帮助好友助力了!'))
+                    println('{}, 助力结果:{}'.format(self.account, '您今日助力的机会已耗尽，已不能再帮助好友助力了!'))
                     break
                 elif data['data']['helpShareRes']['state'] == '3':
-                    println('{}, 助力结果:{}'.format(self._account, '该好友今日已满9人助力/20瓶营养液,明天再来为Ta助力吧'))
+                    println('{}, 助力结果:{}'.format(self.account, '该好友今日已满9人助力/20瓶营养液,明天再来为Ta助力吧'))
                 else:
-                    println('{}, 助力结果:{}'.format(self._account, data['data']['helpShareRes']['promptText']))
+                    println('{}, 助力结果:{}'.format(self.account, data['data']['helpShareRes']['promptText']))
             else:
-                println('{}, 助力结果:{}'.format(self._account, '无法为该好友助力！'))
+                println('{}, 助力结果:{}'.format(self.account, '无法为该好友助力！'))
             await asyncio.sleep(1)
 
     async def do_tasks(self, session):
@@ -430,16 +420,16 @@ class JdPlantingBean:
             36: self.free_fruit_task  # 免费水果
 
         }
-        for task in self._task_list:
+        for task in self.task_list:
             if task['isFinished'] == 1:
-                println('{}, 任务:{}, 今日已领取过奖励, 不再执行...'.format(self._account, task['taskName']))
+                println('{}, 任务:{}, 今日已领取过奖励, 不再执行...'.format(self.account, task['taskName']))
                 continue
             if task['taskType'] in task_map:
-                task['account'] = self._account
+                task['account'] = self.account
                 await task_map[task['taskType']](session, task)
             else:
                 data = await self.post(session, 'receiveNutrientsTask', {"awardType": str(task['taskType'])})
-                println('{}, {}:{}'.format(self._account, task['taskName'], data))
+                println('{}, {}:{}'.format(self.account, task['taskName'], data))
 
             await asyncio.sleep(0.2)
 
@@ -451,21 +441,21 @@ class JdPlantingBean:
         # 刷新数据
         await self.planting_bean_index(session)
         await asyncio.sleep(0.1)
-        if not self._cur_round_list or 'roundState' not in self._cur_round_list:
-            println('{}, 获取营养池数据失败, 无法收取！'.format(self._account))
+        if not self.cur_round_list or 'roundState' not in self.cur_round_list:
+            println('{}, 获取营养池数据失败, 无法收取！'.format(self.account))
 
-        if self._cur_round_list['roundState'] == '2':
-            for item in self._cur_round_list['bubbleInfos']:
+        if self.cur_round_list['roundState'] == '2':
+            for item in self.cur_round_list['bubbleInfos']:
                 body = {
-                    "roundId": self._cur_round_id,
+                    "roundId": self.cur_round_id,
                     "nutrientsType": item['nutrientsType'],
                 }
                 res = await self.post(session, 'cultureBean', body)
-                println('{}, 收取-{}-的营养液, 结果:{}'.format(self._account, item['name'], res))
+                println('{}, 收取-{}-的营养液, 结果:{}'.format(self.account, item['name'], res))
                 await asyncio.sleep(1)
-            println('{}, 收取营养液完成！'.format(self._account))
+            println('{}, 收取营养液完成！'.format(self.account))
         else:
-            println('{}, 暂无可收取的营养液！'.format(self._account))
+            println('{}, 暂无可收取的营养液！'.format(self.account))
 
     async def get_reward(self, session):
         """
@@ -475,43 +465,43 @@ class JdPlantingBean:
         """
         await self.planting_bean_index(session)
         await asyncio.sleep(0.2)
-        if not self._prev_round_list:
-            println('{}, 无法获取上期活动信息!'.format(self._account))
+        if not self.prev_round_list:
+            println('{}, 无法获取上期活动信息!'.format(self.account))
 
-        if self._prev_round_list['awardState'] == '6':
-            self._message += '【上期兑换京豆】{}个!\n'.format(self._prev_round_list['awardBeans'])
-        elif self._prev_round_list['awardState'] == '4':
-            self._message += '【上期状态】{}\n'.format(self._prev_round_list['tipBeanEndTitle'])
-        elif self._prev_round_list['awardState'] == '5':
-            println('{}, 开始领取京豆!'.format(self._account))
+        if self.prev_round_list['awardState'] == '6':
+            self.message += '【上期兑换京豆】{}个!\n'.format(self.prev_round_list['awardBeans'])
+        elif self.prev_round_list['awardState'] == '4':
+            self.message += '【上期状态】{}\n'.format(self.prev_round_list['tipBeanEndTitle'])
+        elif self.prev_round_list['awardState'] == '5':
+            println('{}, 开始领取京豆!'.format(self.account))
             body = {
-                "roundId": self._prev_round_list['roundId']
+                "roundId": self.prev_round_list['roundId']
             }
             res = await self.post(session, 'receivedBean', body)
             if res['code'] != '0':
-                self._message += '【上期状态】查询异常:{}\n'.format(self._prev_round_list)
+                self.message += '【上期状态】查询异常:{}\n'.format(self.prev_round_list)
             else:
-                self._message += '【上期兑换京豆】{}个\n'.format(res['data']['awardBean'])
+                self.message += '【上期兑换京豆】{}个\n'.format(res['data']['awardBean'])
         else:
-            self._message += '【上期状态】查询异常:{}\n'.format(self._prev_round_list)
+            self.message += '【上期状态】查询异常:{}\n'.format(self.prev_round_list)
 
-        self._message += f'【本期时间】:{self._cur_round_list["dateDesc"].replace("上期 ", "")}\n'
-        self._message += f'【本期成长值】:{self._cur_round_list["growth"]}\n'
+        self.message += f'【本期时间】:{self.cur_round_list["dateDesc"].replace("上期 ", "")}\n'
+        self.message += f'【本期成长值】:{self.cur_round_list["growth"]}\n'
 
     @property
     def message(self):
-        return self._message
+        return self.message
 
     async def run(self):
         """
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             is_success = await self.planting_bean_index(session)
             if not is_success:
-                println('{}, 无法获取活动数据!'.format(self._account))
+                println('{}, 无法获取活动数据!'.format(self.account))
                 return
-            self._share_code = await self.get_share_code()  # 获取当前账号助力码
+            self.share_code = await self.get_share_code()  # 获取当前账号助力码
             await self.receive_nutrient(session)
             await self.do_tasks(session)
             await self.get_friend_nutriments(session)
@@ -519,24 +509,5 @@ class JdPlantingBean:
             await self.get_reward(session)
 
 
-def start(pt_pin, pt_key, name='种豆得豆'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdPlantingBean(pt_pin, pt_key)
-        asyncio.run(app.run())
-        return app.message
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    # from config import JD_COOKIES
-    # start(*JD_COOKIES[2].values())
-    process_start(start, '种豆得豆')
+    process_start(JdPlantingBean, '种豆得豆')

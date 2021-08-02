@@ -16,10 +16,11 @@ from furl import furl
 from config import USER_AGENT, JR_MONEY_TREE_CODE
 
 from utils.console import println
-from utils.notify import notify
 from utils.process import process_start
+from utils.wraps import jd_init
 
 
+@jd_init
 class JrMoneyTree:
     """
     金果摇钱树
@@ -33,32 +34,15 @@ class JrMoneyTree:
     """
     金果摇钱树
     """
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-        self._pt_pin = unquote(pt_pin)
-        self._host = 'https://ms.jr.jd.com/gw/generic/uc/h5/m/'
-        self._nickname = None
-        self._tree_name = None
-        self._tree_level = None
-        self._code = None
-        self._user_id = None
-        self._user_token = None
-        self._fruit = 0  # 金果数量
-        self._jt_rest = None
-
-        self._message = None
-
-    @property
-    def message(self):
-        return self._message
+    host = 'https://ms.jr.jd.com/gw/generic/uc/h5/m/'
+    nickname = None
+    tree_name = None
+    tree_level = None
+    code = None
+    user_id = None
+    user_token = None
+    fruit = 0  # 金果数量
+    jt_rest = None
 
     async def request(self, session, path, params, method='post'):
         """
@@ -70,7 +54,7 @@ class JrMoneyTree:
         """
         try:
             session.headers.add('Content-Type', 'application/x-www-form-urlencoded')
-            url = self._host + path + '?_={}'.format(int(time.time() * 1000))
+            url = self.host + path + '?_={}'.format(int(time.time() * 1000))
             if method == 'post':
                 body = 'reqData={}'.format(quote(json.dumps(params)))
                 response = await session.post(url=url, data=body)
@@ -90,7 +74,7 @@ class JrMoneyTree:
             else:
                 return None
         except Exception as e:
-            println('{}, 请求服务器数据失败, {}'.format(self._pt_pin, e.args))
+            println('{}, 请求服务器数据失败, {}'.format(self.account, e.args))
 
     async def post(self, session, path, params):
         """
@@ -116,12 +100,12 @@ class JrMoneyTree:
         """
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             success = await self.login(session, output=False)
             if not success:
                 return None
-            println('{}, 助力码:{}'.format(self._pt_pin, self._code))
-            return self._code
+            println('{}, 助力码:{}'.format(self.account, self.code))
+            return self.code
 
     async def login(self, session, output=True):
         """
@@ -141,27 +125,27 @@ class JrMoneyTree:
 
         if not data or data['code'] != '200':
             if output:
-                println('{}, 无法获取用户数据!'.format(self._pt_pin))
+                println('{}, 无法获取用户数据!'.format(self.account))
             return False
 
         data = data['data']
 
         if 'realName' not in data or not data['realName']:
             if output:
-                self._message = '【活动名称】金果摇钱树\n【京东账号】{}\n【温馨提示】此账号未实名认证或者未参与过此活动: \n  ①如未参与活动,' \
+                self.message = '【活动名称】金果摇钱树\n【京东账号】{}\n【温馨提示】此账号未实名认证或者未参与过此活动: \n  ①如未参与活动,' \
                                 '请先去京东app参加摇钱树活动入口：我的->游戏与互动->查看更多\n②如未实名认证,请进行实名认证!\n'.\
-                    format(unquote(self._pt_pin))
-                println(self._message)
+                    format(unquote(self.account))
+                println(self.message)
             return False
 
-        self._nickname = data['nick']
-        self._tree_name = data['treeInfo']['treeName']
-        self._tree_level = data['treeInfo']['level']
-        self._code = data['sharePin']
-        self._user_id = data['userInfo']
-        self._user_token = data['userToken']
-        self._fruit = data['treeInfo']['fruit']
-        self._jt_rest = data['jtRest']
+        self.nickname = data['nick']
+        self.tree_name = data['treeInfo']['treeName']
+        self.tree_level = data['treeInfo']['level']
+        self.code = data['sharePin']
+        self.user_id = data['userInfo']
+        self.user_token = data['userToken']
+        self.fruit = data['treeInfo']['fruit']
+        self.jt_rest = data['jtRest']
 
         return True
 
@@ -174,11 +158,11 @@ class JrMoneyTree:
         index_params = {"source": 0, "riskDeviceParam": "{}"}
         index_data = await self.request(session, 'signIndex', index_params)
         if not index_data or index_data['code'] != '200':
-            println('{}, 无法获取签到数据!'.format(self._pt_pin))
+            println('{}, 无法获取签到数据!'.format(self.account))
             return
         index_data = index_data['data']
         if 'canSign' in index_data and index_data['canSign'] != 2:
-            println('{}, 今日已签到!'.format(self._pt_pin))
+            println('{}, 今日已签到!'.format(self.account))
             return
         if 'signDay' in index_data:
             sign_day = index_data['signDay']
@@ -187,7 +171,7 @@ class JrMoneyTree:
         sign_params = {"source": 0, "signDay": sign_day, "riskDeviceParam": "{}"}
         data = await self.post(session, 'signOne', sign_params)
         if data['code'] == '200' and data['data']['result']:
-            println('{}, 签到成功!'.format(self._pt_pin))
+            println('{}, 签到成功!'.format(self.account))
 
             if index_data['signDay'] == 7:  # 领取7日签到奖品
                 params = {
@@ -197,10 +181,10 @@ class JrMoneyTree:
                     "riskDeviceParam": "{}",
                 }
                 res = await self.request(session, 'getSignAward', params)
-                println('{}, 领取7日签到奖励结果:{}'.format(self._pt_pin, res))
+                println('{}, 领取7日签到奖励结果:{}'.format(self.account, res))
 
         else:
-            println('{}, 签到失败!'.format(self._pt_pin))
+            println('{}, 签到失败!'.format(self.account))
 
     async def do_browser_work(self, session, work):
         """
@@ -210,14 +194,14 @@ class JrMoneyTree:
         :return:
         """
         if work['workStatus'] == 2:
-            println('{}, 浏览任务《{}》今日已完成!'.format(self._pt_pin, work['workName']))
+            println('{}, 浏览任务《{}》今日已完成!'.format(self.account, work['workName']))
             return
 
         url = furl(work['url'])
         read_time = int(url.args.get('readTime'))
 
         # 执行任务
-        println('{}, 开始执行任务《{}》, 需要等待{}秒!'.format(self._pt_pin, work['workName'], read_time))
+        println('{}, 开始执行任务《{}》, 需要等待{}秒!'.format(self.account, work['workName'], read_time))
         url = 'https://ms.jr.jd.com/gw/generic/mission/h5/m/' \
               'queryMissionReceiveAfterStatus?reqData={}'.format(quote(json.dumps({'missionId': str(work['mid'])})))
         await session.post(url=url)
@@ -236,9 +220,9 @@ class JrMoneyTree:
         res = await self.post(session, 'doWork', {"source": 0, "workType": 6, "opType": 2,
                                                   "mid": str(work['mid']), "riskDeviceParam": "{}"})
         if res['data']['opResult'] == 0:
-            println('{}, 领取任务《{}》奖励结果成功, 获得{}金果!'.format(self._pt_pin, work['workName'], res['data']['prizeAmount']))
+            println('{}, 领取任务《{}》奖励结果成功, 获得{}金果!'.format(self.account, work['workName'], res['data']['prizeAmount']))
         else:
-            println('{}, 领取任务《{}》奖励结果失败, {}'.format(self._pt_pin, work['workName'], res['data']['opMsg']))
+            println('{}, 领取任务《{}》奖励结果失败, {}'.format(self.account, work['workName'], res['data']['opMsg']))
 
     async def daily_work(self, session):
         """
@@ -249,7 +233,7 @@ class JrMoneyTree:
         params = {"source": 0, "linkMissionIds": [], "LinkMissionIdValues": [], "riskDeviceParam": ""}
         work_data = await self.post(session, 'dayWork', params)
         if not work_data or work_data['code'] != '200':
-            println('{}, 无法获取任务列表!'.format(self._pt_pin))
+            println('{}, 无法获取任务列表!'.format(self.account))
             return
 
         work_list = work_data['data']  # 任务列表
@@ -257,20 +241,20 @@ class JrMoneyTree:
         for work in work_list:
             if work['workType'] == 1:  # 三餐签到
                 if work['workStatus'] in [-1, 2]:
-                    println('{}, 三餐签到不在时间范围内或已完成过!'.format(self._pt_pin))
+                    println('{}, 三餐签到不在时间范围内或已完成过!'.format(self.account))
                     continue
                 res = await self.request(session, 'doWork', {"source": 2, "workType": work['workType'], "opType": 2})
-                println('{}, 三餐签到结果:{}!'.format(self._pt_pin, res))
+                println('{}, 三餐签到结果:{}!'.format(self.account, res))
             if work['workType'] == 2:  # 分享任务
                 if work['workStatus'] == 2:
-                    println('{}, 分享任务今日已完成!'.format(self._pt_pin))
+                    println('{}, 分享任务今日已完成!'.format(self.account))
                     continue
                 else:
                     share_res = await self.request(session, 'doWork', {"source": 0, "workType": 2, "opType": 1})
-                    println('{}, 进行分享任务结果:{}'.format(self._pt_pin, share_res))
+                    println('{}, 进行分享任务结果:{}'.format(self.account, share_res))
 
                     award_res = await self.request(session, 'doWork', {"source": 0, "workType": 2, "opType": 2})
-                    println('{}, 领取分享任务奖励:{}'.format(self._pt_pin, award_res))
+                    println('{}, 领取分享任务奖励:{}'.format(self.account, award_res))
 
             if work['workType'] == 6 and 'readTime' in work['url']:  # 浏览任务
                 await self.do_browser_work(session, work)
@@ -283,19 +267,19 @@ class JrMoneyTree:
         """
         params = {
             "source": 0,
-            "sharePin": self._code,
-            "userId": self._user_id,
-            "userToken": self._user_token,
+            "sharePin": self.code,
+            "userId": self.user_id,
+            "userToken": self.user_token,
             "shareType": "1",
             "channel": "",
             "riskDeviceParam": "{}"
         }
         data = await self.post(session, 'harvest', params)
         if data['code'] != '200':
-            println('{}, 收金果异常:{}'.format(self._pt_pin, data))
+            println('{}, 收金果异常:{}'.format(self.account, data))
             return
         data = data['data']
-        println('{}, 收金果成功, 获得金果:{}个!'.format(self._pt_pin, data['fruitNumInLimitedTimeTask']))
+        println('{}, 收金果成功, 获得金果:{}个!'.format(self.account, data['fruitNumInLimitedTimeTask']))
 
     async def sell(self, session):
         """
@@ -308,14 +292,14 @@ class JrMoneyTree:
             "jtCount": 7.000000000000001,
             "riskDeviceParam": "{}",
         }
-        if self._fruit >= 8000 * 7:
-            if self._jt_rest == 0:
-                println('{}, 今日已卖出5.6万金果(已达上限)，获得0.07金贴!'.format(self._pt_pin))
+        if self.fruit >= 8000 * 7:
+            if self.jt_rest == 0:
+                println('{}, 今日已卖出5.6万金果(已达上限)，获得0.07金贴!'.format(self.account))
                 return
             res = await self.request(session, 'sell', params)
-            println('{}, 卖出金果结果:{}'.format(self._pt_pin, res))
+            println('{}, 卖出金果结果:{}'.format(self.account, res))
         else:
-            println('{}, 当前金果数量不够兑换 0.07金贴!'.format(self._pt_pin))
+            println('{}, 当前金果数量不够兑换 0.07金贴!'.format(self.account))
 
     async def work_for_friend(self, session):
         """
@@ -325,7 +309,7 @@ class JrMoneyTree:
         """
         code_list = []
         for code in JR_MONEY_TREE_CODE:
-            if code == self._code:
+            if code == self.code:
                 continue
             code_list.append(code)
 
@@ -340,9 +324,9 @@ class JrMoneyTree:
         }
         data = await self.request(session, 'login', params)
         if data['code'] == '200':
-            println('{}, 正在帮好友打工!'.format(self._pt_pin))
+            println('{}, 正在帮好友打工!'.format(self.account))
         else:
-            println('{}, 无法为好友打工!'.format(self._pt_pin))
+            println('{}, 无法为好友打工!'.format(self.account))
 
     async def steal_fruit(self, session):
         """
@@ -353,7 +337,7 @@ class JrMoneyTree:
         params = {"source": 0, "riskDeviceParam": "{}"}
         friend_data = await self.request(session, 'friendRank', params)
         if friend_data['code'] != '200':
-            println('{}, 获取好友列表失败!'.format(self._pt_pin))
+            println('{}, 获取好友列表失败!'.format(self.account))
             return
         friend_list = friend_data['data']
         count = 0
@@ -371,7 +355,7 @@ class JrMoneyTree:
             # 找到好友的摇钱树
             tree_data = await self.request(session, 'friendTree', params)
             if tree_data['code'] != '200':
-                println('{}, 无法获取好友摇钱树信息!'.format(self._pt_pin))
+                println('{}, 无法获取好友摇钱树信息!'.format(self.account))
                 continue
             store_id = tree_data['data']['stoleInfo']
 
@@ -383,13 +367,13 @@ class JrMoneyTree:
             }
             res = await self.request(session, 'stealFruit', params)
             if res['code'] == '200':
-                println('{}, 成功偷取好友{}个金果!'.format(self._pt_pin, res['data']['amount']))
+                println('{}, 成功偷取好友{}个金果!'.format(self.account, res['data']['amount']))
                 count += 1
                 total += res['data']['amount']
             else:
-                println('{}, 偷取好友金果失败!'.format(self._pt_pin))
+                println('{}, 偷取好友金果失败!'.format(self.account))
 
-        println('{}, 共偷取{}个好友金果, 总共获得{}个金果!'.format(self._pt_pin, count, total))
+        println('{}, 共偷取{}个好友金果, 总共获得{}个金果!'.format(self.account, count, total))
 
     async def notify_result(self, session):
         """
@@ -402,18 +386,18 @@ class JrMoneyTree:
         params = {"source": 0, "riskDeviceParam": "{}"}
         data = await self.request(session, 'myWealth', params)
         message = '【活动名称】摇钱树\n【京东账号】{}\n【摇钱树等级】{}\n【金果数量】{}\n【金贴数量】{}\n\n' \
-                  ''.format(self._pt_pin, self._tree_level, data['data']['gaAmount'], data['data']['gcAmount'] / 100)
+                  ''.format(self.account, self.tree_level, data['data']['gaAmount'], data['data']['gcAmount'] / 100)
 
-        self._message = message
+        self.message = message
 
     async def run(self):
         """
         :return:
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             is_success = await self.login(session)
             if not is_success:
-                println('{}, 登录失败, 退出程序...'.format(self._pt_pin))
+                println('{}, 登录失败, 退出程序...'.format(self.account))
                 return
             await self.daily_sign(session)  # 每日签到
             await self.daily_work(session)  # 每日任务
@@ -421,24 +405,8 @@ class JrMoneyTree:
             await self.sell(session)  # 卖金果
             await self.work_for_friend(session)  # 帮好友打工
             await self.steal_fruit(session)  # 偷好友金果
-            await self.notify_result(session)
-
-
-def start(pt_pin, pt_key, name='金果摇钱树'):
-    """
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JrMoneyTree(pt_pin, pt_key)
-        asyncio.run(app.run())
-        return app.message
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
+            await self.notify_result(session) # 设置通知消息
 
 
 if __name__ == '__main__':
-    process_start(start, '金果摇钱树')
+    process_start(JrMoneyTree, '金果摇钱树')

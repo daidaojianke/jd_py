@@ -13,22 +13,15 @@ from jr_daily_take_goose import JrDailyTakeGoose
 
 
 class JrDailyTakeGooseCollect(JrDailyTakeGoose):
-
-    def __init__(self, pt_pin, pt_key):
-
-        super(JrDailyTakeGooseCollect, self).__init__(pt_pin, pt_key)
-
+    """
+    天天提额收鹅蛋
+    """
     async def run(self):
         """
         程序入口
         :return:
         """
         async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
-            data = await self.to_daily_home(session)
-            await asyncio.sleep(1)
-            if not data:
-                println('{}, 无法获取首页数据， 退出程序...'.format(self._pt_pin))
-                return
             await self.to_withdraw(session)
 
 
@@ -51,4 +44,4 @@ def start(pt_pin, pt_key, name='天天提鹅收鹅蛋'):
 
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(start, '天天提鹅收鹅蛋')
+    process_start(JrDailyTakeGooseCollect, '天天提鹅收鹅蛋')

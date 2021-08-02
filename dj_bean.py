@@ -9,23 +9,20 @@ import moment
 import aiohttp
 import asyncio
 from utils.console import println
-from utils.dj_base import DjBase
+from utils.dj_base import dj_init
+from utils.logger import logger
 
 
-class DjBean(DjBase):
+@dj_init
+class DjBean:
     """
     京东到家相关活动基类
     """
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        super(DjBean, self).__init__(pt_pin, pt_key)
-        self._has_sign = False  # 是否已签到
-        self._points = 0  # 当前鲜豆数量
-        self._already_sign_days = 0  # 当前已签到天数
+    has_sign = False  # 是否已签到
+    points = 0  # 当前鲜豆数量
+    already_sign_days = 0  # 当前已签到天数
 
+    @logger.catch
     async def get_task_award(self, session, task):
         """
         获取任务奖励鲜豆
@@ -45,6 +42,7 @@ class DjBean(DjBase):
         else:
             println('{}, 成功领取任务: 《{}》奖励!'.format(self.account, task['taskName']))
 
+    @logger.catch
     async def init(self, session):
         """
         :return:
@@ -65,20 +63,21 @@ class DjBean(DjBase):
 
         user_info = res['result']['userInfoResponse']
 
-        self._points = user_info.get('points', 0)
-        self._has_sign = user_info['hasSign']
-        self._already_sign_days = user_info['alreadySignInDays']
+        self.points = user_info.get('points', 0)
+        self.has_sign = user_info['hasSign']
+        self.already_sign_days = user_info['alreadySignInDays']
 
         return True
 
+    @logger.catch
     async def daily_sign(self, session):
         """
         每日签到
         :param session:
         :return:
         """
-        if self._has_sign:
-            println('{}, 今日已签到, 已连续签到{}天!'.format(self.account, self._already_sign_days))
+        if self.has_sign:
+            println('{}, 今日已签到, 已连续签到{}天!'.format(self.account, self.already_sign_days))
             return
         body = {
             "channel": "qiandao_indexball",
@@ -94,6 +93,7 @@ class DjBean(DjBase):
         else:
             println('{}, 签到成功!'.format(self.account))
 
+    @logger.catch
     async def do_task(self, session):
         """
         做任务
@@ -129,7 +129,8 @@ class DjBean(DjBase):
             else:
                 await self.receive_task(session, task)
 
-    async def _get_bean_detail(self, session, page=1, page_size=30):
+    @logger.catch
+    async def get_bean_detail(self, session, page=1, page_size=30):
         """
         :return:
         """
@@ -147,6 +148,7 @@ class DjBean(DjBase):
             return None
         return res['result']
 
+    @logger.catch
     async def bean_change(self, session):
         """
         鲜豆变动通知
@@ -166,7 +168,7 @@ class DjBean(DjBase):
         println('{}, 正在获取资产变动信息...'.format(self.account))
 
         while True:
-            detail = await self._get_bean_detail(session, page)
+            detail = await self.get_bean_detail(session, page)
             if not detail or 'evaluateList' not in detail or len(detail['evaluateList']) < 0:
                 break
             total_bean = detail['points']
@@ -196,7 +198,7 @@ class DjBean(DjBase):
 
         message = '\n【活动名称】赚鲜豆\n【活动入口】京东APP>京东到家->签到\n'
         message += '【京东账号】{}\n【活动昵称】{}\n'.format(self.account, self.nickname)
-        message += '【连续签到】{}天\n'.format(self._already_sign_days)
+        message += '【连续签到】{}天\n'.format(self.already_sign_days)
         message += '【鲜豆总数】{}\n【今日收入】{}\n【今日支出】{}\n'.format(total_bean, today_income, today_used)
         message += '【昨日收入】{}\n【昨天支出】{}\n'.format(yesterday_income, yesterday_used)
 
@@ -225,25 +227,6 @@ class DjBean(DjBase):
             await self.bean_change(session)
 
 
-def start(pt_pin, pt_key, name='京东到家-赚鲜豆'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = DjBean(pt_pin, pt_key)
-        asyncio.run(app.run())
-        return app.message
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    # from config import JD_COOKIES
-    # start(*JD_COOKIES[0].values())
     from utils.process import process_start
-    process_start(start, '京东到家-赚鲜豆')
+    process_start(DjBean, '京东到家-赚鲜豆')

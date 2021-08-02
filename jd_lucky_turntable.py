@@ -14,11 +14,12 @@ import aiohttp
 
 from utils.logger import logger
 from utils.console import println
-from utils.notify import notify
+from utils.wraps import jd_init
 from config import USER_AGENT
 
 
-class LuckyTurntable:
+@jd_init
+class JdLuckyTurntable:
     headers = {
         'user-agent': USER_AGENT,
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
@@ -28,22 +29,8 @@ class LuckyTurntable:
         'referer': 'https://pro.m.jd.com/mall/active/3ryu78eKuLyY5YipWWVSeRQEpLQP/index.html?forceCurrentView=1'
     }
 
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._pt_pin = unquote(pt_pin)
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key,
-        }
-        self._result = []
-        self._message = None
-
-    @property
-    def message(self):
-        return self._message
+    result = []
+    message = None
 
     async def get_task_list(self, session):
         """
@@ -61,7 +48,7 @@ class LuckyTurntable:
             task_list = []
 
             if len(temp) == 0:
-                println('账号:{}, 匹配活动数据失败!'.format(self._pt_pin))
+                println('账号:{}, 匹配活动数据失败!'.format(self.account))
                 return False
 
             data = json.loads(temp[0])
@@ -97,15 +84,15 @@ class LuckyTurntable:
             data = json.loads(text)
 
             if data['code'] == '0':
-                self._result.append('{}, 当前积分:{}, 任务进度: {}'.format(data['promptMsg'],
-                                                                   data['userScore'], data['taskProgress']))
-                println('账号:{}, {}, 当前积分:{}, 任务进度: {}'.format(self._pt_pin, data['promptMsg'],
+                self.result.append('{}, 当前积分:{}, 任务进度: {}'.format(data['promptMsg'],
+                                                                  data['userScore'], data['taskProgress']))
+                println('账号:{}, {}, 当前积分:{}, 任务进度: {}'.format(self.account, data['promptMsg'],
                                                               data['userScore'], data['taskProgress']))
                 return data['userScore']
             else:
-                println('账号:{}, 做任务失败, {}'.format(self._pt_pin, data))
+                println('账号:{}, 做任务失败, {}'.format(self.account, data))
         except Exception as e:
-            logger.error('账号:{}, 做任务异常:{}'.format(self._pt_pin, e.args))
+            logger.error('账号:{}, 做任务异常:{}'.format(self.account, e.args))
 
     async def lottery(self, session):
         """
@@ -123,11 +110,11 @@ class LuckyTurntable:
             text = await response.text()
             temp = re.findall(r'window.__react_data__ = (\{.*\})', text)
             if len(temp) == 0:
-                println('账号:{}, 匹配活动数据失败!'.format(self._pt_pin))
+                println('账号:{}, 匹配活动数据失败!'.format(self.account))
                 return False
             data = json.loads(temp[0])
             if 'activityData' not in data or 'floorList' not in data['activityData']:
-                println('账号:{}, 匹配活动数据失败!'.format(self._pt_pin))
+                println('账号:{}, 匹配活动数据失败!'.format(self.account))
                 return False
 
             user_score = 0
@@ -139,12 +126,12 @@ class LuckyTurntable:
                     en_award_k = line['lotteryGuaGuaLe']['enAwardK']
 
             if user_score < 80:
-                println('账号: {}, 积分:{}, 不够抽奖...'.format(self._pt_pin, user_score))
-                self._result.append('积分:{}, 不够抽奖...'.format(user_score))
+                println('账号: {}, 积分:{}, 不够抽奖...'.format(self.account, user_score))
+                self.result.append('积分:{}, 不够抽奖...'.format(user_score))
                 return False
 
             if not en_award_k:
-                println('账号: {}, 查找抽奖数据失败, 无法抽奖'.format(self._pt_pin))
+                println('账号: {}, 查找抽奖数据失败, 无法抽奖'.format(self.account))
                 return False
 
             params = {
@@ -157,80 +144,49 @@ class LuckyTurntable:
             data = json.loads(text)
 
             if data['code'] != '0':
-                self._result.append('账号:{} 抽奖失败:{}'.format(self._pt_pin, data))
-                println('抽奖失败:{}'.format(self._pt_pin, data))
+                self.result.append('账号:{} 抽奖失败:{}'.format(self.account, data))
+                println('抽奖失败:{}'.format(self.account, data))
                 return False
             else:
                 if 'prizeName' in data:
-                    self._result.append('抽奖成功:{}'.format(data['promptMsg'], data['prizeName']))
-                    println('账号:{}, 抽奖成功:{}'.format(self._pt_pin, data['promptMsg'], data['prizeName']))
+                    self.result.append('抽奖成功:{}'.format(data['promptMsg'], data['prizeName']))
+                    println('账号:{}, 抽奖成功:{}'.format(self.account, data['promptMsg'], data['prizeName']))
                 else:
-                    println('账号:{}, 抽奖成功:{}'.format(self._pt_pin, data['promptMsg']))
-                    self._result.append('抽奖成功:{}'.format(data['promptMsg']))
-                println('账号:{}, 当前剩余积分:{}'.format(self._pt_pin, data['userScore']))
-                self._result.append('当前剩余积分:{}'.format(data['userScore']))
+                    println('账号:{}, 抽奖成功:{}'.format(self.account, data['promptMsg']))
+                    self.result.append('抽奖成功:{}'.format(data['promptMsg']))
+                println('账号:{}, 当前剩余积分:{}'.format(self.account, data['userScore']))
+                self.result.append('当前剩余积分:{}'.format(data['userScore']))
 
             await self.lottery(session)
 
         except Exception as e:
             println(e.args)
 
-    async def notify(self):
-        """
-        消息通知
-        :return:
-        """
-        message = '  账号: {}\n'.format(self._pt_pin)
-        for line in self._result:
-            message += ''.join(['  ', line, '\n'])
-
-        self._message = message
-
     async def run(self):
         """
         入口函数
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             task_list = await self.get_task_list(session)
 
             for j in range(len(task_list)):
                 task = task_list[j]
-                println('账号: {}, 任务:{}, 进度:{}...'.format(self._pt_pin, task['flexibleData']['taskName'],
+                println('账号: {}, 任务:{}, 进度:{}...'.format(self.account, task['flexibleData']['taskName'],
                                                          task['flexibleData']['taskProgress']))
 
                 if task['joinTimes'] == task['taskLimit']:
-                    self._result.append('任务:{}, 进度:{}...'.format(task['flexibleData']['taskName'],
-                                                                 task['flexibleData']['taskProgress']))
+                    self.result.append('任务:{}, 进度:{}...'.format(task['flexibleData']['taskName'],
+                                                                task['flexibleData']['taskProgress']))
 
                 for i in range(task['joinTimes'], task['taskLimit']):
-                    println('账号: {}, 去完成{}, 第{}次!'.format(self._pt_pin, task['flexibleData']['taskName'], i + 1))
+                    println('账号: {}, 去完成{}, 第{}次!'.format(self.account, task['flexibleData']['taskName'], i + 1))
                     en_award_k = task['enAwardK']
                     await self.do_task(session, en_award_k)
 
             await self.lottery(session)  # 抽奖
 
-        await self.notify()
-
-
-def start(pt_pin, pt_key, name='幸运大转盘'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = LuckyTurntable(pt_pin=pt_pin, pt_key=pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-    # return app.message
-
 
 if __name__ == '__main__':
     from utils.process import process_start
-
-    process_start(start, name='幸运大转盘')
+    process_start(JdLuckyTurntable, name='幸运大转盘')

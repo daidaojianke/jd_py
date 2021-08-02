@@ -70,12 +70,8 @@ JD_COOKIES = [j for j in [{'pt_pin': re.search('pt_pin=(.*?);', i).group(1),
                           for i in cfg.get('jd_cookies', []) if re.search('pt_pin=(.*?);pt_key=(.*?);', i)
                           or re.search('pt_key=(.*?);pt_pin=(.*?);', i)] if j['pt_pin'] != '']
 
-# 默认请求头
-DEFAULT_USER_AGENT = 'jdapp;iPhone;12.0.1;15.1.1;network/wifi;Mozilla/5.0 (iPhone; CPU iPhone OS 15_1_1 like Mac OS ' \
-                     'X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1'
-
-
-USE_AGENT_LIST = [
+# 请求头列表
+USER_AGENT_LIST = [
   "jdapp;android;10.0.2;10;network/wifi;Mozilla/5.0 (Linux; Android 10; ONEPLUS A5010 Build/QKQ1.191014.012; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120 MQQBrowser/6.2 TBS/045230 Mobile Safari/537.36",
   "jdapp;iPhone;10.0.2;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
   "jdapp;android;10.0.2;9;network/4g;Mozilla/5.0 (Linux; Android 9; Mi Note 3 Build/PKQ1.181007.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.126 MQQBrowser/6.2 TBS/045131 Mobile Safari/537.36",
@@ -115,16 +111,17 @@ USE_AGENT_LIST = [
 ]
 
 # # 请求头
-# USER_AGENT = cfg.get('user_agent', None) if cfg.get('user_agent', None) else DEFAULT_USER_AGENT
-USER_AGENT = random.choice(USE_AGENT_LIST)
+USER_AGENT = random.choice(USER_AGENT_LIST)
 
 # 种豆得豆互助码
-JD_PLANTING_BEAN_CODE = list(set(cfg.get('jd_planting_bean_code') if cfg.get('jd_planting_bean_code') else []))
+JD_PLANTING_BEAN_CODE_KEY = 'jd_planting_bean_code'
+JD_PLANTING_BEAN_CODE = list(set(cfg.get(JD_PLANTING_BEAN_CODE_KEY) if cfg.get(JD_PLANTING_BEAN_CODE_KEY) else []))
 JD_PLANTING_BEAN_CODE = [code for code in JD_PLANTING_BEAN_CODE if code]
 JD_PLANTING_BEAN_CODE.append('mlrdw3aw26j3x3vxi2qvp7xj5llrsmtd3tde64i')
 
 # 东东农场互助码
-JD_FARM_CODE = list(set(cfg.get('jd_farm_code') if cfg.get('jd_farm_code') else []))
+JD_FARM_CODE_KEY = 'jd_farm_code'
+JD_FARM_CODE = list(set(cfg.get(JD_FARM_CODE_KEY) if cfg.get(JD_FARM_CODE_KEY) else []))
 JD_FARM_CODE = [code for code in JD_FARM_CODE if code]
 JD_FARM_CODE.append('f9a5389ab473423e83a746e03a82dddc')
 
@@ -135,37 +132,44 @@ JD_FARM_BEAN_CARD = cfg.get('jd_farm_bean_card') if cfg.get('jd_farm_bean_card')
 JD_FARM_RETAIN_WATER = cfg.get('jd_farm_retain_water') if cfg.get('jd_farm_retain_water') else 80
 
 # 京东金融摇钱树助力码
-JR_MONEY_TREE_CODE = list(set(cfg.get('jr_money_tree_code') if cfg.get('jr_money_tree_code') else []))
+JR_MONEY_TREE_CODE_KEY = 'jr_money_tree_code'
+JR_MONEY_TREE_CODE = list(set(cfg.get(JR_MONEY_TREE_CODE_KEY) if cfg.get(JR_MONEY_TREE_CODE_KEY) else []))
 JR_MONEY_TREE_CODE = [code for code in JR_MONEY_TREE_CODE if code]
 JR_MONEY_TREE_CODE.append('GEwzybOwKgTmY4q07j9ZiMAdoUJQ3Dik')
 
 # 东东工厂助力码
-JD_FACTORY_CODE = list(set(cfg.get('jd_factory_code') if cfg.get('jd_factory_code') else []))
+JD_FACTORY_CODE_KEY = 'jd_factory_code'
+JD_FACTORY_CODE = list(set(cfg.get(JD_FACTORY_CODE_KEY) if cfg.get(JD_FACTORY_CODE_KEY) else []))
 JD_FACTORY_CODE = [code for code in JD_FACTORY_CODE if code]
 JD_FACTORY_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjVWnYaS5kRrbA')
 
 # 东东萌宠互助码
-JD_CUTE_PET_CODE = list(set(cfg.get('jd_cute_pet_code') if cfg.get('jd_cute_pet_code') else []))
+JD_CUTE_PET_CODE_KEY = 'jd_cute_pet_code'
+JD_CUTE_PET_CODE = list(set(cfg.get(JD_CUTE_PET_CODE_KEY) if cfg.get(JD_CUTE_PET_CODE_KEY) else []))
 JD_CUTE_PET_CODE = [code for code in JD_CUTE_PET_CODE if code]
 JD_CUTE_PET_CODE.append('MTAxNzIxMDc1MTAwMDAwMDA0OTQ4ODA1Mw==')
 
 # 京东领现金互助码
-JD_CASH_CODE = list(set(cfg.get('jd_cash_code') if cfg.get('jd_cash_code') else []))
+JD_CASH_CODE_KEY = 'jd_cash_code'
+JD_CASH_CODE = list(set(cfg.get(JD_CASH_CODE_KEY) if cfg.get(JD_CASH_CODE_KEY) else []))
 JD_CASH_CODE = [code for code in JD_CASH_CODE if code]
-JD_CASH_CODE.append('eU9YaeS6bq4j8z2Bz3Eahw@IRs1bey1Z_0')
+
 
 # 众筹许愿池助力码
-JD_WISHING_POOL_CODE = list(set(cfg.get('jd_wishing_pool_code') if cfg.get('jd_wishing_pool_code') else []))
+JD_WISHING_POOL_CODE_KEY = 'jd_wishing_pool_code'
+JD_WISHING_POOL_CODE = list(set(cfg.get(JD_WISHING_POOL_CODE_KEY) if cfg.get(JD_WISHING_POOL_CODE_KEY) else []))
 JD_WISHING_POOL_CODE = [code for code in JD_WISHING_POOL_CODE if code]
 JD_WISHING_POOL_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjRXnYaU5kRrbA')
 
 # 燃动夏季互助码
-JD_BURNING_SUMMER_CODE = list(set(cfg.get('jd_burning_summer_code') if cfg.get('jd_burning_summer_code') else []))
+JD_BURNING_SUMMER_CODE_KEY = 'jd_burning_summer_code'
+JD_BURNING_SUMMER_CODE = list(set(cfg.get(JD_BURNING_SUMMER_CODE_KEY) if cfg.get(JD_BURNING_SUMMER_CODE_KEY) else []))
 JD_BURNING_SUMMER_CODE = [code for code in JD_BURNING_SUMMER_CODE if code]
 JD_BURNING_SUMMER_CODE.append('HcmphLbwLg-rdovIEtZgglnd0kl-mHlZa0Ke_B87Q4TD1WVgIqaoiXX1QhzVv6-3sgm6uBAKzq2l_Ym0jB6fZQ')
 
 # 疯狂砸金蛋助力码
-JD_SMASH_GOLDEN_EGG_CODE = list(set(cfg.get('jd_smash_golden_egg_code') if cfg.get('jd_smash_golden_egg_code') else []))
+JD_SMASH_GOLDEN_EGG_CODE_KEY = 'jd_smash_golden_egg_code'
+JD_SMASH_GOLDEN_EGG_CODE = list(set(cfg.get(JD_SMASH_GOLDEN_EGG_CODE_KEY) if cfg.get(JD_SMASH_GOLDEN_EGG_CODE_KEY) else []))
 JD_SMASH_GOLDEN_EGG_CODE = [code for code in JD_SMASH_GOLDEN_EGG_CODE if code]
 
 # TG 用户ID
@@ -183,6 +187,7 @@ QYWX_AM = cfg.get('notify', dict()).get('qywx_am', None)
 JD_BEAN_INDIANA_OPEN = cfg.get('jd_bean_indiana', False)
 
 # 到家果园助力码
+DJ_FRUIT_CODE_KEY = 'dj_fruit_code'
 DJ_FRUIT_CODE = list(set(cfg.get('dj_fruit_code') if cfg.get('dj_fruit_code') else []))
 DJ_FRUIT_CODE = [code for code in DJ_FRUIT_CODE if code]
 
@@ -190,10 +195,13 @@ DJ_FRUIT_CODE = [code for code in DJ_FRUIT_CODE if code]
 DJ_FRUIT_KEEP_WATER = cfg.get('dj_fruit_keep_water', 80)
 
 # 抢京豆助力码
+JD_GRAB_BEAN_CODE_KEY = 'jd_grab_bean_code'
 JD_GRAB_BEAN_CODE = list(set(cfg.get('jd_grab_bean_code') if cfg.get('jd_grab_bean_code') else []))
 JD_GRAB_BEAN_CODE = [code for code in JD_GRAB_BEAN_CODE if code]
 
 # 闪购盲盒助力码 jd_flash_sale_box_code
-JD_FLASH_SALE_BOX_CODE = list(set(cfg.get('jd_flash_sale_box_code') if cfg.get('jd_flash_sale_box_code') else []))
+JD_FLASH_SALE_BOX_CODE_KEY = 'jd_flash_sale_box_code'
+JD_FLASH_SALE_BOX_CODE = list(set(cfg.get(JD_FLASH_SALE_BOX_CODE_KEY) if cfg.get(JD_FLASH_SALE_BOX_CODE_KEY) else []))
 JD_FLASH_SALE_BOX_CODE = [code for code in JD_FLASH_SALE_BOX_CODE if code]
 JD_FLASH_SALE_BOX_CODE.append('T0225KkcRRYR_QbSIkmgkPUDJQCjVQmoaT5kRrbA')
+

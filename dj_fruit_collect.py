@@ -6,16 +6,14 @@
 # @Cron    : 42 */1 * * *
 # @Desc    : 到家果园收水滴
 import aiohttp
-import asyncio
 from dj_fruit import DjFruit
 from utils.console import println
 from utils.process import process_start
 
+from config import DJ_FRUIT_KEEP_WATER
+
 
 class DjFruitCollect(DjFruit):
-
-    def __init__(self, pt_pin, pt_key):
-        super(DjFruitCollect, self).__init__(pt_pin, pt_key)
 
     async def run(self):
         """
@@ -29,19 +27,8 @@ class DjFruitCollect(DjFruit):
 
         async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
             await self.receive_water_wheel(session)  # 领取水车水滴
-
-
-def start(pt_pin, pt_key, name='到家果园领水滴'):
-    """
-    程序入口
-    """
-    try:
-        app = DjFruitCollect(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
+            await self.watering(keep_water=DJ_FRUIT_KEEP_WATER)
 
 
 if __name__ == '__main__':
-    process_start(start, '到家果园领水滴')
+    process_start(DjFruit, '到家果园领水滴')

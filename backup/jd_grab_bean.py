@@ -5,15 +5,16 @@
 # @Project : jd_scripts
 # @Cron    : #3 */16 * * *
 # @Desc    : 京东APP->首页->领京豆->抢京豆
-import time
 import aiohttp
 import asyncio
 import json
 from config import USER_AGENT, JD_GRAB_BEAN_CODE
-from urllib.parse import quote, unquote, urlencode
+from urllib.parse import unquote, urlencode
 from utils.console import println
+from utils.wraps import jd_init
 
 
+@jd_init
 class JdGrabBean:
     """
     抢京豆
@@ -23,17 +24,6 @@ class JdGrabBean:
         'referer': 'https://h5.m.jd.com/rn/3MQXMdRUTeat9xqBSZDSCCAE9Eqz/index.html',
 
     }
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self.cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key,
-        }
-        self.account = unquote(pt_pin)
 
     async def request(self, session, function_id, body=None, method='GET'):
         """
@@ -130,6 +120,8 @@ class JdGrabBean:
                     println('{}, {}'.format(self.account, msg))
                     if '上限' in msg:
                         break
+                    if '没有有效' in msg:
+                        break
             except Exception as e:
                 println('{}, 助力好友失败, {}!'.format(self.account, e.args))
                 continue
@@ -143,23 +135,7 @@ class JdGrabBean:
             await self.help(session)
 
 
-def start(pt_pin, pt_key, name='抢京豆'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdGrabBean(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    # from utils.process import process_start
-    # process_start(start, '抢京豆', process_num=1)
-    println('抢京豆活动已过期!')
+    from utils.process import process_start
+    process_start(JdGrabBean, '抢京豆', process_num=1)
+

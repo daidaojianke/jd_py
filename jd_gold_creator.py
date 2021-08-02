@@ -14,25 +14,16 @@ import random
 from urllib.parse import unquote, quote
 from config import USER_AGENT
 from utils.console import println
+from utils.wraps import jd_init
 
 
+@jd_init
 class JdGoldCreator:
 
     headers = {
         'referer': 'https://h5.m.jd.com/babelDiy/Zeus/2H5Ng86mUJLXToEo57qWkJkjFPxw/index.html',
         'user-agent': USER_AGENT,
     }
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-        self._pt_pin = unquote(pt_pin)
 
     async def request(self, session, function_id, body=None):
         try:
@@ -48,7 +39,7 @@ class JdGoldCreator:
             await asyncio.sleep(3)
             return data
         except Exception as e:
-            println('{}, 获取数据失败:{}'.format(self._pt_pin, e.args))
+            println('{}, 获取数据失败:{}'.format(self.account, e.args))
             return None
 
     async def get_index_data(self, session):
@@ -66,10 +57,10 @@ class JdGoldCreator:
         :param index_data:
         :return:
         """
-        println('正在获取投票主题...')
+        println('{}, 正在获取投票主题...'.format(self.account))
         data = await self.get_index_data(session)
         if not data or data['code'] != '0':
-            println('{}, 获取数据失败!'.format(self._pt_pin))
+            println('{}, 获取数据失败!'.format(self.account))
             return
         subject_list = data['result']['subTitleInfos']
         stage_id = data['result']['mainTitleHeadInfo']['stageId']
@@ -86,9 +77,9 @@ class JdGoldCreator:
             }
             res = await self.request(session, 'goldCreatorDetail', body)
             if res['code'] != '0':
-                println('{}, 获取主题:《{}》商品列表失败!'.format(self._pt_pin, subject['shortTitle']))
+                println('{}, 获取主题:《{}》商品列表失败!'.format(self.account, subject['shortTitle']))
             else:
-                println('{}, 获取主题:《{}》商品列表成功, 开始投票!'.format(self._pt_pin, subject['shortTitle']))
+                println('{}, 获取主题:《{}》商品列表成功, 开始投票!'.format(self.account, subject['shortTitle']))
 
             await asyncio.sleep(2)
 
@@ -109,14 +100,14 @@ class JdGoldCreator:
             res = await self.request(session, 'goldCreatorDoTask', body)
 
             if res['code'] != '0':
-                println('{}, 为商品:《{}》投票失败!'.format(self._pt_pin, sku['name']))
+                println('{}, 为商品:《{}》投票失败!'.format(self.account, sku['name']))
             else:
                 if 'lotteryCode' in res['result'] and res['result']['lotteryCode'] != '0':
-                    println('{}, 为商品:《{}》投票失败, {}'.format(self._pt_pin, sku['name'], res['result']['lotteryMsg']))
+                    println('{}, 为商品:《{}》投票失败, {}'.format(self.account, sku['name'], res['result']['lotteryMsg']))
                 elif 'taskCode' in res['result'] and res['result']['taskCode'] == '103':
-                    println('{}, 为商品: 《{}》投票失败, {}!'.format(self._pt_pin, sku['name'], res['result']['taskMsg']))
+                    println('{}, 为商品: 《{}》投票失败, {}!'.format(self.account, sku['name'], res['result']['taskMsg']))
                 else:
-                    println('{}, 为商品:《{}》投票成功, 获得京豆:{}'.format(self._pt_pin, sku['name'], res['result']['lotteryScore']))
+                    println('{}, 为商品:《{}》投票成功, 获得京豆:{}'.format(self.account, sku['name'], res['result']['lotteryScore']))
 
             for task in task_list:
                 if task[0]['taskStatus'] == 2:
@@ -129,36 +120,17 @@ class JdGoldCreator:
                 }
                 res = await self.request(session, 'goldCreatorDoTask', body)
 
-                println('{}, 做额外任务: 《{}》, 结果:{}!'.format(self._pt_pin, task[0]['taskItemInfo']['title'], res))
+                println('{}, 做额外任务: 《{}》, 结果:{}!'.format(self.account, task[0]['taskItemInfo']['title'], res))
 
     async def run(self):
         """
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             await self.do_vote(session)  # 投票
 
 
-def start(pt_pin, pt_key, name='金榜创造营'):
-    """
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    app = JdGoldCreator(pt_pin, pt_key)
-    asyncio.run(app.run())
-    try:
-        app = JdGoldCreator(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        println(e.args)
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    # from config import JD_COOKIES
-    # start(*JD_COOKIES[2].values())
+
     from utils.process import process_start
-    process_start(start, '金榜创造营')
+    process_start(JdGoldCreator, '金榜创造营')

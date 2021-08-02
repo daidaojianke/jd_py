@@ -9,14 +9,15 @@ import json
 import asyncio
 import re
 import time
-from urllib.parse import urlencode, quote, unquote
+from urllib.parse import urlencode, quote
 import aiohttp
 
-from utils.notify import notify
 from utils.console import println
+from utils.wraps import jd_init
 from config import USER_AGENT
 
 
+@jd_init
 class JdSignCollection:
     """
     京东签到合集
@@ -31,10 +32,7 @@ class JdSignCollection:
         status_signed: '今日已操作过',
     }
 
-    def __init__(self, pt_pin='', pt_key=''):
-        self._pt_pin = unquote(pt_pin)
-        self._pt_key = pt_key
-        self._result = []
+    result = []
 
 
     async def is_login(self, session):
@@ -1376,23 +1374,6 @@ class JdSignCollection:
         #notify(message)
 
 
-def start(pt_pin, pt_key, name='签到合集'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-
-        app = JdSignCollection(pt_pin, pt_key)
-        asyncio.run(app.start())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(start, name='京东签到合集')
+    process_start(JdSignCollection, name='京东签到合集')

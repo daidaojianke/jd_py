@@ -13,12 +13,16 @@ from urllib.parse import unquote, quote
 
 from utils.process import process_start
 from utils.console import println
-from utils.notify import notify
+from utils.wraps import jd_init
 from furl import furl
 from config import USER_AGENT
 
 
+@jd_init
 class JrDailyTakeGoose:
+    """
+    天天提额
+    """
     headers = {
         'Accept': 'application/json',
         'Origin': 'https://uua.jr.jd.com',
@@ -30,27 +34,8 @@ class JrDailyTakeGoose:
         'Referer': 'https://uua.jr.jd.com/uc-fe-wxgrowing/moneytree/index',
         'Accept-Language': 'zh-cn'
     }
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._pt_pin = pt_pin
-        self._pt_key = pt_key
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-        self._egg_num = 0   # 本次运行总共获得的鹅蛋总数
-        self._integral = 0  # 兑换了多少积分
-        self._pt_pin = unquote(self._pt_pin)
-
-        self._message = None
-
-    @property
-    def message(self):
-        return self._message
+    egg_num = 0  # 本次运行总共获得的鹅蛋总数
+    integral = 0  # 兑换了多少积分
 
     async def request(self, session, function_id, body):
         """
@@ -69,7 +54,7 @@ class JrDailyTakeGoose:
             await asyncio.sleep(1)
             return data
         except Exception as e:
-            println('{}, 无法获取服务器数据!{}'.format(self._pt_pin, e.args))
+            println('{}, 无法获取服务器数据!{}'.format(self.account, e.args))
 
     async def request_mission(self, session, function_id, body):
         """
@@ -86,7 +71,7 @@ class JrDailyTakeGoose:
             data = json.loads(text)
             return data
         except Exception as e:
-            println("{}, 访问服务器异常, 信息:{}".format(self._pt_pin, e.args))
+            println("{}, 访问服务器异常, 信息:{}".format(self.account, e.args))
 
     async def query_task_list(self, session):
         """
@@ -103,7 +88,7 @@ class JrDailyTakeGoose:
         task_list = []
         data = await self.request(session, 'queryGooseTaskList', body)
         if data['resultCode'] != 0 or data['resultData']['code'] != '0000':
-            println('{}, 查询任务列表失败!'.format(self._pt_pin))
+            println('{}, 查询任务列表失败!'.format(self.account))
             return task_list
         task_list = data['resultData']['data']
 
@@ -131,7 +116,7 @@ class JrDailyTakeGoose:
         :return:
         """
         if len(task_list) == 0:
-            println('{}, 当前无可做任务!'.format(self._pt_pin))
+            println('{}, 当前无可做任务!'.format(self.account))
             return
 
         for task in task_list:
@@ -148,7 +133,7 @@ class JrDailyTakeGoose:
                     reason = res['resultMsg']
                 else:
                     reason = res['resultData']['msg']
-                println('{}, 任务:{}, 领取失败, 原因:{}'.format(self._pt_pin, task['name'], reason))
+                println('{}, 任务:{}, 领取失败, 原因:{}'.format(self.account, task['name'], reason))
 
             res = await self.request_mission(session, 'queryMissionReceiveAfterStatus',
                                              {"missionId": str(task['missionId'])})
@@ -157,10 +142,10 @@ class JrDailyTakeGoose:
                     reason = res['resultMsg']
                 else:
                     reason = res['resultData']['msg']
-                println('{}, 任务:{}, 初始化失败!原因:{}'.format(self._pt_pin, task['name'],  reason))
+                println('{}, 任务:{}, 初始化失败!原因:{}'.format(self.account, task['name'],  reason))
                 continue
 
-            println('{}, 正在进行任务:{}, 等待{}s!'.format(self._pt_pin, task['name'], task['real_time']))
+            println('{}, 正在进行任务:{}, 等待{}s!'.format(self.account, task['name'], task['real_time']))
             await asyncio.sleep(task['real_time']+1)
 
             res = await self.request_mission(session, 'finishReadMission', {"missionId": str(task['missionId']),
@@ -170,7 +155,7 @@ class JrDailyTakeGoose:
                     reason = res['resultMsg']
                 else:
                     reason = res['resultData']['msg']
-                println('{}, 任务:{}, 提交任务结果失败!原因:{}'.format(self._pt_pin, task['name'],  reason))
+                println('{}, 任务:{}, 提交任务结果失败!原因:{}'.format(self.account, task['name'],  reason))
                 continue
 
             params = {
@@ -186,17 +171,16 @@ class JrDailyTakeGoose:
                     reason = res['resultMsg']
                 else:
                     reason = res['resultData']['msg']
-                println('{}, 任务:{}, 领取奖励失败, 原因:{}'.format(self._pt_pin, task['name'], reason))
+                println('{}, 任务:{}, 领取奖励失败, 原因:{}'.format(self.account, task['name'], reason))
                 continue
-            self._egg_num += task['awards']['awardRealNum']
-            println('{}, 任务:{}, 领取奖励成功, 获得{}个鹅蛋!'.format(self._pt_pin, task['name'], task['awards']['awardRealNum']))
+            println('{}, 任务:{}, 领取奖励成功'.format(self.account, task['name']))
 
     async def to_daily_home(self, session):
         """
         进入天天提鹅首页
         :return:
         """
-        println('{}, 正在获取首页数据...'.format(self._pt_pin))
+        println('{}, 正在获取首页数据...'.format(self.account))
         body = {
             "timeSign": 0,
             "environment": "jrApp",
@@ -205,13 +189,13 @@ class JrDailyTakeGoose:
         data = await self.request(session, 'toDailyHome', body)
 
         if data['resultCode'] != 0:
-            println('{}, 无法获取首页数据!, 原因:{}'.format(self._pt_pin, data['resultMsg']))
+            println('{}, 无法获取首页数据!, 原因:{}'.format(self.account, data['resultMsg']))
             return False
         else:
             if data['resultData']['code'] != '0000':
-                println('{}, 无法获取数据, 原因:{}'.format(self._pt_pin, data['resultData']['msg']))
+                println('{}, 无法获取数据, 原因:{}'.format(self.account, data['resultData']['msg']))
                 return False
-            println('{}, 获取首页数据成功！'.format(self._pt_pin))
+            println('{}, 获取首页数据成功！'.format(self.account))
             return data['resultData']['data']
 
     async def to_withdraw(self, session):
@@ -223,7 +207,7 @@ class JrDailyTakeGoose:
         data = await self.to_daily_home(session)
 
         if data['grassEggTotal'] < 1:  # 篮子装满了再提取，避免频繁提取!
-            println('{}, 当前篮子鹅蛋小于1个, 无法提取...'.format(self._pt_pin))
+            println('{}, 当前篮子鹅蛋小于1个, 无法提取...'.format(self.account))
             return
 
         body = {
@@ -234,17 +218,17 @@ class JrDailyTakeGoose:
         await asyncio.sleep(1)  # 避免请求过快，JD抛错误
         data = await self.request(session, 'toWithdraw', body)
         if data['resultCode'] != 0:
-            println('{}, 无法收取鹅蛋, 原因:{}!'.format(self._pt_pin, data['resultMsg']))
+            println('{}, 无法收取鹅蛋, 原因:{}!'.format(self.account, data['resultMsg']))
             return
 
         if data['resultData']['code'] != '0000':
-            println('{}, 收取鹅蛋失败, 原因:{}'.format(self._pt_pin, data['resultData']['msg']))
+            println('{}, 收取鹅蛋失败, 原因:{}'.format(self.account, data['resultData']['msg']))
             return
 
-        self._egg_num += data['resultData']['data']['eggTotal']
-        println('{}, 收取鹅蛋:{}个!'.format(self._pt_pin, data['resultData']['data']['eggTotal']))
-        println('{}, 当前等级:{}!'.format(self._pt_pin, data['resultData']['data']['userLevelDto']['levelName']))
-        println('{}, 当前鹅蛋总数:{}个！'.format(self._pt_pin, data['resultData']['data']['userLevelDto']['userHaveEggNum']))
+        self.egg_num += data['resultData']['data']['eggTotal']
+        println('{}, 收取鹅蛋:{}个!'.format(self.account, data['resultData']['data']['eggTotal']))
+        println('{}, 当前等级:{}!'.format(self.account, data['resultData']['data']['userLevelDto']['levelName']))
+        println('{}, 当前鹅蛋总数:{}个！'.format(self.account, data['resultData']['data']['userLevelDto']['userHaveEggNum']))
 
     async def to_exchange(self, session):
         """
@@ -254,7 +238,7 @@ class JrDailyTakeGoose:
         """
         data = await self.to_daily_home(session)
         if data['availableTotal'] < 10:
-            println('{}, 当前可用鹅蛋小于10个, 无法兑换积分...'.format(self._pt_pin))
+            println('{}, 当前可用鹅蛋小于10个, 无法兑换积分...'.format(self.account))
             return
 
         body = {
@@ -266,15 +250,15 @@ class JrDailyTakeGoose:
         data = await self.request(session, 'toGoldExchange', body)
 
         if data['resultCode'] != 0:
-            println('{}, 鹅蛋兑换积分失败, 原因:{}'.format(self._pt_pin, data['resultMsg']))
+            println('{}, 鹅蛋兑换积分失败, 原因:{}'.format(self.account, data['resultMsg']))
             return
 
         if data['resultData']['code'] != '0000':
-            println('{}, 鹅蛋兑换积分失败, 原因:{}'.format(self._pt_pin, data['resultData']['msg']))
+            println('{}, 鹅蛋兑换积分失败, 原因:{}'.format(self.account, data['resultData']['msg']))
             return
 
-        println('{}, 成功兑换积分:{}个!'.format(self._pt_pin, data['resultData']['data']['cnumber']))
-        println('{}, 当前总积分:{}个！'.format(self._pt_pin, data['resultData']['data']['goldTotal']))
+        println('{}, 成功兑换积分:{}个!'.format(self.account, data['resultData']['data']['cnumber']))
+        println('{}, 当前总积分:{}个！'.format(self.account, data['resultData']['data']['goldTotal']))
 
     async def query_integral(self, session):
         """
@@ -297,22 +281,22 @@ class JrDailyTakeGoose:
         total_egg = index_data['availableTotal']
         total_integral = await self.query_integral(session)
         message = '\n【活动名称】天天提鹅\n【京东ID】{}\n【获得鹅蛋】{}\n【获得积分】{}\n【可用鹅蛋】{}\n【可用积分】{}\n'.format(
-            self._pt_pin, self._egg_num, self._integral, total_egg, total_integral)
+            self.account, self.egg_num, self.integral, total_egg, total_integral)
 
-        self._message = message
+        self.message = message
 
     async def run(self):
         """
         程序入口
         :return:
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             task_list = await self.query_task_list(session)
             await self.do_task_list(session, task_list)
             data = await self.to_daily_home(session)
             await asyncio.sleep(1)
             if not data:
-                println('{}, 无法获取首页数据， 退出程序...'.format(self._pt_pin))
+                println('{}, 无法获取首页数据， 退出程序...'.format(self.account))
                 return
             await self.to_withdraw(session)
             await asyncio.sleep(1)
@@ -321,22 +305,8 @@ class JrDailyTakeGoose:
             await self.notify(session)
 
 
-def start(pt_pin, pt_key, name='天天提鹅'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JrDailyTakeGoose(pt_pin, pt_key)
-        asyncio.run(app.run())
-        return app.message
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    process_start(start, '天天提鹅')
+    from config import JD_COOKIES
+    app = JrDailyTakeGoose(**JD_COOKIES[0])
+    asyncio.run(app.run())
+    #process_start(JrDailyTakeGoose, '天天提鹅')

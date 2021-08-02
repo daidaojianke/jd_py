@@ -3,7 +3,7 @@
 # @Time    : 2021/7/25 下午8:20 
 # @File    : jd_joy_exchange.py
 # @Project : jd_scripts
-# @Cron    : 57 7,15,23 * * *
+# @Cron    : 56 7,15,23 * * *
 # @Desc    : 宠汪汪商品兑换
 import random
 import time
@@ -11,10 +11,10 @@ import asyncio
 import aiohttp
 import ujson
 from dateutil.relativedelta import relativedelta
-
 from jd_joy import JdJoy
 from datetime import datetime
 
+from utils.logger import logger
 from utils.console import println
 
 
@@ -25,6 +25,7 @@ class JdJoyExchange(JdJoy):
     def __init__(self, pt_pin, pt_key):
         super(JdJoyExchange, self).__init__(pt_pin, pt_key)
 
+    @logger.catch
     async def exchange_bean(self, session):
         """
         积分换豆
@@ -61,7 +62,8 @@ class JdJoyExchange(JdJoy):
         gift_id = None
         gift_name = None
         for gift in gift_list:
-            if pet_coin > gift['salePrice']:
+            # 积分够兑换并且库存大于0
+            if pet_coin > gift['salePrice'] and gift['leftStock'] > 0:
                 gift_id = gift['id']
                 gift_name = gift['giftName']
         if not gift_id:
@@ -129,23 +131,7 @@ class JdJoyExchange(JdJoy):
         await self.close_browser()
 
 
-def start(pt_pin, pt_key, name='宠汪汪兑换'):
-    """
-    宠汪汪商品兑换
-    """
-    try:
-        app = JdJoyExchange(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        println(e.args)
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    # from config import JD_COOKIES
-    # start(*JD_COOKIES[0].values())
-
     from utils.process import process_start
     from config import JOY_PROCESS_NUM
-    process_start(start, '宠汪汪兑换', process_num=JOY_PROCESS_NUM)
+    process_start(JdJoyExchange, '宠汪汪兑换', process_num=JOY_PROCESS_NUM)

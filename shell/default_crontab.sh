@@ -49,6 +49,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #  京东APP->我的->东东萌宠
 35 6-18/6 * * * /scripts/jd_cute_pet.py >> /scripts/logs/jd_cute_pet_`date "+\%Y-\%m-\%d"`.log 2>&1
 
+#  赚京豆(微信小程序)-赚京豆-签到领京豆
+45 5,22 * * * /scripts/jd_earn_bean.py >> /scripts/logs/jd_earn_bean_`date "+\%Y-\%m-\%d"`.log 2>&1
+
 #  京东APP->东东工厂
 30 6-18/6 * * * /scripts/jd_factory.py >> /scripts/logs/jd_factory_`date "+\%Y-\%m-\%d"`.log 2>&1
 
@@ -71,7 +74,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 45 8,12,17 * * * /scripts/jd_joy.py >> /scripts/logs/jd_joy_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 #  宠汪汪商品兑换
-57 7,15,23 * * * /scripts/jd_joy_exchange.py >> /scripts/logs/jd_joy_exchange_`date "+\%Y-\%m-\%d"`.log 2>&1
+56 7,15,23 * * * /scripts/jd_joy_exchange.py >> /scripts/logs/jd_joy_exchange_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 #  宠汪汪喂狗
 10 */3 * * * /scripts/jd_joy_feed.py >> /scripts/logs/jd_joy_feed_`date "+\%Y-\%m-\%d"`.log 2>&1

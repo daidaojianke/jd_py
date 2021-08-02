@@ -25,6 +25,7 @@ def hmacSha256(key, value):
 
 def hmacSha512(key, value):
     """
+    hmacsha512加密
     :param key:
     :param value:
     :return:
@@ -35,6 +36,7 @@ def hmacSha512(key, value):
 
 def md5(value):
     """
+    md5加密
     :param value:
     :return:
     """
@@ -45,6 +47,7 @@ def md5(value):
 
 def sha512(value):
     """
+    sha512加密
     :param value:
     :return:
     """
@@ -55,6 +58,7 @@ def sha512(value):
 
 def sha256(value):
     """
+    sha256加密
     :param value:
     :return:
     """
@@ -65,26 +69,13 @@ def sha256(value):
 
 def hmacMD5(key, value):
     """
+    hamcMd5加密
     :param key:
     :param value:
     :return:
     """
     obj = hmac.new(value.encode(), key.encode('utf-8'), hashlib.md5)
     return obj.hexdigest()
-
-
-def generate_fp():
-    """
-    生成获取签名算法参数的请求参数
-    """
-    e = "0123456789"
-    a = 13
-    i = ''
-    while a > 0:
-        i += e[int(random.random() * len(e)) | 0]
-        a -= 1
-    i += str(int(time.time()*100))
-    return i[0:16]
 
 
 class JxSignAlgoMixin:
@@ -100,12 +91,26 @@ class JxSignAlgoMixin:
         'hmacsha512': hmacSha512,
     }
 
+    @staticmethod
+    def generate_fp():
+        """
+        生成获取签名算法参数的请求参数
+        """
+        e = "0123456789"
+        a = 13
+        i = ''
+        while a > 0:
+            i += e[int(random.random() * len(e)) | 0]
+            a -= 1
+        i += str(int(time.time() * 100))
+        return i[0:16]
+
     async def get_encrypt(self):
         """
         获取签名算法
         """
         if not hasattr(self, '_fp'):
-            self._fp = generate_fp()
+            self._fp = self.generate_fp()
 
         if not hasattr(self, '_appid'):
             self._appid = '10001'

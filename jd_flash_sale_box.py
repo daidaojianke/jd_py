@@ -8,13 +8,16 @@
 import asyncio
 import aiohttp
 import json
-from urllib.parse import unquote, urlencode
+from urllib.parse import urlencode
 from utils.console import println
 from utils.process import process_start
+from utils.logger import logger
+from utils.wraps import jd_init
 
 from config import USER_AGENT, JD_FLASH_SALE_BOX_CODE
 
 
+@jd_init
 class JdFlashSaleBox:
     """
     闪购盲盒
@@ -26,17 +29,6 @@ class JdFlashSaleBox:
         'referer': 'https://h5.m.jd.com/',
 
     }
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key,
-        }
-        self.account = unquote(pt_pin)
 
     async def request(self, session, function_id, body=None, method='GET'):
         """
@@ -69,7 +61,7 @@ class JdFlashSaleBox:
             return data
 
         except Exception as e:
-            println(e.args)
+            println('{}, 获取服务器数据失败:{}!'.format(self.account, e.args))
             return {
                 'code': 9999
             }
@@ -79,7 +71,9 @@ class JdFlashSaleBox:
         领取任务或完成任务
         :return:
         """
-
+        pass
+    
+    @logger.catch
     async def do_task(self, session, task):
         """
         做任务
@@ -138,7 +132,8 @@ class JdFlashSaleBox:
                 continue
             println('{}, {}!'.format(self.account, res['data']['bizMsg']))
             do_times += 1
-
+    
+    @logger.catch
     async def do_tasks(self, session):
         """
         :param session:
@@ -157,13 +152,14 @@ class JdFlashSaleBox:
             if task_type == 14:   # 邀请好友助力
                 continue
             await self.do_task(session, task)
-
+    
+    @logger.catch
     async def get_share_code(self):
         """
         获取助力码
         :return:
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             res = await self.request(session, 'healthyDay_getHomeData', {"appId": "1EFRXxg", "taskToken": "", "channelId": 1})
             if res['code'] != 0 or res['data']['bizCode'] != 0:
                 println('{}, 获取助力码失败!'.format(self.account))
@@ -179,7 +175,8 @@ class JdFlashSaleBox:
             else:
                 println('{}, 无法获取助力码'.format(self.account))
             return code
-
+    
+    @logger.catch
     async def help_friend(self, session):
         """
         助力好友
@@ -209,7 +206,8 @@ class JdFlashSaleBox:
             await asyncio.sleep(1)
 
         println('{}, 完成好友助力!'.format(self.account))
-
+    
+    @logger.catch
     async def lottery(self, session):
         """
         抽奖
@@ -249,23 +247,11 @@ class JdFlashSaleBox:
         """
         :return:
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             await self.do_tasks(session)
             await self.help_friend(session)
             await self.lottery(session)
 
 
-def start(pt_pin, pt_key):
-    """
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    app = JdFlashSaleBox(pt_pin, pt_key)
-    asyncio.run(app.run())
-
-
 if __name__ == '__main__':
-    from config import JD_COOKIES
-    start(*JD_COOKIES[5].values())
-    process_start(start, '京东APP-闪购盲盒')
+    process_start(JdFlashSaleBox, '京东APP-闪购盲盒')

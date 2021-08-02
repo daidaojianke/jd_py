@@ -9,14 +9,18 @@ import aiohttp
 import json
 import asyncio
 from utils.console import println
+from utils.logger import logger
+from utils.dj_base import dj_init
 from config import DJ_FRUIT_CODE, DJ_FRUIT_KEEP_WATER
-from utils.dj_base import DjBase
 
 
-class DjFruit(DjBase):
+@dj_init
+class DjFruit:
     """
     京东到家领水果
     """
+
+    @logger.catch
     async def daily_water_award(self, session, task):
         """
         每日水滴奖励
@@ -33,6 +37,7 @@ class DjFruit(DjBase):
         }
         await self.finish_task(session, task['taskName'], body)
 
+    @logger.catch
     async def daily_sign(self, session, task):
         """
         每日签到
@@ -61,6 +66,7 @@ class DjFruit(DjBase):
         }
         await self.finish_task(session, task['taskName'], body)
 
+    @logger.catch
     async def watering(self, session, times=None, batch=True, keep_water=10):
         """
         浇水
@@ -109,6 +115,7 @@ class DjFruit(DjBase):
             else:
                 println('{}, 第{}次浇水成功!'.format(self.account, i))
 
+    @logger.catch
     async def receive_water_red_packet(self, session):
         """
         领取浇水红包
@@ -132,6 +139,7 @@ class DjFruit(DjBase):
         else:
             println('{}, 成功打开浇水红包!'.format(self.account))
 
+    @logger.catch
     async def receive_water_bottle(self, session):
         """
         领取水瓶
@@ -144,6 +152,7 @@ class DjFruit(DjBase):
         else:
             println('{}, 成功领水瓶水滴!'.format(self.account))
 
+    @logger.catch
     async def do_task(self, session):
         """
         做任务
@@ -200,6 +209,7 @@ class DjFruit(DjBase):
             else:
                 println('{}, 任务:《{}》暂未实现!'.format(self.account, task_name))
 
+    @logger.catch
     async def get_water_info(self, session):
         """
         获取水滴信息
@@ -211,6 +221,7 @@ class DjFruit(DjBase):
             return None
         return res['result']
 
+    @logger.catch
     async def receive_water_wheel(self, session):
         """
         收取水车水滴
@@ -231,6 +242,7 @@ class DjFruit(DjBase):
         else:
             println('{}, 成功收取水车水滴!'.format(self.account))
 
+    @logger.catch
     async def get_share_code(self):
         """
         获取助力码
@@ -260,6 +272,7 @@ class DjFruit(DjBase):
                 println('{}, 助力码:{}'.format(self.account, code))
             return code
 
+    @logger.catch
     async def init(self, session):
         """
         初始化
@@ -277,6 +290,7 @@ class DjFruit(DjBase):
             return False
         return res['result']
 
+    @logger.catch
     async def help_friend(self, session):
         """
         助力好友
@@ -308,6 +322,7 @@ class DjFruit(DjBase):
                 println('{}, 成功助力好友:{}!'.format(self.account, user_pin))
                 await asyncio.sleep(1)
 
+    @logger.catch
     async def set_notify_message(self, session):
         """
         设置通知消息
@@ -373,4 +388,4 @@ def start(pt_pin, pt_key, name='到家果园'):
 
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(start, '到家果园')
+    process_start(DjFruit, '到家果园')

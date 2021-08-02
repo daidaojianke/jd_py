@@ -11,12 +11,13 @@ import json
 from urllib.parse import unquote, quote
 
 from utils.console import println
-from utils.notify import notify
 from utils.process import process_start
-
+from utils.wraps import jd_init
+from utils.logger import logger
 from config import USER_AGENT, JD_FACTORY_CODE
 
 
+@jd_init
 class JdFactory:
     """
     东东工厂
@@ -27,24 +28,8 @@ class JdFactory:
         'Content-Type': 'application/x-www-form-urlencoded',
         'Origin': 'https://h5.m.jd.com',
     }
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key,
-        }
-        self._pt_pin = unquote(pt_pin)
-        self._host = 'https://api.m.jd.com/client.action/'
-        self._code = None  # 互助码
-        self._message = None # 消息通知
-
-    @property
-    def message(self):
-        return self._message
+    host = 'https://api.m.jd.com/client.action/'
+    code = None  # 互助码
 
     async def request(self, session, function_id=None, params=None, method='post'):
         """
@@ -58,7 +43,7 @@ class JdFactory:
             params = {}
         try:
             session.headers.add('Content-Type', 'application/x-www-form-urlencoded')
-            url = self._host + '?functionId={}&body={}&client=wh5&clientVersion=1.0.0'.format(function_id,
+            url = self.host + '?functionId={}&body={}&client=wh5&clientVersion=1.0.0'.format(function_id,
                                                                                               quote(json.dumps(params)))
             if method == 'post':
                 response = await session.post(url=url)
@@ -76,9 +61,10 @@ class JdFactory:
                 return data['data']
 
         except Exception as e:
-            println('{}, 请求服务器数据失败, {}'.format(self._pt_pin, e.args))
+            println('{}, 请求服务器数据失败, {}'.format(self.account, e.args))
             return None
 
+    @logger.catch
     async def choose_product(self, session):
         """
         选择商品
@@ -87,7 +73,7 @@ class JdFactory:
         """
         data = await self.request(session, 'jdfactory_getProductList', {})
         if not data or data['bizCode'] != 0:
-            println('{}, 无法获取商品列表!'.format(self._pt_pin))
+            println('{}, 无法获取商品列表!'.format(self.account))
             return
         goods_list = sorted(data['result']['canMakeList'], key=lambda i: i.get('sellOut', 0), reverse=False)
         goods_list = sorted(data['result']['canMakeList'], key=lambda i: i.get('couponCount', 0), reverse=True)
@@ -103,22 +89,23 @@ class JdFactory:
                     'skuId': goods['skuId']
                 })
                 if res['bizCode'] == 0:
-                    println('{}, 成功选择商品:《{}》!'.format(self._pt_pin, goods['name']))
+                    println('{}, 成功选择商品:《{}》!'.format(self.account, goods['name']))
                 else:
-                    println('{}, 选择商品《{}》失败, {}!'.format(self._pt_pin, goods['name'], res['bizMsg']))
+                    println('{}, 选择商品《{}》失败, {}!'.format(self.account, goods['name'], res['bizMsg']))
                 break
 
+    @logger.catch
     async def init(self, session):
         """
         获取首页数据
         :param session:
         :return:
         """
-        println('{}, 正在初始化数据...'.format(self._pt_pin))
+        println('{}, 正在初始化数据...'.format(self.account))
         data = await self.request(session, 'jdfactory_getHomeData')
 
         if not data or data['bizCode'] != 0:
-            println('{}, 无法获取活动数据!'.format(self._pt_pin))
+            println('{}, 无法获取活动数据!'.format(self.account))
             return False
 
         data = data['result']
@@ -126,35 +113,37 @@ class JdFactory:
         have_product = data['haveProduct']  # 是否有生产的商品
 
         if have_product == 2:  # 未选择商品
-            println('{}, 此账号未选择商品, 现在为您从库存种选择商品!\n'.format(self._pt_pin))
+            println('{}, 此账号未选择商品, 现在为您从库存种选择商品!\n'.format(self.account))
             await self.choose_product(session)
 
-        println('{}, 初始化数据完成!'.format(self._pt_pin))
+        println('{}, 初始化数据完成!'.format(self.account))
         return True
 
+    @logger.catch
     async def help_friend(self, session):
         """
         助力好友
         :param session:
         :return:
         """
-        println('{}, 正在帮好友助力!'.format(self._pt_pin))
+        println('{}, 正在帮好友助力!'.format(self.account))
         for code in JD_FACTORY_CODE:
-            if code == self._code:
+            if code == self.code:
                 continue
             params = {
                 "taskToken": code,
             }
             data = await self.request(session, 'jdfactory_collectScore', params)
 
-            println('{}, 助力好友{}, {}'.format(self._pt_pin, code, data['bizMsg']))
+            println('{}, 助力好友{}, {}'.format(self.account, code, data['bizMsg']))
 
+    @logger.catch
     async def get_share_code(self):
         """
         获取助力码
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             data = await self.request(session, 'jdfactory_getTaskDetail')
 
             if not data or data['bizCode'] != 0:
@@ -165,10 +154,11 @@ class JdFactory:
             for task in task_list:
                 if task['taskType'] == 14:  # 互助码
                     code = task['assistTaskDetailVo']['taskToken']
-                    println('{}, 助力码:{}'.format(self._pt_pin, code))
+                    println('{}, 助力码:{}'.format(self.account, code))
                     return code
             return None
 
+    @logger.catch
     async def collect_electricity(self, session):
         """
         收集电量
@@ -178,11 +168,12 @@ class JdFactory:
         data = await self.request(session, 'jdfactory_collectElectricity')
 
         if not data or data['bizCode'] != 0:
-            println('{}, 收集电量失败!'.format(self._pt_pin))
+            println('{}, 收集电量失败!'.format(self.account))
         else:
             println('{}, 成功收集{}电量, 当前蓄电池总电量{}!'.
-                    format(self._pt_pin, data['result']['electricityValue'], data['result']['batteryValue']))
+                    format(self.account, data['result']['electricityValue'], data['result']['batteryValue']))
 
+    @logger.catch
     async def get_task_list(self, session):
         """
         获取任务列表
@@ -192,19 +183,20 @@ class JdFactory:
         data = await self.request(session, 'jdfactory_getTaskDetail')
 
         if not data or data['bizCode'] != 0:
-            println('{}, 无法获取任务列表!'.format(self._pt_pin))
+            println('{}, 无法获取任务列表!'.format(self.account))
             return
 
         task_list = data['result']['taskVos']
 
         for task in task_list:
             if task['taskType'] == 14:  # 互助码
-                self._code = task['assistTaskDetailVo']['taskToken']
+                self.code = task['assistTaskDetailVo']['taskToken']
                 task_list.remove(task)
                 break
 
         return task_list
 
+    @logger.catch
     async def daily_clock_in(self, session, task):
         """
         每日打卡
@@ -212,17 +204,18 @@ class JdFactory:
         :param task:
         :return:
         """
-        println('{}, 正在进行任务:{}!'.format(self._pt_pin, task['taskName']))
+        println('{}, 正在进行任务:{}!'.format(self.account, task['taskName']))
 
         data = await self.request(session, 'jdfactory_collectScore', {
             'taskToken': task['simpleRecordInfoVo']['taskToken']
         })
 
         if not data or data['bizCode'] != 0:
-            println('{}, 无法完成任务:{}, {}'.format(self._pt_pin, task['taskName'], data['bizMsg']))
+            println('{}, 无法完成任务:{}, {}'.format(self.account, task['taskName'], data['bizMsg']))
         else:
-            println('{}, 完成任务:{}, {}'.format(self._pt_pin, task['taskName'], data['bizMsg']))
+            println('{}, 完成任务:{}, {}'.format(self.account, task['taskName'], data['bizMsg']))
 
+    @logger.catch
     async def daily_patrol_factory(self, session, task):
         """
         每日巡厂
@@ -230,10 +223,10 @@ class JdFactory:
         :param session:
         :return:
         """
-        println('{}, 正在进行任务:{}!'.format(self._pt_pin, task['taskName']))
+        println('{}, 正在进行任务:{}!'.format(self.account, task['taskName']))
 
         if task['threeMealInfoVos'][0]['status'] == 0:
-            println('{}, 任务:{}已错过时间!'.format(self._pt_pin, task['taskName']))
+            println('{}, 任务:{}已错过时间!'.format(self.account, task['taskName']))
             return
 
         data = await self.request(session, 'jdfactory_collectScore', {
@@ -241,10 +234,11 @@ class JdFactory:
         })
 
         if data['bizCode'] != 0:
-            println('{}, 无法完成任务:{}!'.format(self._pt_pin, task['taskName']))
+            println('{}, 无法完成任务:{}!'.format(self.account, task['taskName']))
         else:
-            println('{}, 完成任务:{}, 获得:{}电量!'.format(self._pt_pin, task['taskName'], data['result']['score']))
+            println('{}, 完成任务:{}, 获得:{}电量!'.format(self.account, task['taskName'], data['result']['score']))
 
+    @logger.catch
     async def click_jd_electric(self, session, task):
         """
         京东首页点击京东电器
@@ -252,7 +246,7 @@ class JdFactory:
         :param task:
         :return:
         """
-        println('{}, 正在进行任务:{}!'.format(self._pt_pin, task['taskName']))
+        println('{}, 正在进行任务:{}!'.format(self.account, task['taskName']))
         try:
             url = 'https://api.m.jd.com/?client=wh5&clientVersion=1.0.0&functionId=queryVkComponent&body=%7B' \
                   '%22businessId%22%3A%22babel%22%2C%22componentId%22%3A%224f953e59a3af4b63b4d7c24f172db3c3%22%2C' \
@@ -262,10 +256,10 @@ class JdFactory:
             text = await response.text()
             data = json.loads(text)
             if data['code'] != '0':
-                println('{}, 无法完成任务:{}!'.format(self._pt_pin, task['taskName']))
+                println('{}, 无法完成任务:{}!'.format(self.account, task['taskName']))
                 return
         except Exception as e:
-            println('{}, 无法完成任务:{}, {}!'.format(self._pt_pin, task['taskName'], e.args))
+            println('{}, 无法完成任务:{}, {}!'.format(self.account, task['taskName'], e.args))
             return
 
         await asyncio.sleep(1)
@@ -274,10 +268,11 @@ class JdFactory:
                                   {'taskToken': task['simpleRecordInfoVo']['taskToken']})
 
         if data['bizCode'] != 0:
-            println('{}, 无法完成任务:{}!'.format(self._pt_pin, task['taskName']))
+            println('{}, 无法完成任务:{}!'.format(self.account, task['taskName']))
         else:
-            println('{}, 完成任务:{}, 获得电量:{}!'.format(self._pt_pin, task['taskName'], data['result']['score']))
+            println('{}, 完成任务:{}, 获得电量:{}!'.format(self.account, task['taskName'], data['result']['score']))
 
+    @logger.catch
     async def visit_meeting_place(self, session, task):
         """
         逛会场
@@ -285,7 +280,7 @@ class JdFactory:
         :param task:
         :return:
         """
-        println('{}, 正在进行任务:{}!'.format(self._pt_pin, task['taskName']))
+        println('{}, 正在进行任务:{}!'.format(self.account, task['taskName']))
 
         for item in task['shoppingActivityVos']:
             if item['status'] == 1:
@@ -294,11 +289,12 @@ class JdFactory:
                 })
                 if data['bizCode'] == 0:
                     println('{}, 任务:{}执行成功, 获得电量:{}, 任务进度:{}/{}'.
-                            format(self._pt_pin, task['taskName'], data['result']['score'],
+                            format(self.account, task['taskName'], data['result']['score'],
                                    data['result']['times'], data['result']['maxTimes']))
                 else:
-                    println('{}, 完成任务:{}失败!'.format(self._pt_pin, task['taskName']))
+                    println('{}, 完成任务:{}失败!'.format(self.account, task['taskName']))
 
+    @logger.catch
     async def follow_shop(self, session, task):
         """
         关注店铺任务
@@ -311,35 +307,37 @@ class JdFactory:
                 'taskToken': item['taskToken']
             })
             if not res or res['bizCode'] != 0:
-                println('{}, 无法完成任务:{}!'.format(self._pt_pin, item))
+                println('{}, 无法完成任务:{}!'.format(self.account, item))
             else:
                 println('{}, 任务:{}执行成功, 获得电量:{}, 任务进度:{}/{}'.
-                        format(self._pt_pin, task['taskName'], res['result']['score'],
+                        format(self.account, task['taskName'], res['result']['score'],
                                res['result']['times'], res['result']['maxTimes']))
 
+    @logger.catch
     async def view_event_calendar(self, session, task):
         """
         活动日历
+        :param task:
         :param session:
         :return:
         """
         for item in task['shoppingActivityVos']:
 
             if item['status'] == 2:
-                println('{}, 任务已完成:{}!'.format(self._pt_pin, item['title']))
+                println('{}, 任务已完成:{}!'.format(self.account, item['title']))
                 continue
             res = await self.request(session, 'jdfactory_collectScore', {
                 'taskToken': item['taskToken'],
                 'actionType': '1'
             })
             if not res or res['bizCode'] != 0:
-                println('{}, 无法进行任务:{}!'.format(self._pt_pin, item['title']))
+                println('{}, 无法进行任务:{}!'.format(self.account, item['title']))
                 continue
             if 'waitDuration' in item:
                 wait = item['waitDuration']
             else:
                 wait = 5
-            println('{}, 正在进行任务:{}, 需要等待{}秒!'.format(self._pt_pin, item['title'], wait))
+            println('{}, 正在进行任务:{}, 需要等待{}秒!'.format(self.account, item['title'], wait))
             await asyncio.sleep(wait)
 
             res = await self.request(session, 'jdfactory_collectScore', {
@@ -347,12 +345,13 @@ class JdFactory:
                 'actionType': '2'
             })
             if not res or res['bizCode'] != 0:
-                println('{}, 无法完成任务:{}!'.format(self._pt_pin, item['title']))
+                println('{}, 无法完成任务:{}!'.format(self.account, item['title']))
                 continue
 
-            println('{}, 任务:{}执行成功, 获得电量:{}, 任务进度:{}/{}'.format(self._pt_pin, item['title'],
+            println('{}, 任务:{}执行成功, 获得电量:{}, 任务进度:{}/{}'.format(self.account, item['title'],
                     res['result']['score'], res['result']['times'], res['result']['maxTimes']))
 
+    @logger.catch
     async def purchase_of_goods(self, session, task):
         """
         商品加购任务
@@ -360,23 +359,24 @@ class JdFactory:
         :param task:
         :return:
         """
-        println('{}, 正在进行任务:{}!'.format(self._pt_pin, task['taskName']))
+        println('{}, 正在进行任务:{}!'.format(self.account, task['taskName']))
 
         for i in range(len(task['productInfoVos'])):
             item = task['productInfoVos'][i]
-            println('{}, 正在进行第{}次任务:{}!'.format(self._pt_pin, i + 1, task['taskName']))
+            println('{}, 正在进行第{}次任务:{}!'.format(self.account, i + 1, task['taskName']))
             res = await self.request(session, 'jdfactory_collectScore', {
                 'taskToken': item['taskToken']})
             if not res or res['bizCode'] != 0:
-                println('{}, 无法完成第{}次任务:{}!'.format(self._pt_pin, i + 1, task['taskName']))
+                println('{}, 无法完成第{}次任务:{}!'.format(self.account, i + 1, task['taskName']))
             else:
                 println('{}, 完成第{}次任务:{}, 获得电量:{}, 任务进度:{}/{}'.
-                        format(self._pt_pin, i+1, task['taskName'], res['result']['score'],
+                        format(self.account, i+1, task['taskName'], res['result']['score'],
                                res['result']['times'], res['result']['maxTimes']))
 
                 if res['result']['times'] >= res['result']['maxTimes']:
                     break
 
+    @logger.catch
     async def do_tasks(self, session, task_list):
         """
         做任务
@@ -386,20 +386,20 @@ class JdFactory:
         """
         for task in task_list:
             if task['status'] != 1:
-                println('{}, 任务:{}已做完!'.format(self._pt_pin, task['taskName']))
+                println('{}, 任务:{}已做完!'.format(self.account, task['taskName']))
                 continue
 
             if task['taskType'] == 13:  # 每日打卡
                 await self.daily_clock_in(session, task)
 
             elif task['taskType'] == 14:  # 助力好友
-                println('{}, 任务:{}, 进度{}/{}!'.format(self._pt_pin, task['taskName'], task['times'], task['maxTimes']))
+                println('{}, 任务:{}, 进度{}/{}!'.format(self.account, task['taskName'], task['times'], task['maxTimes']))
 
             elif task['taskType'] == 10:  # 每日巡厂
                 await self.daily_patrol_factory(session, task)
 
             elif task['taskType'] == 21:  # 入会任务
-                println('{}, 跳过入会任务:{}!'.format(self._pt_pin, task['taskName']))
+                println('{}, 跳过入会任务:{}!'.format(self.account, task['taskName']))
 
             elif task['taskType'] == 23:  # 京东首页点击京东电器
                 await self.click_jd_electric(session, task)
@@ -417,11 +417,12 @@ class JdFactory:
                 await self.purchase_of_goods(session, task)
 
             elif task['taskType'] == 19:  # 跳过下单任务
-                println('{}, 跳过任务:{}!'.format(self._pt_pin, task['taskName']))
+                println('{}, 跳过任务:{}!'.format(self.account, task['taskName']))
 
             else:
                 println(task)
 
+    @logger.catch
     async def notify_result(self, session):
         """
         通知结果
@@ -430,7 +431,7 @@ class JdFactory:
         """
         data = await self.request(session, 'jdfactory_getHomeData')
         if not data or data['bizCode'] != 0:
-            println('{}, 无法获取用户数据, 取消通知!'.format(self._pt_pin))
+            println('{}, 无法获取用户数据, 取消通知!'.format(self.account))
             return
 
         factory_info = data['result']['factoryInfo']
@@ -439,21 +440,21 @@ class JdFactory:
         product_name = factory_info['name']  # 商品名称
         remaining_count = factory_info['couponCount']  # 剩余商品数量
         remain_score = factory_info['remainScore']  # 剩余未投入电量
-        message = '【活动名称】{}\n【京东账号】{}\n'.format('东东工厂', self._pt_pin)
+        message = '【活动名称】{}\n【京东账号】{}\n'.format('东东工厂', self.account)
         message += '【商品名称】{}\n【剩余商品数】{}\n'.format(product_name, remaining_count)
         message += '【已投入电量/所需电量】{}/{}\n'.format(use_score, total_score)
         message += '【剩余电量】{}\n'.format(remain_score)
         message += '【活动入口】京东APP->京东电器->东东工厂\n'
-        self._message = message
+        self.message = message
 
     async def run(self):
         """
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             is_success = await self.init(session)
             if not is_success:
-                println('{}, 无法初始化数据, 退出程序!'.format(self._pt_pin))
+                println('{}, 无法初始化数据, 退出程序!'.format(self.account))
                 return
             await self.collect_electricity(session)
             task_list = await self.get_task_list(session)
@@ -462,21 +463,5 @@ class JdFactory:
             await self.notify_result(session)
 
 
-def start(pt_pin, pt_key, name='东东工厂'):
-    """
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdFactory(pt_pin, pt_key)
-        asyncio.run(app.run())
-        return app.message
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    process_start(start, '东东工厂')
+    process_start(JdFactory, '东东工厂')

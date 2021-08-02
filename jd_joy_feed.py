@@ -8,6 +8,7 @@
 import aiohttp
 import ujson
 import asyncio
+from utils.logger import logger
 from jd_joy import JdJoy
 from utils.console import println
 
@@ -16,12 +17,8 @@ class JdJoyFeed(JdJoy):
     """
     宠汪汪喂狗
     """
-    """
-    宠汪汪兑换京豆
-    """
-    def __init__(self, pt_pin, pt_key):
-        super(JdJoyFeed, self).__init__(pt_pin, pt_key)
 
+    @logger.catch
     async def feed_food(self, session, feed_count=80):
         """
         喂狗, 默认80g

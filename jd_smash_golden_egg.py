@@ -9,31 +9,21 @@ import aiohttp
 import asyncio
 import json
 
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 from utils.console import println
+from utils.wraps import jd_init
 from config import USER_AGENT, JD_SMASH_GOLDEN_EGG_CODE
 
 
+@jd_init
 class JdSmashGoldenEgg:
     """
     京东APP->每日特价->疯狂砸金蛋
     :return:
     """
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        砸金蛋
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key,
-        }
-        self._headers = {
-            'user-agent': USER_AGENT,
-        }
-        self._pt_pin = unquote(pt_pin)
+    headers = {
+        'user-agent': USER_AGENT,
+    }
 
     async def request(self, session, function_id, body=None):
         """
@@ -55,7 +45,7 @@ class JdSmashGoldenEgg:
             else:
                 return data['data']
         except Exception as e:
-            println('{}, 访问服务器失败:{}!'.format(self._pt_pin, e.args))
+            println('{}, 访问服务器失败:{}!'.format(self.account, e.args))
             return {
                 'bizCode': 999,
                 'bizMsg': '访问服务器失败'
@@ -89,10 +79,10 @@ class JdSmashGoldenEgg:
             }
             res = await self.request(session, 'harmony_collectScore', body)
             if res['bizCode'] != 0:
-                println('{}, 助力好友:{}失败!'.format(self._pt_pin, code))
+                println('{}, 助力好友:{}失败!'.format(self.account, code))
                 break
             else:
-                println('{}, 成功助力好友:{}!'.format(self._pt_pin, code))
+                println('{}, 成功助力好友:{}!'.format(self.account, code))
             await asyncio.sleep(1)
 
     async def sign(self, session, task):
@@ -111,9 +101,9 @@ class JdSmashGoldenEgg:
             "actionType": 0
         })
         if res['bizCode'] == 0:
-            println('{}, 成功完成任务: 《{}》'.format(self._pt_pin, task_name))
+            println('{}, 成功完成任务: 《{}》'.format(self.account, task_name))
         else:
-            println('{}, 完成任务: 《{}》失败, 原因: {}'.format(self._pt_pin, task_name, res['bizMsg']))
+            println('{}, 完成任务: 《{}》失败, 原因: {}'.format(self.account, task_name, res['bizMsg']))
 
     async def do_task(self, session, task):
         """
@@ -146,9 +136,9 @@ class JdSmashGoldenEgg:
                 "actionType": 0
             })
             if res['bizCode'] == 0:
-                println('{}, 成功完成任务: 《{}》'.format(self._pt_pin, task_name))
+                println('{}, 成功完成任务: 《{}》'.format(self.account, task_name))
             else:
-                println('{}, 完成任务: 《{}》失败, 原因{}:'.format(self._pt_pin, task_name, res['bizMsg']))
+                println('{}, 完成任务: 《{}》失败, 原因{}:'.format(self.account, task_name, res['bizMsg']))
 
     async def do_tasks(self, session, data):
         """
@@ -157,21 +147,21 @@ class JdSmashGoldenEgg:
         :param data: 首页数据
         :return:
         """
-        println('{}, 开始做任务...'.format(self._pt_pin))
+        println('{}, 开始做任务...'.format(self.account))
         for task in data['result']['taskVos']:
 
             task_type = task['taskType']
             task_name = task['taskName']
             task_status = task['status']
             if task_status == 2:
-                println('{}, 任务:《{}》今日已完成!'.format(self._pt_pin, task_name))
+                println('{}, 任务:《{}》今日已完成!'.format(self.account, task_name))
                 continue
             if task_type == 13:
                 await self.sign(session, task)
             elif task_type == 14:
                 await self.help_friend(session, task)
             elif task_type == 21:
-                println('{}, 跳过任务: 《{}》!'.format(self._pt_pin, task_name))
+                println('{}, 跳过任务: 《{}》!'.format(self.account, task_name))
                 continue
             else:
                 await self.do_task(session, task)
@@ -181,15 +171,18 @@ class JdSmashGoldenEgg:
         获取助力码
         :return:
         """
-        async with aiohttp.ClientSession(headers=self._headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             data = await self.get_home_data(session)
             if not data or data['bizCode'] != 0:
-                println('{}, 无法获取助力码!'.format(self._pt_pin))
+                println('{}, 无法获取助力码!'.format(self.account))
                 return None
             for task in data['result']['taskVos']:
                 if task['taskType'] == 14:
                     code = task['assistTaskDetailVo']['taskToken']
-                    println('{}, 助力码:{}'.format(self._pt_pin, code))
+                    println('{}, 助力码:{}'.format(self.account, code))
+                    from db.model import Code
+                    from config import JD_SMASH_GOLDEN_EGG_CODE_KEY
+                    Code.insert_code(code_key=JD_SMASH_GOLDEN_EGG_CODE_KEY, account=self.account, code_val=code)
                     return code
             return None
 
@@ -202,9 +195,9 @@ class JdSmashGoldenEgg:
         while True:
             res = await self.request(session, 'interact_template_getLotteryResult', {"appId": "1EFRQwA"})
             if res['bizCode'] == 0:
-                println('{}, 抽奖成功, 结果:{}!'.format(self._pt_pin, res['result']))
+                println('{}, 抽奖成功, 结果:{}!'.format(self.account, res['result']))
             else:
-                println('{}, 抽奖失败, {}'.format(self._pt_pin, res['bizMsg']))
+                println('{}, 抽奖失败, {}'.format(self.account, res['bizMsg']))
                 break
             await asyncio.sleep(0.5)
 
@@ -212,32 +205,15 @@ class JdSmashGoldenEgg:
         """
         :return:
         """
-        async with aiohttp.ClientSession(headers=self._headers, cookies=self._cookies) as session:
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             data = await self.get_home_data(session)
             if not data or data['bizCode'] != 0:
-                println('{}, 无法获取首页数据, 退出程序...'.format(self._pt_pin))
+                println('{}, 无法获取首页数据, 退出程序...'.format(self.account))
                 return
             await self.do_tasks(session, data)
             await self.do_lottery(session)
 
 
-def start(pt_pin, pt_key, name='疯狂砸金蛋'):
-    """
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdSmashGoldenEgg(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    # from config import JD_COOKIES
-    # start(*JD_COOKIES[0].values())
     from utils.process import process_start
-    process_start(start, '疯狂砸金蛋')
+    process_start(JdSmashGoldenEgg, '疯狂砸金蛋')

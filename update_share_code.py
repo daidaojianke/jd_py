@@ -16,11 +16,9 @@ from jd_cute_pet import JdCutePet
 from jd_farm import JdFarm
 from jr_money_tree import JrMoneyTree
 from jd_wishing_pool import JdWishingPool
-# from jd_burning_summer import JdBurningSummer
 from jd_flash_sale_box import JdFlashSaleBox
 from jd_smash_golden_egg import JdSmashGoldenEgg
 from dj_fruit import DjFruit
-from jd_grab_bean import JdGrabBean
 import shutil
 import yaml
 from config import CONF_PATH, EXAMPLE_CONFIG_PATH, BAK_CONFIG_PATH, JD_COOKIES
@@ -118,7 +116,8 @@ class UpdateShareCode:
         code_map = {}
         for i in range(len(JD_COOKIES)):
             cookies = JD_COOKIES[i]
-            obj = cls(*cookies.values())
+            cookies['name'] = name
+            obj = cls(**cookies)
             share_code = await obj.get_share_code()
             if not share_code:
                 continue
@@ -179,7 +178,6 @@ class UpdateShareCode:
                 'cls': JdFlashSaleBox,
                 'name': '闪购盲盒'
             }
-
         }
         cfg = cls.read_config()
 

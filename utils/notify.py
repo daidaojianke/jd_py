@@ -99,9 +99,9 @@ class WeCom:
         return respone["errmsg"]
 
 
-
 def push_plus_notify(title, content):
     """
+    push+消息通知
     :return:
     """
     try:
@@ -131,10 +131,12 @@ def push_plus_notify(title, content):
         println('推送PUSH+数据失败, {}!'.format(e.args))
 
 
-def tg_bot_notify(message):
+def tg_bot_notify(title, message):
     """
+    TG消息通知
     :return:
     """
+    message = '\n'.join([title, message])
     if TG_BOT_TOKEN and TG_USER_ID:
         try:
             bot = telegram.Bot(TG_BOT_TOKEN)
@@ -154,8 +156,9 @@ def notify(title, content):
     :param message:
     :return:
     """
+    println(title + '\n' + content)
     push_plus_notify(title, content)
     wecom_app(title, content)
     # TG通知
-    tg_bot_notify(title + '\n' + content)
+    tg_bot_notify(title, content)
 

@@ -5,25 +5,25 @@
 # @Project : jd_scripts
 # @Cron    : 23 0-23/8 * * *
 # @Desc    : 京东金融->养猪猪
+import asyncio
+import aiohttp
 import json
 import time
-
-import aiohttp
-import asyncio
-
-from urllib.parse import unquote, quote
-
+from urllib.parse import quote, urlencode
 from furl import furl
-
 from utils.process import process_start
 from utils.console import println
+from utils.wraps import jd_init
 from config import USER_AGENT
 
 
+@jd_init
 class JrPetPig:
     """
     养猪猪
     """
+    # 活动地址
+    host = 'https://ms.jr.jd.com/gw/generic/uc/h5/m/'
 
     headers = {
         'accept': 'application/json',
@@ -33,47 +33,54 @@ class JrPetPig:
         'referer': 'https://u.jr.jd.com/uc-fe-wxgrowing/cloudpig/index/'
     }
 
-    def __init__(self, pt_pin, pt_key):
+    async def request(self, session, function_id, body=None, method='POST'):
+        """
+        请求数据
+        :param method:
+        :param session:
+        :param function_id:
+        :param body:
+        :return:
+        """
+        try:
+            await asyncio.sleep(1)
+            url = 'https://ms.jr.jd.com/gw/generic/uc/h5/m/{}/?_={}&'.format(function_id, int(time.time() * 1000))
+            if not body:
+                body = {}
+            params = {
+                'reqData': json.dumps(body)
+            }
+            url += urlencode(params)
+            if method == 'GET':
+                response = await session.get(url=url)
+            else:
+                response = await session.post(url=url)
 
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-        self._pt_pin = unquote(pt_pin)
-        self._host = 'https://ms.jr.jd.com/gw/generic/uc/h5/m/'
+            text = await response.text()
+            data = json.loads(text)
+            return data
 
-        self._message = None
-
-    @property
-    def message(self):
-        return self._message
+        except Exception as e:
+            println('{}, 请求服务器数据失败, {}'.format(self.account, e.args))
+            return None
 
     async def login(self, session):
         """
         :return:
         """
-        url = self._host + 'pigPetLogin?_={}'.format(int(time.time()))
-        body = 'reqData={}'.format(quote(json.dumps(
-            {
-                "source": 2,
-                "channelLV": "juheye",
-                "riskDeviceParam": "{}",
-            }
-        )))
         try:
-            await asyncio.sleep(1)
-            response = await session.post(url=url, data=body)
-            text = await response.text()
-            data = json.loads(text)
+            data = await self.request(session, 'pigPetLogin', {"source": 2, "channelLV": "juheye",
+                                                               "riskDeviceParam": '{}'})
+
             if data['resultCode'] != 0 or data['resultData']['resultCode'] != 0:
-                println('{}, 登录失败, {}'.format(self._pt_pin, data))
+                println('{}, 登录失败, {}'.format(self.account, data))
                 return False
             if 'hasPig' not in data['resultData']['resultData'] or not data['resultData']['resultData']['hasPig']:
-                println('{}, 未开启养猪猪活动, 请前往京东金融APP开启!'.format(self._pt_pin))
+                println('{}, 未开启养猪猪活动, 请前往京东金融APP开启!'.format(self.account))
                 return False
             return True
         except Exception as e:
-            println('{}, 登录失败, {}'.format(self._pt_pin, e.args))
+            println('{}, 登录失败, {}'.format(self.account, e.args))
             return False
 
     async def sign(self, session):
@@ -83,11 +90,9 @@ class JrPetPig:
         :return:
         """
         try:
-            url = self._host + 'pigPetSignIndex?_={}'.format(int(time.time() * 1000))
-            body = 'reqData={}'.format(quote(json.dumps({"source": 0, "channelLV": "", "riskDeviceParam": "{}"})))
-            response = await session.post(url=url, data=body)
-            text = await response.text()
-            data = json.loads(text)
+            data = await self.request(session, 'pigPetSignIndex',
+                                      {"source": 0, "channelLV": "", "riskDeviceParam": "{}"})
+
             sign_list = data['resultData']['resultData']['signList']
             today = data['resultData']['resultData']['today']
             for sign_item in sign_list:
@@ -96,23 +101,23 @@ class JrPetPig:
 
                 # 找到今天的签到数据
                 if sign_item['status'] != 0:
-                    println('{}, 今日已签到!'.format(self._pt_pin))
+                    println('{}, 今日已签到!'.format(self.account))
                     break
-                await asyncio.sleep(1)
-                sign_url = self._host + 'pigPetSignOne?_={}'.format(int(time.time() * 1000))
+
+                sign_url = self.host + 'pigPetSignOne?_={}'.format(int(time.time() * 1000))
                 body = 'reqData={}'.format(quote(json.dumps({"source": 0, "no": sign_item['no'],
                                                              "channelLV": "", "riskDeviceParam": "{}"})))
                 response = await session.post(url=sign_url, data=body)
                 text = await response.text()
                 data = json.loads(text)
                 if data['resultCode'] == 0:
-                    println('{}, 签到成功!'.format(self._pt_pin))
+                    println('{}, 签到成功!'.format(self.account))
                 else:
-                    println('{}, 签到失败, {}'.format(self._pt_pin, data['resultMsg']))
+                    println('{}, 签到失败, {}'.format(self.account, data['resultMsg']))
                 break
 
         except Exception as e:
-            println('{}, 签到失败, 异常:{}'.format(self._pt_pin, e.args))
+            println('{}, 签到失败, 异常:{}'.format(self.account, e.args))
 
     async def open_box(self, session):
         """
@@ -120,27 +125,22 @@ class JrPetPig:
         :param session:
         :return:
         """
-        url = self._host + 'pigPetOpenBox?_={}'.format(int(time.time() * 1000))
-        body = 'reqData={}'.format(quote(json.dumps({
-            "source": 0, "channelLV": "yqs", "riskDeviceParam": "{}", "no": 5,
-            "category": "1001", "t": int(time.time() * 1000)
-        })))
         try:
-            response = await session.post(url=url, data=body)
-            text = await response.text()
-            data = json.loads(text)
+            data = await self.request(session, 'pigPetOpenBox', {
+                "source": 0, "channelLV": "yqs", "riskDeviceParam": "{}", "no": 5,
+                "category": "1001", "t": int(time.time() * 1000)
+            })
             if data['resultData']['resultCode'] != 0:
-                println('{}, {}!'.format(self._pt_pin, data['resultData']['resultMsg']))
+                println('{}, {}!'.format(self.account, data['resultData']['resultMsg']))
                 return
             if 'award' not in data['resultData']['resultData']:
                 return
             content = data['resultData']['resultData']['award']['content']
             count = data['resultData']['resultData']['award']['count']
-            println('{}, 开宝箱获得:{}, 数量:{}'.format(self._pt_pin, content, count))
-            await asyncio.sleep(1)
+            println('{}, 开宝箱获得:{}, 数量:{}'.format(self.account, content, count))
             await self.open_box(session)
         except Exception as e:
-            println('{}, 开宝箱失败, {}'.format(self._pt_pin, e.args))
+            println('{}, 开宝箱失败, {}'.format(self.account, e.args))
 
     async def lottery(self, session):
         """
@@ -148,42 +148,33 @@ class JrPetPig:
         :param session:
         :return:
         """
-        url = self._host + 'pigPetLotteryIndex?_={}'.format(int(time.time() * 1000))
-        body = 'reqData={}'.format(quote(json.dumps({
-            "source": 0,
-            "channelLV": "juheye",
-            "riskDeviceParam": "{}"
-        })))
         try:
-            response = await session.post(url, data=body)
-            text = await response.text()
-            data = json.loads(text)
-            lottery_count = data['resultData']['resultData']['currentCount']
-            if lottery_count < 1:
-                println('{}, 暂无抽奖次数!'.format(self._pt_pin))
-                return
-            await asyncio.sleep(1)
-            lottery_url = self._host + 'pigPetLotteryPlay?_={}'.format(int(time.time() * 1000))
-            body = 'reqData={}'.format(quote(json.dumps({
+            data = await self.request(session, 'pigPetLotteryIndex', {
                 "source": 0,
                 "channelLV": "juheye",
-                "riskDeviceParam": "{}",
-                "t": int(time.time() * 1000),
-                "type": 0,
-            })))
+                "riskDeviceParam": "{}"
+            })
+            lottery_count = data['resultData']['resultData']['currentCount']
+            if lottery_count < 1:
+                println('{}, 暂无抽奖次数!'.format(self.account))
+                return
 
             for i in range(lottery_count):
-                response = await session.post(url=lottery_url, data=body)
-                text = await response.text()
-                data = json.loads(text)
+                data = await self.request(session, 'pigPetLotteryPlay', {
+                    "source": 0,
+                    "channelLV": "juheye",
+                    "riskDeviceParam": "{}",
+                    "t": int(time.time() * 1000),
+                    "type": 0,
+                })
                 if data['resultData']['resultCode'] == 0:
-                    println('{}, 抽奖成功!'.format(self._pt_pin))
+                    println('{}, 抽奖成功!'.format(self.account))
                 else:
-                    println('{}, 抽奖失败!'.format(self._pt_pin))
+                    println('{}, 抽奖失败!'.format(self.account))
                 await asyncio.sleep(1)
 
         except Exception as e:
-            println('{}, 抽奖失败, {}'.format(self._pt_pin, e.args))
+            println('{}, 抽奖失败, {}'.format(self.account, e.args))
 
     async def do_mission(self, session, mission):
         """
@@ -203,7 +194,7 @@ class JrPetPig:
             if t == 0:  # 非浏览任务做不了
                 return False
 
-            println('{}, 正在做任务:{}, 需要等待{}S.'.format(self._pt_pin, mission['missionName'], t))
+            println('{}, 正在做任务:{}, 需要等待{}S.'.format(self.account, mission['missionName'], t))
 
             await asyncio.sleep(int(t))
 
@@ -222,12 +213,11 @@ class JrPetPig:
         领取任务或完成任务!
         :param mission:
         :param session:
-        :param mid:
         :return:
         """
         await asyncio.sleep(1)
         try:
-            mission_url = self._host + 'pigPetDoMission?_='.format(int(time.time() * 1000))
+            mission_url = self.host + 'pigPetDoMission?_='.format(int(time.time() * 1000))
             body = 'reqData={}'.format(quote(json.dumps({
                 "source": 0,
                 "channelLV": "",
@@ -257,7 +247,7 @@ class JrPetPig:
             data = json.loads(text)
             return data
         except Exception as e:
-            println("{}, 访问服务器异常, 信息:{}".format(self._pt_pin, e.args))
+            println("{}, 访问服务器异常, 信息:{}".format(self.account, e.args))
 
     async def missions(self, session):
         """
@@ -265,7 +255,7 @@ class JrPetPig:
         :param session:
         :return:
         """
-        url = self._host + 'pigPetMissionList?_={}'.format(int(time.time() * 1000))
+        url = self.host + 'pigPetMissionList?_={}'.format(int(time.time() * 1000))
         body = 'reqData={}'.format(quote(json.dumps({
             "source": 0,
             "channelLV": "",
@@ -278,14 +268,14 @@ class JrPetPig:
             mission_list = data['resultData']['resultData']['missions']
             for mission in mission_list:
                 if mission['status'] == 5:
-                    println('{}, 任务:{}, 今日已完成!'.format(self._pt_pin, mission['missionName']))
+                    println('{}, 任务:{}, 今日已完成!'.format(self.account, mission['missionName']))
                     continue
                 if mission['status'] == 4:
                     data = await self.receive_or_finish_mission(session, mission)
                     if data['resultCode'] == 0:
-                        println('{}, 成功领取任务:{}的奖励!'.format(self._pt_pin, mission['missionName']))
+                        println('{}, 成功领取任务:{}的奖励!'.format(self.account, mission['missionName']))
                     else:
-                        println('{}, 领取任务:{}奖励失败!'.format(self._pt_pin, mission['missionName']))
+                        println('{}, 领取任务:{}奖励失败!'.format(self.account, mission['missionName']))
 
                 if mission['status'] == 3:
                     await self.receive_or_finish_mission(session, mission)
@@ -297,9 +287,9 @@ class JrPetPig:
                     data = await self.receive_or_finish_mission(session, mission)
                     await asyncio.sleep(0.5)
                     if data['resultCode'] == 0:
-                        println('{}, 成功领取任务:{}的奖励!'.format(self._pt_pin, mission['missionName']))
+                        println('{}, 成功领取任务:{}的奖励!'.format(self.account, mission['missionName']))
                     else:
-                        println('{}, 领取任务:{}奖励失败!'.format(self._pt_pin, mission['missionName']))
+                        println('{}, 领取任务:{}奖励失败!'.format(self.account, mission['missionName']))
 
         except Exception as e:
             println("{}, 获取任务列表失败!".format(e.args))
@@ -309,16 +299,14 @@ class JrPetPig:
         喂猪
         :return:
         """
-        url = self._host + 'pigPetUserBag?_={}'.format(int(time.time()))
-        body = 'reqData={}'.format(quote(json.dumps(
-            {"source": 0, "channelLV": "yqs", "riskDeviceParam": "{}", "t": int(time.time()*1000), "skuId": "1001003004",
-             "category": "1001"})))
         try:
-            response = await session.post(url=url, data=body)
-            text = await response.text()
-            data = json.loads(text)
+            data = await self.request(session, 'pigPetUserBag',
+                                      {"source": 0, "channelLV": "yqs", "riskDeviceParam": "{}",
+                                       "t": int(time.time() * 1000),
+                                       "skuId": "1001003004",
+                                       "category": "1001"})
             if data['resultCode'] != 0 or data['resultData']['resultCode'] != 0:
-                println("{}, 查询背包信息失败, 无法喂猪!".format(self._pt_pin))
+                println("{}, 查询背包信息失败, 无法喂猪!".format(self.account))
                 return
             goods_list = data['resultData']['resultData']['goods']
 
@@ -326,25 +314,22 @@ class JrPetPig:
                 if goods['count'] < 20:  # 大于20个才能喂猪
                     continue
                 times = int(goods['count'] / 20)  # 可喂猪次数
-                url = self._host + 'pigPetAddFood?_={}'.format(int(time.time()))
-                body = 'reqData={}'.format(quote(json.dumps({
-                    "source": 0,
-                    "channelLV": "yqs",
-                    "riskDeviceParam": "{}",
-                    "skuId": str(goods['sku']),
-                    "category": "1001",
-                })))
+
                 for i in range(times):
-                    response = await session.post(url=url, data=body)
-                    text = await response.text()
-                    data = json.loads(text)
+                    data = await self.request(session, 'pigPetAddFood', {
+                        "source": 0,
+                        "channelLV": "yqs",
+                        "riskDeviceParam": "{}",
+                        "skuId": str(goods['sku']),
+                        "category": "1001",
+                    })
                     if data['resultCode'] == 0 and data['resultData']['resultCode'] == 0:
-                        println('{}, 成功投喂20个{}'.format(self._pt_pin, goods['goodsName']))
-                        println('{}, 等待10s后进行下一次喂猪!'.format(self._pt_pin))
+                        println('{}, 成功投喂20个{}'.format(self.account, goods['goodsName']))
+                        println('{}, 等待10s后进行下一次喂猪!'.format(self.account))
                         await asyncio.sleep(10)
                     else:
-                        println('{}, 投喂20个{}失败!'.format(self._pt_pin, goods['goodsName']))
-            println('{}, 食物已消耗完, 结束喂猪!'.format(self._pt_pin))
+                        println('{}, 投喂20个{}失败!'.format(self.account, goods['goodsName']))
+            println('{}, 食物已消耗完, 结束喂猪!'.format(self.account))
         except Exception as e:
             println('喂猪失败!异常:{}'.format(e.args))
 
@@ -356,7 +341,7 @@ class JrPetPig:
         async with aiohttp.ClientSession(headers=self.headers, cookies=self._cookies) as session:
             is_login = await self.login(session)
             if not is_login:
-                println('{},登录失败, 退出程序...'.format(self._pt_pin))
+                println('{},登录失败, 退出程序...'.format(self.account))
                 return
             await self.sign(session)
             await self.missions(session)
@@ -372,57 +357,32 @@ class JrPetPig:
         """
         try:
             await asyncio.sleep(1)  # 避免查询失败
-            url = self._host + 'pigPetLogin?_={}'.format(int(time.time()))
-            body = 'reqData={}'.format(quote(json.dumps({
+            data = await self.request(session, 'pigPetLogin', {
                 "source": 2,
                 "channelLV": "juheye",
                 "riskDeviceParam": "{}",
-            })))
-            response = await session.post(url=url, data=body)
-            text = await response.text()
-            data = json.loads(text)
+            })
             curr_level_count = data['resultData']['resultData']['cote']['pig']['currLevelCount']  # 当前等级需要喂养的次数
-            curr_count = data['resultData']['resultData']['cote']['pig']['currCount']   # 当前等级已喂猪的次数
+            curr_count = data['resultData']['resultData']['cote']['pig']['currCount']  # 当前等级已喂猪的次数
             curr_level = data['resultData']['resultData']['cote']['pig']['curLevel']
             curr_level_message = '成年期' if curr_level == 3 else '哺乳期'
             pig_id = data['resultData']['resultData']['cote']['pig']['pigId']
-            await asyncio.sleep(1)
-            wish_url = self._host + 'pigPetMyWish1?_={}'.format(int(time.time()))
-            body = 'reqData={}'.format(quote(json.dumps({
+
+            data = await self.request(session, 'pigPetMyWish1', {
                 "pigId": pig_id,
                 "channelLV": "",
                 "source": 0,
-                "riskDeviceParam": "{}"})))
-            response = await session.post(url=wish_url, data=body)
-            text = await response.text()
-            data = json.loads(text)
+                "riskDeviceParam": "{}"})
             award_name = data['resultData']['resultData']['award']['name']
             award_tips = data['resultData']['resultData']['award']['content']
             message = '\n【活动名称】{}\n【用户ID】{}\n【奖品名称】{}\n【完成进度】{}\n【小提示】{}'.format(
-                '京东金融养猪猪', self._pt_pin, award_name, '{}:{}/{}'.format(curr_level_message, curr_count, curr_level_count), award_tips
+                '京东金融养猪猪', self.account, award_name,
+                '{}:{}/{}'.format(curr_level_message, curr_count, curr_level_count), award_tips
             )
-
-            self._message = message
+            self.message = message
         except Exception as e:
             println(e.args)
 
 
-def start(pt_pin, pt_key, name='京东金融-养猪猪'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JrPetPig(pt_pin, pt_key)
-        asyncio.run(app.run())
-        return app.message
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    process_start(start, '养猪猪')
+    process_start(JrPetPig, '养猪猪')

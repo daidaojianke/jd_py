@@ -6,15 +6,14 @@
 # @Cron    : 6 0 * * *
 # @Desc    : 京东APP->签到领京豆->抽京豆
 import aiohttp
-import asyncio
 import re
 import json
-
-from urllib.parse import unquote
 from utils.console import println
+from utils.wraps import jd_init
 from utils.process import process_start
 
 
+@jd_init
 class JdLotteryBean:
     """
     抽京豆
@@ -22,17 +21,6 @@ class JdLotteryBean:
     headers = {
         'referer': 'https://turntable.m.jd.com',
     }
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-        self._pt_pin = unquote(pt_pin)
 
     async def lottery(self, session):
         """
@@ -50,14 +38,14 @@ class JdLotteryBean:
             text = re.findall(r'\((.*?)\);', text)[0]
             data = json.loads(text)
             if data['code'] != '0':
-                println('{}, 抽京豆失败, {}'.format(self._pt_pin, data))
+                println('{}, 抽京豆失败, {}'.format(self.account, data))
             elif 'errorMessage' in data:
-                println('{}, 抽京豆失败, {}'.format(self._pt_pin, data['errorMessage']))
+                println('{}, 抽京豆失败, {}'.format(self.account, data['errorMessage']))
             else:
-                println('{}, 抽京豆成功, 中奖信息: {}'.format(self._pt_pin, data['data']['toastTxt']))
+                println('{}, 抽京豆成功, 中奖信息: {}'.format(self.account, data['data']['toastTxt']))
 
         except Exception as e:
-            println('{}, 抽京豆错误!{}'.format(self._pt_pin, e.args))
+            println('{}, 抽京豆错误!{}'.format(self.account, e.args))
 
     async def run(self):
         """
@@ -68,20 +56,5 @@ class JdLotteryBean:
             await self.lottery(session)
 
 
-def start(pt_pin, pt_key, name='抽京豆'):
-    """
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdLotteryBean(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    process_start(start, '抽京豆')
+    process_start(JdLotteryBean, '抽京豆')

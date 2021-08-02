@@ -3,19 +3,23 @@
 # @Time    : 2021/6/24 19:43
 # @File    : jd_earn_bean.py
 # @Project : jd_scripts
-# @Cron    : 15 5,17 * * *
+# @Cron    : 45 5,22 * * *
 # @Desc    : 赚京豆(微信小程序)-赚京豆-签到领京豆
-import asyncio
+import re
 import time
-import aiohttp
 import json
+import asyncio
+import aiohttp
+
 
 from urllib.parse import unquote, quote
-import re
 from utils.console import println
 from utils.process import process_start
+from utils.logger import logger
+from utils.wraps import jd_init
 
 
+@jd_init
 class JdEarnBean:
     """
     微信小程序 赚京豆
@@ -28,17 +32,6 @@ class JdEarnBean:
         "Host": "api.m.jd.com",
         "Referer": "https://servicewechat.com/wxa5bf5ee667d91626/108/page-frame.html",
     }
-
-    def __init__(self, pt_pin, pt_key):
-        """
-        :param pt_pin:
-        :param pt_key:
-        """
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-        self._pt_pin = unquote(pt_pin)
 
     async def request(self, session, function_id, body=None, method='GET'):
         """
@@ -59,14 +52,14 @@ class JdEarnBean:
                 response = await session.get(url=url)
             else:
                 response = await session.post(url=url)
-            println('{}, 等待1秒, 避免出现活动太火爆!'.format(self._pt_pin))
+            println('{}, 等待1秒, 避免出现活动太火爆!'.format(self.account))
             await asyncio.sleep(1)
             text = await response.text()
             data = json.loads(text)
             return data
 
         except Exception as e:
-            println('{}, 请求服务器错误, {}!'.format(self._pt_pin, e.args))
+            println('{}, 请求服务器错误, {}!'.format(self.account, e.args))
             return {
                 'success': False
             }
@@ -90,7 +83,8 @@ class JdEarnBean:
         :return:
         """
         return await self.request(session, function_id, body, 'GET')
-
+    
+    @logger.catch
     async def open_red_packet(self, session, index_data):
         """
         开红包
@@ -99,19 +93,20 @@ class JdEarnBean:
         :return:
         """
         if 'userActivityInfo' not in index_data['floorData']:
-            println('{}, 可能是个黑号!'.format(self._pt_pin))
+            println('{}, 可能是个黑号!'.format(self.account))
             return
         if index_data['floorData']['userActivityInfo']['redPacketOpenFlag']:
-            println('{}, 今日已开过红包!'.format(self._pt_pin))
+            println('{}, 今日已开过红包!'.format(self.account))
             return
 
         body = {"floorToken": "d7f086c1-5e6e-4572-b8dd-93ec7353d89e", "dataSourceCode": "openRedPacket", "argMap": {}}
         data = await self.post(session, 'pg_interact_interface_invoke', body)
         if not data['success']:
-            println('{}, 开红包失败!'.format(self._pt_pin))
+            println('{}, 开红包失败!'.format(self.account))
             return
-        println('{}, 开红包成功, 当前京豆:{}!'.format(self._pt_pin, data['activityBeanInitAmount']))
-
+        println('{}, 开红包成功, 当前京豆:{}!'.format(self.account, data['activityBeanInitAmount']))
+    
+    @logger.catch
     async def do_tasks(self, session):
         """
         :param session:
@@ -121,19 +116,19 @@ class JdEarnBean:
         data = await self.post(session, 'vviptask_receive_list', body)
 
         if not data['success']:
-            println('{}, 获取任务列表失败!'.format(self._pt_pin))
+            println('{}, 获取任务列表失败!'.format(self.account))
             return
 
         task_list = list(data['data'])
 
         for task in task_list:
             if task['taskDataStatus'] == 3:
-                println('{}, 任务:《{}》已完成过!'.format(self._pt_pin, task['name']))
+                println('{}, 任务:《{}》已完成过!'.format(self.account, task['name']))
                 continue
 
             if re.search('下单|买|充值|购物|兑换|话费券', task['ruleDesc']) or re.search('下单|买|充值|购物|兑换|话费券', task['subTitle'])\
                     or re.search('下单|买|充值|购物|兑换|话费券', task['name']):
-                println('{}, 无法完成该任务:{}, 跳过!'.format(self._pt_pin, task['name']))
+                println('{}, 无法完成该任务:{}, 跳过!'.format(self.account, task['name']))
                 continue
 
             body = {
@@ -143,9 +138,9 @@ class JdEarnBean:
             }
             res = await self.post(session, 'vviptask_receive_getone', body)
             if not res['success']:
-                println('{}, 领取任务:《{}》失败!'.format(self._pt_pin, task['name']))
+                println('{}, 领取任务:《{}》失败!'.format(self.account, task['name']))
             else:
-                println('{}, 领取任务:《{}》成功!'.format(self._pt_pin, task['name']))
+                println('{}, 领取任务:《{}》成功!'.format(self.account, task['name']))
 
             body = {
                 "taskIdEncrypted": task['id'],
@@ -154,9 +149,9 @@ class JdEarnBean:
             }
             res = await self.post(session, 'vviptask_reach_task', body)
             if not res['success']:
-                println('{}, 完成任务:《{}》失败!'.format(self._pt_pin, task['name']))
+                println('{}, 完成任务:《{}》失败!'.format(self.account, task['name']))
             else:
-                println('{}, 完成任务:《{}》成功!'.format(self._pt_pin, task['name']))
+                println('{}, 完成任务:《{}》成功!'.format(self.account, task['name']))
 
             body = {
                 'idEncKey': task['id'],
@@ -165,10 +160,11 @@ class JdEarnBean:
             }
             res = await self.post(session, 'vviptask_reward_receive', body)
             if not res['success']:
-                println('{}, 领取任务:《{}》奖励失败!'.format(self._pt_pin, task['name']))
+                println('{}, 领取任务:《{}》奖励失败!'.format(self.account, task['name']))
             else:
-                println('{}, 领取任务:《{}》奖励成功!'.format(self._pt_pin, task['name']))
-
+                println('{}, 领取任务:《{}》奖励成功!'.format(self.account, task['name']))
+    
+    @logger.catch
     async def get_index_data(self, session):
         """
         获取首页数据
@@ -179,7 +175,7 @@ class JdEarnBean:
         data = await self.get(session, 'pg_channel_page_data', body)
 
         if not data['success']:
-            println('{}, 无法获取首页数据!'.format(self._pt_pin))
+            println('{}, 无法获取首页数据!'.format(self.account))
             return None
 
         data = data['data']
@@ -189,53 +185,38 @@ class JdEarnBean:
                 return item
 
         return None
-
+    
+    @logger.catch
     async def receive_bean(self, session):
         """
         领取京豆
         :param session:
         :return:
         """
-        body = {"floorToken": "d7f086c1-5e6e-4572-b8dd-93ec7353d89e","dataSourceCode": "takeReward", "argMap":{}}
+        body = {"floorToken": "d7f086c1-5e6e-4572-b8dd-93ec7353d89e", "dataSourceCode": "takeReward", "argMap":{}}
         data = await self.post(session, 'pg_interact_interface_invoke', body)
 
         if not data['success']:
-            println('{}, 领取京豆失败!'.format(self._pt_pin))
+            println('{}, 领取京豆失败, 黑号或者今日已领取奖励!'.format(self.account))
             return
 
-        println('{}, 成功领取京豆, 获得:{}京豆!'.format(self._pt_pin, data['data']['rewardBeanAmount']))
+        println('{}, 成功领取京豆, 获得:{}京豆!'.format(self.account, data['data']['rewardBeanAmount']))
 
     async def run(self):
         """
         程序入口
         :return:
         """
-        async with aiohttp.ClientSession(cookies=self._cookies, headers=self.headers) as session:
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             index_data = await self.get_index_data(session)
             if not index_data:
-                println('{}, 无法获取首页数据, 退出程序!'.format(self._pt_pin))
+                println('{}, 无法获取首页数据, 退出程序!'.format(self.account))
                 return
             await self.open_red_packet(session, index_data)
             await self.do_tasks(session)
             await self.receive_bean(session)
 
 
-def start(pt_pin, pt_key, name='赚京豆'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdEarnBean(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    process_start(start, '微信小程序-赚京豆')
+    process_start(JdEarnBean, '微信小程序-赚京豆')
 

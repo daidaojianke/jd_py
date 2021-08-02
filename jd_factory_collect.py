@@ -17,8 +17,6 @@ class JdFactoryCollect(JdFactory):
     """
     东东工厂收电量
     """
-    def __init__(self, pt_pin, pt_key):
-        super(JdFactoryCollect, self).__init__(pt_pin, pt_key)
 
     async def run(self):
         """
@@ -32,20 +30,5 @@ class JdFactoryCollect(JdFactory):
             await self.collect_electricity(session)
 
 
-def start(pt_pin, pt_key, name='东东工厂-收电量'):
-    """
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = JdFactoryCollect(pt_pin, pt_key)
-        asyncio.run(app.run())
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
-
-
 if __name__ == '__main__':
-    process_start(start, '东东工厂-收电量')
+    process_start(JdFactoryCollect, '东东工厂-收电量')
