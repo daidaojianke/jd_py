@@ -9,11 +9,10 @@ import asyncio
 import json
 import aiohttp
 
-from urllib.parse import unquote, quote
-
-from utils.process import process_start
+from urllib.parse import quote
 from utils.console import println
 from utils.wraps import jd_init
+from utils.logger import logger
 from furl import furl
 from config import USER_AGENT
 
@@ -56,6 +55,7 @@ class JrDailyTakeGoose:
         except Exception as e:
             println('{}, 无法获取服务器数据!{}'.format(self.account, e.args))
 
+    @logger.catch
     async def request_mission(self, session, function_id, body):
         """
         URL`https://ms.jr.jd.com/gw/generic/mission/h5/m/xxx`的请求函数
@@ -73,6 +73,7 @@ class JrDailyTakeGoose:
         except Exception as e:
             println("{}, 访问服务器异常, 信息:{}".format(self.account, e.args))
 
+    @logger.catch
     async def query_task_list(self, session):
         """
         查询任务列表
@@ -108,6 +109,7 @@ class JrDailyTakeGoose:
 
         return task_result
 
+    @logger.catch
     async def do_task_list(self, session, task_list):
         """
         做任务
@@ -175,6 +177,7 @@ class JrDailyTakeGoose:
                 continue
             println('{}, 任务:{}, 领取奖励成功'.format(self.account, task['name']))
 
+    @logger.catch
     async def to_daily_home(self, session):
         """
         进入天天提鹅首页
@@ -198,6 +201,7 @@ class JrDailyTakeGoose:
             println('{}, 获取首页数据成功！'.format(self.account))
             return data['resultData']['data']
 
+    @logger.catch
     async def to_withdraw(self, session):
         """
         收鹅蛋
@@ -205,8 +209,12 @@ class JrDailyTakeGoose:
         :return:
         """
         data = await self.to_daily_home(session)
+        if not data:
+            println('{}, 获取鹅蛋数据失败, 无法提取!'.format(self.account))
+            return
 
-        if data['grassEggTotal'] < 1:  # 篮子装满了再提取，避免频繁提取!
+        await asyncio.sleep(1)
+        if not data['grassEggTotal'] < 1:  # 篮子装满了再提取，避免频繁提取!
             println('{}, 当前篮子鹅蛋小于1个, 无法提取...'.format(self.account))
             return
 
@@ -230,6 +238,7 @@ class JrDailyTakeGoose:
         println('{}, 当前等级:{}!'.format(self.account, data['resultData']['data']['userLevelDto']['levelName']))
         println('{}, 当前鹅蛋总数:{}个！'.format(self.account, data['resultData']['data']['userLevelDto']['userHaveEggNum']))
 
+    @logger.catch
     async def to_exchange(self, session):
         """
         鹅蛋兑换积分
@@ -260,6 +269,7 @@ class JrDailyTakeGoose:
         println('{}, 成功兑换积分:{}个!'.format(self.account, data['resultData']['data']['cnumber']))
         println('{}, 当前总积分:{}个！'.format(self.account, data['resultData']['data']['goldTotal']))
 
+    @logger.catch
     async def query_integral(self, session):
         """
         查询当前可用积分
@@ -273,6 +283,7 @@ class JrDailyTakeGoose:
         else:
             return data['resultData']['data']['goldTotal']
 
+    @logger.catch
     async def notify(self, session):
         """
         :return:
@@ -306,7 +317,5 @@ class JrDailyTakeGoose:
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-    app = JrDailyTakeGoose(**JD_COOKIES[0])
-    asyncio.run(app.run())
-    #process_start(JrDailyTakeGoose, '天天提鹅')
+    from utils.process import process_start
+    process_start(JrDailyTakeGoose, '天天提鹅')
