@@ -3,7 +3,7 @@
 # @Time    : 2021/6/24 19:43
 # @File    : jd_earn_bean.py
 # @Project : jd_scripts
-# @Cron    : #15 5,15 * * *
+# @Cron    : 15 5,17 * * *
 # @Desc    : 赚京豆(微信小程序)-赚京豆-签到领京豆
 import asyncio
 import time
@@ -98,6 +98,9 @@ class JdEarnBean:
         :param session:
         :return:
         """
+        if 'userActivityInfo' not in index_data['floorData']:
+            println('{}, 可能是个黑号!'.format(self._pt_pin))
+            return
         if index_data['floorData']['userActivityInfo']['redPacketOpenFlag']:
             println('{}, 今日已开过红包!'.format(self._pt_pin))
             return
@@ -164,8 +167,7 @@ class JdEarnBean:
             if not res['success']:
                 println('{}, 领取任务:《{}》奖励失败!'.format(self._pt_pin, task['name']))
             else:
-                println('{}, 领取任务:《{}》奖励成功, 获得:{}京豆!'.format(self._pt_pin, task['name'],
-                                                             int(res['data'][0]['rewardAmount'])))
+                println('{}, 领取任务:《{}》奖励成功!'.format(self._pt_pin, task['name']))
 
     async def get_index_data(self, session):
         """
@@ -235,5 +237,5 @@ def start(pt_pin, pt_key, name='赚京豆'):
 
 
 if __name__ == '__main__':
-    # process_start(start, '微信小程序-赚京豆')
-    println('微信小程序-赚京豆活动已过期！')
+    process_start(start, '微信小程序-赚京豆')
+
