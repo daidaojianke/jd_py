@@ -17,17 +17,18 @@ async def open_browser():
     :return:
     """
     if platform.system() == 'Linux':
-        headless = True
+        headless = False
     else:
         headless = False
     browser = await launch({
         'headless': headless,
-        'dumpio': False,
-        'slowMo': 30,
-        # 'devtools': True,
+        'dumpio': True,
+        #'slowMo': 10,
+        #'devtools': True,
         'autoClose': False,
         'handleSIGTERM': True,
         'handleSIGINT': True,
+        'timeout': 0,
         'handleSIGHUP': True,
         'args': [
             '--no-sandbox',
@@ -35,6 +36,8 @@ async def open_browser():
             '--disable-infobars',
             '-–window-size=1920,1080',
             '--disable-extensions',
+            '-–single-process',
+            '–-no-zygote',
             '--hide-scrollbars',
             '--disable-bundled-ppapi-flash',
             '--disable-setuid-sandbox',
@@ -56,7 +59,7 @@ async def open_page(browser, url, user_agent, cookies):
         if len(pages) > 0:
             page = pages[0]
         else:
-            page = await browser.newPage()
+            page = await context.newPage()
 
         await page.setUserAgent(user_agent)  # 设置USER-AGENT
 
