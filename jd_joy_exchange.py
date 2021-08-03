@@ -121,8 +121,8 @@ class JdJoyExchange(JdJoy):
 
         if exchange_success:
             println('{}, 成功兑换商品:{}, 兑换时间:{}'.format(self.account, gift_name, exchange_success_datetime))
-            self.message = '【活动名称】宠汪汪\n【兑换奖品】{}【兑换状态】成功\n【兑换时间】{}\n'.\
-                format(gift_name, exchange_success_datetime)
+            self.message = '【活动名称】宠汪汪\n【京东账号】{}【兑换奖品】{}\n【兑换状态】成功\n【兑换时间】{}\n'.\
+                format(self.account, gift_name, exchange_success_datetime)
         else:
             println('{}, 无法兑换商品:{}!'.format(self.account, gift_name))
 
