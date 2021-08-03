@@ -37,6 +37,15 @@ def jd_init(cls):
         self._message = ''
 
     @property
+    def sort(self):
+        return self._sort
+
+    @sort.setter
+    def sort(self, sort):
+        self._sort = sort
+
+
+    @property
     def message(self):
         return self._message
 
@@ -85,6 +94,7 @@ def jd_init(cls):
     cls.message = message
     cls.account = account
     cls.cookies = cookies
+    cls.sort = sort
     cls.__init__ = init
 
     return cls

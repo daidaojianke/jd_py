@@ -20,27 +20,48 @@ __all__ = ('process_start', )
 
 def start(script_cls, **kwargs):
     """
-    入口函数
+    任务入口函数
     :param script_cls: 脚本对应类
     :param kwargs: 其他参数
     :return:
     """
+    account, name = kwargs.get('account'), kwargs.get('name')
     try:
+        println('{}, 开始执行{}...'.format(account, name))
         app = script_cls(**kwargs)
         asyncio.run(app.run())
+        println('{}, {}执行完成...'.format(account, name))
         if app.message:
             return app.message
     except Exception as e:
-        account = kwargs.get('account')
-        name = kwargs.get('name')
+        println(e)
         message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  account,  e.args)
         return message
 
 
-def process_start(scripts_cls, name='', process_num=None):
+def start_help(script_cls, **kwargs):
     """
-    多进程执行
+    助力入口函数
+    :param script_cls:
+    :param kwargs:
+    :return:
+    """
+    account, name = kwargs.get('account'), kwargs.get('name')
+    try:
+        println('{}, 开始{}-助力好友!'.format(account, name))
+        app = script_cls(**kwargs)
+        asyncio.run(app.run_help())
+        println('{}, 完成{}-助力好友!'.format(account, name))
+    except Exception as e:
+        println(e)
+        message = '【活动名称】{}-助力好友\n【京东账号】{}【运行异常】{}\n'.format(name,  account,  e.args)
+        return message
+
+
+def process_start(scripts_cls, name='', process_num=None, help=True):
+    """
     从配置中读取JD_COOKIES，开启多进程执行func。
+    :param help:
     :param scripts_cls: 脚本类
     :param process_num: 进程数量
     :param name: 活动名称
@@ -67,6 +88,8 @@ def process_start(scripts_cls, name='', process_num=None):
 
     println("开始执行{}, 共{}个账号, 启动{}个进程!\n".format(name, len(JD_COOKIES), process_count), style='bold green')
 
+    kwargs_list = []
+
     for i in range(len(JD_COOKIES)):
         jd_cookie = JD_COOKIES[i]
         account = unquote(jd_cookie['pt_pin'])
@@ -80,15 +103,11 @@ def process_start(scripts_cls, name='', process_num=None):
             'account': account
         }
         kwargs.update(jd_cookie)
-
+        kwargs_list.append(kwargs)
         process = pool.apply_async(start, args=(scripts_cls, ), kwds=kwargs)
         process_list.append(process)
 
-        println("  {}.账号:{}, 正在进行{}...".format(i + 1, account, name),
-                style=random.choice(['bold yellow', 'bold green']))
-
     pool.close()
-    println("\n{}正在运行, 请耐心等候...\n".format(name), style='bold green')
     pool.join()  # 等待进程结束
 
     notify_message = ''   # 消息通知内容
@@ -103,8 +122,16 @@ def process_start(scripts_cls, name='', process_num=None):
             continue
         notify_message += message + '\n'
 
+    if hasattr(scripts_cls, 'run_help') and help:
+        pool = multiprocessing.Pool(process_count)  # 进程池
+        for kwargs in kwargs_list:
+            pool.apply_async(start_help, args=(scripts_cls,), kwds=kwargs)
+
+        pool.close()
+        pool.join()  # 等待进程结束
+
     if notify_message != '':
         title = '\n======📣{}📣======\n'.format(name)
         notify(title, notify_message)
 
-    println("\n{}执行完毕, 退出程序...".format(name), style='bold green')
+    println('\n所有账号均执行完{}, 退出程序\n'.format(name))

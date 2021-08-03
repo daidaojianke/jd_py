@@ -1,6 +1,8 @@
 # 薅薅乐
 
-- python:3.7+
+**不要给我提什么适配青龙，青龙怎么拉取你的代码之类的issue, 一律直接close。**
+
+- python版本:3.7.*
 
 ## 安裝
 
@@ -42,7 +44,7 @@
     # 此处省略更多配置
     ```
 
-- 配置好JD_COOKIES, 随便运行一个脚本检查配置, 如: `python update_share_code.py`.
+- 配置好JD_COOKIES, 随便运行一个脚本检查配置, 如: `python jd_bean_change.py`.
 
 - 内置定时任务, 配好JD_COOKIES自动会执行脚本。
 
@@ -52,7 +54,8 @@
   - 企业微信应用消息：配置qywx_am  （依次填上corpid的值,corpsecret的值,touser的值,agentid,media_id的值，注意用,号隔开。）
 
 ## 注意
-- 脚本都是短短一两个小时写的, 没有经过完全的测试，避免不了有Bug, 如有问题请提issues。
+
+- 内部账号互相助力, 如有剩余助力作者。
 
 ## 脚本列表
 
@@ -60,7 +63,6 @@
 | 脚本名称                  | 脚本描述            | 完成进度 |
 |:---:|:---:|:---:|
 | jd_big_winner.py      | 京东极速版->大赢家翻翻乐 | 100% |
-| update_share_code.py  | 更新助力码| 100%|
 | jd_bean_change.py      | 资产变动通知 | 100% |
 | get_jd_cookies.py     | 获取京东的COOKIES    | 100%      |
 | jd_cute_pet.py        | 京东APP->东东萌宠     | 100%        |
@@ -92,7 +94,7 @@
 | dj_bean_manor.py| 京东APP-京东到家->鲜豆庄园任务| 90%|
 | dj_bean_manor_water.py| 京东APP-京东到家->鲜豆庄园->领水/浇水| 100%|
 | jd_flash_sale_box.py| 京东APP->品牌闪购->闪购盲盒|100%|
-| jd_amusement_post.py| 京东APP->京小鸽游乐寄| 80% |
+| jd_amusement_post.py| 京东APP->京小鸽游乐寄| 95% |
 | jd_beauty.py          | 京东APP->美丽研究院   | 0%        |
 | jx_factory.py | 京喜APP->京喜工厂 | 0% |
 | jx_farm.py | 京喜APP->京喜农场| 0% |

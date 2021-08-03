@@ -12,11 +12,12 @@ import time
 from datetime import datetime
 import aiohttp
 import json
-from urllib.parse import unquote, quote
+from urllib.parse import quote
 from utils.console import println
 from utils.logger import logger
 from utils.wraps import jd_init
-from config import USER_AGENT, JD_FARM_CODE, JD_FARM_BEAN_CARD, JD_FARM_RETAIN_WATER
+from config import USER_AGENT, JD_FARM_BEAN_CARD, JD_FARM_RETAIN_WATER
+from db.model import Code, CODE_JD_FARM
 
 
 @jd_init
@@ -144,25 +145,27 @@ class JdFarm:
         invite_friend_max = data['inviteFriendMax']  # 每日邀请上限
         println('{}, 今日已邀请好友{}个 / 每日邀请上限{}个'.format(self.account, invite_friend_count, invite_friend_max))
         friends = data['friends']  # 好友列表
-        # cur_friend_count = len(friends)  # 当前好友数量
+        cur_friend_count = len(friends)  # 当前好友数量
 
-        # if cur_friend_count > 0:
-        #     println('{}, 开始删除{}个好友, 可拿每天的邀请奖励!'.format(self.account, cur_friend_count))
-        #     for friend in friends:
-        #         res = await self.request(session, 'deleteFriendForFarm', {
-        #             'shareCode': friend['shareCode']
-        #         })
-        #         if res['code'] == '0':
-        #             println('{}, 成功删除好友:{}'.format(self.account, friend['nickName']))
+        if cur_friend_count > 0:
+            println('{}, 开始删除{}个好友, 可拿每天的邀请奖励!'.format(self.account, cur_friend_count))
+            for friend in friends:
+                res = await self.request(session, 'deleteFriendForFarm', {
+                    'shareCode': friend['shareCode']
+                })
+                if res['code'] == '0':
+                    println('{}, 成功删除好友:{}'.format(self.account, friend['nickName']))
 
         m_pin = await self.get_encrypted_pin(session)
 
-        for code in JD_FARM_CODE:
+        item_list = Code.get_code_list(CODE_JD_FARM)
+        for item in item_list:
+            friend_account, friend_code = item.get('account'), item.get('code')
             # 自己不能邀请自己成为好友
-            if code == self.farm_info['shareCode']:
+            if self.account == friend_account:
                 continue
             res = await self.request(session, 'initForFarm', {
-                'shareCode': code + '-inviteFriend',
+                'shareCode': friend_code + '-inviteFriend',
                 "mpin": m_pin,
                 'version': 13,
                 "babelChannel": 0,
@@ -344,28 +347,6 @@ class JdFarm:
                 println('{}, 领取天天抽奖任务:《{}》奖励, 结果:{}'.format(self.account, item['main'], award_res))
                 count += 1
 
-        println('{}, 开始天天抽奖--好友助力--每人每天只有三次助力机会!'.format(self.account))
-        for code in JD_FARM_CODE:
-            if code == self.farm_info['shareCode']:
-                continue
-            res = await self.request(session, 'initForFarm', {
-                "imageUrl": "",
-                "nickName": "",
-                "shareCode": code + '-3',
-                "babelChannel": "3"
-            })
-            if res['helpResult']['code'] == '0':
-                println('{}, 天天抽奖-成功助力用户:《{}》 !'.format(self.account, res['helpResult']['masterUserInfo']['nickName']))
-            elif res['helpResult']['code'] == '11':
-                println('{}, 天天抽奖-无法重复助力用户:《{}》!'.format(self.account, res['helpResult']['masterUserInfo']['nickName']))
-            elif res['helpResult']['code'] == '13':
-                println('{}, 天天抽奖-助力用户:《{}》失败, 助力次数已用完!'.format(self.account,
-                                                                res['helpResult']['masterUserInfo']['nickName']))
-            else:
-                println('{}, 天天抽奖助力用户:《{}》失败, 原因未知!'.format(self.account,
-                                                            res['helpResult']['masterUserInfo']['nickName']))
-        println('{}, 完成天天抽奖--好友助力!'.format(self.account))
-
         await asyncio.sleep(1)
         data = await self.request(session, 'initForTurntableFarm')
         lottery_times = data['remainLotteryTimes']
@@ -454,8 +435,6 @@ class JdFarm:
         if not data['waterFriendTaskInit']['f'] and \
                 data['waterFriendTaskInit']['waterFriendCountKey'] < data['waterFriendTaskInit']['waterFriendMax']:
             await self.do_friend_water(session)
-
-        await self.get_award_of_invite_friend(session)  # 领取邀请好友奖励
 
         await self.clock_in(session)  # 打卡领水
 
@@ -582,34 +561,36 @@ class JdFarm:
         """
         help_max_count = 3  # 每人每天只有三次助力机会
         cur_count = 0  # 当前已助力次数
-        for code in JD_FARM_CODE:
+        item_list = Code.get_code_list(CODE_JD_FARM)
+        for item in item_list:
+            friend_account, friend_code = item.get('account'), item.get('code')
             if cur_count >= help_max_count:
                 println('{}, 今日助力次数已用完!'.format(self.account))
-            if code == self.farm_info['shareCode']:
+
+            if friend_account == self.account:
                 continue
+
             res = await self.request(session, 'initForFarm', {
                 "imageUrl": "",
                 "nickName": "",
-                "shareCode": code,
+                "shareCode": friend_code,
                 "babelChannel": "3"
             })
             if 'helpResult' not in res:
-                println('{}, 助力好友状态未知~'.format(self.account))
+                println('{}, 助力好友{}状态未知~'.format(self.account, friend_account))
                 continue
             if res['helpResult']['code'] == '0':
-                println('{}, 已成功给【{}】助力!'.format(self.account, res['helpResult']['masterUserInfo']['nickName']))
-                println('{}, 给好友【{}】助力获得{}g水滴'.format(self.account, res['helpResult']['masterUserInfo']['nickName'],
-                                                      res['helpResult']['salveHelpAddWater']))
+                println('{}, 已成功给【{}】助力!'.format(self.account, friend_account))
                 cur_count += 1
             elif res['helpResult']['code'] == '9':
-                println('{}, 之前给【{}】助力过了!'.format(self.account, res['helpResult']['masterUserInfo']['nickName']))
+                println('{}, 之前给【{}】助力过了!'.format(self.account, friend_account))
             elif res['helpResult']['code'] == '8':
                 println('{}, 今日助力次数已用完!'.format(self.account))
                 break
             elif res['helpResult']['code'] == '10':
-                println('{}, 好友【{}】已满五人助力!'.format(self.account, res['helpResult']['masterUserInfo']['nickName']))
+                println('{}, 好友【{}】已满五人助力!'.format(self.account, friend_account))
             else:
-                println('{}, 给【{}】助力失败!'.format(self.account, res['helpResult']['masterUserInfo']['nickName']))
+                println('{}, 给【{}】助力失败!'.format(self.account, friend_account))
 
     @logger.catch
     async def get_water_friend_award(self, session):
@@ -708,19 +689,6 @@ class JdFarm:
                 break
 
     @logger.catch
-    async def get_share_code(self):
-        """
-        获取助力码
-        :return:
-        """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
-            farm_info = await self.init_for_farm(session=session)
-            if not farm_info:
-                return None
-            println('{}, 助力码:{}'.format(self.account, farm_info['shareCode']))
-            return farm_info['shareCode']
-
-    @logger.catch
     async def notify_result(self, session):
         """
         通知结果
@@ -767,6 +735,34 @@ class JdFarm:
                                   {"type": 3, "version": 14, "channel": 1, "babelChannel": 0})
         println('{}, 领取水滴:{}!'.format(self.account, data))
 
+    async def lottery_help_friend(self, session):
+        """
+        天天抽奖助力好友
+        :param session:
+        :return:
+        """
+        println('{}, 开始天天抽奖--好友助力--每人每天只有三次助力机会!'.format(self.account))
+        item_list = Code.get_code_list(CODE_JD_FARM)
+        for item in item_list:
+            friend_account, friend_code = item.get('account'), item.get('code')
+            if friend_account == self.account:
+                continue
+            res = await self.request(session, 'initForFarm', {
+                "imageUrl": "",
+                "nickName": "",
+                "shareCode": friend_code + '-3',
+                "babelChannel": "3"
+            })
+            if res['helpResult']['code'] == '0':
+                println('{}, 天天抽奖-成功助力用户:《{}》 !'.format(self.account, friend_account))
+            elif res['helpResult']['code'] == '11':
+                println('{}, 天天抽奖-无法重复助力用户:《{}》!'.format(self.account, friend_account))
+            elif res['helpResult']['code'] == '13':
+                println('{}, 天天抽奖-助力用户:《{}》失败, 助力次数已用完!'.format(self.account, friend_account))
+            else:
+                println('{}, 天天抽奖助力用户:《{}》失败, 原因未知!'.format(self.account, friend_account))
+        println('{}, 完成天天抽奖--好友助力!'.format(self.account))
+
     async def run(self):
         """
         :return:
@@ -776,7 +772,10 @@ class JdFarm:
             if not self.farm_info:
                 println('{}, 无法获取农场数据, 退出程序!'.format(self.account))
                 return
-            await self.help_friend(session)  # 助力好友
+            Code.insert_code(code_key=CODE_JD_FARM, code_val=self.farm_info['shareCode'],
+                             account=self.account, sort=self.sort)
+            println('{}, 助力码:{}'.format(self.account, self.farm_info['shareCode']))
+
             await self.do_daily_task(session)  # 每日任务
             await self.do_ten_water(session)  # 浇水十次
             await self.get_first_water_award(session)  # 领取首次浇水奖励
@@ -786,6 +785,21 @@ class JdFarm:
             await self.do_ten_water_again(session)  # 再次浇水
             await self.got_water(session)  # 领水滴
             await self.notify_result(session)  # 结果通知
+
+    async def run_help(self):
+        """
+        助力入口
+        :return:
+        """
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
+            self.farm_info = await self.init_for_farm(session=session)
+            if not self.farm_info:
+                println('{}, 无法获取农场数据, 退出程序!'.format(self.account))
+                return
+            await self.help_friend(session)  # 助力好友
+            await self.lottery_help_friend(session)  # 天天抽奖助力好友
+            await self.get_award_of_invite_friend(session)  # 领取邀请好友奖励
+    #
 
 
 if __name__ == '__main__':

@@ -14,34 +14,11 @@ joy_process_num: 1
 jd_cookies:
   - pt_pin=;pt_key=;
 
-# 种豆得豆助力码
-jd_planting_bean_code:
-  # 一行一个, 顺序无所谓。
-- null
-
-
-# 京东->东东农场互助吗
-jd_farm_code:
-- null
-
 # 东东农场是否使用水滴换豆卡, 100水滴换20京豆
 jd_farm_bean_card: false
 
 # 东东农场每天保留多少水滴, 用于明天的十次浇水任务
 jd_farm_retain_water: 80
-
-
-# 金果摇钱树邀请码
-jr_money_tree_code:
-- null
-
-# 东东工厂互助码
-jd_factory_code:
-- null
-
-# 签到领现金助力码
-jd_cash_code:
-  - null
 
 # 消息通知
 notify:
@@ -49,36 +26,8 @@ notify:
   tg_bot_token: null
   # TG用户ID
   tg_user_id: null
-
   # push+ token: https://pushplus.hxtrip.com/
   push_p_token: null
 
-# 众筹许愿池助力码
-jd_wishing_pool_code:
-  - null
-
-
 # 是否开启京豆夺宝功能
 jd_bean_indiana: false
-
-# 请求头, 默认不需要修改
-user_agent: jdapp;iPhone;10.0.2;14.3;network/wifi;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1
-
-# 京喜工厂团ID
-jx_factory_tuan_id:
-  - null
-
-# 到家果园助力码
-dj_fruit_code:
-  - null
-
-# 到家果园保留水滴
-dj_fruit_keep_water: 80
-
-# 抢京豆助力码
-jd_grab_bean_code:
-  - null
-
-# 闪购盲盒助力码
-jd_flash_sale_box_code:
-  - null

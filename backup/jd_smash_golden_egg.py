@@ -3,7 +3,7 @@
 # @Time    : 2021/7/13 3:31 下午
 # @File    : jd_smash_golden_egg.py
 # @Project : jd_scripts
-# @Cron    : 45 5,19 * * *
+# @Cron    : #45 5,19 * * *
 # @Desc    : 京东APP->每日特价->疯狂砸金蛋
 import aiohttp
 import asyncio
@@ -12,7 +12,8 @@ import json
 from urllib.parse import quote
 from utils.console import println
 from utils.wraps import jd_init
-from config import USER_AGENT, JD_SMASH_GOLDEN_EGG_CODE
+from config import USER_AGENT
+from db.model import Code, CODE_SMASH_GOLDEN_EGG
 
 
 @jd_init
@@ -59,31 +60,6 @@ class JdSmashGoldenEgg:
         """
         data = await self.request(session, 'interact_template_getHomeData', {"appId": "1EFRQwA", "taskToken": ""})
         return data
-
-    async def help_friend(self, session, task):
-        """
-        助力好友
-        :param session:
-        :param task:
-        :return:
-        """
-        my_code = task['assistTaskDetailVo']['taskToken']
-        for code in JD_SMASH_GOLDEN_EGG_CODE:
-            if code == my_code:
-                continue
-            body = {
-                "appId": "1EFRQwA",
-                "taskToken": code,
-                "taskId": int(task['taskId']),
-                "actionType": 0
-            }
-            res = await self.request(session, 'harmony_collectScore', body)
-            if res['bizCode'] != 0:
-                println('{}, 助力好友:{}失败!'.format(self.account, code))
-                break
-            else:
-                println('{}, 成功助力好友:{}!'.format(self.account, code))
-            await asyncio.sleep(1)
 
     async def sign(self, session, task):
         """
@@ -149,7 +125,6 @@ class JdSmashGoldenEgg:
         """
         println('{}, 开始做任务...'.format(self.account))
         for task in data['result']['taskVos']:
-
             task_type = task['taskType']
             task_name = task['taskName']
             task_status = task['status']
@@ -159,32 +134,15 @@ class JdSmashGoldenEgg:
             if task_type == 13:
                 await self.sign(session, task)
             elif task_type == 14:
-                await self.help_friend(session, task)
+                code = task['assistTaskDetailVo']['taskToken']
+                println('{}, 助力码:{}'.format(self.account, code))
+                from db.model import Code
+                Code.insert_code(code_key=CODE_SMASH_GOLDEN_EGG, account=self.account, code_val=code)
             elif task_type == 21:
                 println('{}, 跳过任务: 《{}》!'.format(self.account, task_name))
                 continue
             else:
                 await self.do_task(session, task)
-
-    async def get_share_code(self):
-        """
-        获取助力码
-        :return:
-        """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
-            data = await self.get_home_data(session)
-            if not data or data['bizCode'] != 0:
-                println('{}, 无法获取助力码!'.format(self.account))
-                return None
-            for task in data['result']['taskVos']:
-                if task['taskType'] == 14:
-                    code = task['assistTaskDetailVo']['taskToken']
-                    println('{}, 助力码:{}'.format(self.account, code))
-                    from db.model import Code
-                    from config import JD_SMASH_GOLDEN_EGG_CODE_KEY
-                    Code.insert_code(code_key=JD_SMASH_GOLDEN_EGG_CODE_KEY, account=self.account, code_val=code)
-                    return code
-            return None
 
     async def do_lottery(self, session):
         """
@@ -203,6 +161,7 @@ class JdSmashGoldenEgg:
 
     async def run(self):
         """
+        任务入口
         :return:
         """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
@@ -212,6 +171,32 @@ class JdSmashGoldenEgg:
                 return
             await self.do_tasks(session, data)
             await self.do_lottery(session)
+
+    async def run_help(self):
+        """
+        助力入口
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
+            item_list = Code.get_code_list(CODE_SMASH_GOLDEN_EGG)
+            for item in item_list:
+                friend_account, friend_code = item.get('account'), item.get('code')
+                if self.account == friend_account:
+                    continue
+                body = {
+                    "appId": "1EFRQwA",
+                    "taskToken": friend_account,
+                    "taskId": 6,
+                    "actionType": 0
+                }
+                res = await self.request(session, 'harmony_collectScore', body)
+                if res['bizCode'] != 0:
+                    println('{}, 助力好友:{}失败, {}'.format(self.account, friend_account, res.get('bizMsg')))
+                    if res['bizCode'] == 105:
+                        break
+                else:
+                    println('{}, 成功助力好友:{}!'.format(self.account, friend_account))
+                await asyncio.sleep(1)
 
 
 if __name__ == '__main__':

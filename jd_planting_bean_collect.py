@@ -27,8 +27,7 @@ class JdPlantingBeanCollect(JdPlantingBean):
                 return
             await self.receive_nutrient(session)
             await self.collect_nutriments(session)
-            self.message = None  # 不发送通知
 
 
 if __name__ == '__main__':
-    process_start(JdPlantingBeanCollect, '种豆得豆收营养液')
+    process_start(JdPlantingBeanCollect, '种豆得豆收营养液', help=False)

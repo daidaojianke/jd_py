@@ -13,8 +13,8 @@ from utils.console import println
 from utils.process import process_start
 from utils.logger import logger
 from utils.wraps import jd_init
-
-from config import USER_AGENT, JD_FLASH_SALE_BOX_CODE
+from db.model import Code, CODE_FLASH_SALE_BOX
+from config import USER_AGENT
 
 
 @jd_init
@@ -150,63 +150,44 @@ class JdFlashSaleBox:
         for task in task_list:
             task_name, task_type = task['taskName'], task['taskType']
             if task_type == 14:   # 邀请好友助力
+                code = task['assistTaskDetailVo']['taskToken']
+                println('{}, 助力码:{}'.format(self.account, code))
+                Code.insert_code(code_key=CODE_FLASH_SALE_BOX, code_val=code, account=self.account, sort=self.sort)
                 continue
             await self.do_task(session, task)
-    
+
     @logger.catch
-    async def get_share_code(self):
+    async def run_help(self):
         """
-        获取助力码
+        助力
         :return:
         """
         async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
-            res = await self.request(session, 'healthyDay_getHomeData', {"appId": "1EFRXxg", "taskToken": "", "channelId": 1})
-            if res['code'] != 0 or res['data']['bizCode'] != 0:
-                println('{}, 获取助力码失败!'.format(self.account))
-                return
-            item_list = res['data']['result']['taskVos']
-            code = None
+            item_list = Code.get_code_list(code_key=CODE_FLASH_SALE_BOX)
             for item in item_list:
-                if item['taskType'] == 14:
-                    code = item['assistTaskDetailVo']['taskToken']
+                friend_account, friend_code = item['account'], item['code']
+                if friend_account == self.account:
+                    return
+                body = {
+                    "appId": "1EFRXxg",
+                    "taskToken": friend_code,
+                    "taskId": 6,
+                    "actionType": 0
+                }
+                res = await self.request(session, 'harmony_collectScore', body)
+                if res['code'] != 0:
+                    println('{}, 助力好友:{}失败!'.format(self.account, friend_account))
                     break
-            if code:
-                println('{}, 助力码:{}'.format(self.account, code))
-            else:
-                println('{}, 无法获取助力码'.format(self.account))
-            return code
-    
-    @logger.catch
-    async def help_friend(self, session):
-        """
-        助力好友
-        :param session:
-        :return:
-        """
-        println('{}, 开始助力好友!'.format(self.account))
-        for code in JD_FLASH_SALE_BOX_CODE:
-            body = {
-                "appId": "1EFRXxg",
-                "taskToken": code,
-                "taskId": 6,
-                "actionType": 0
-            }
-            res = await self.request(session, 'harmony_collectScore', body)
-            if res['code'] != 0:
-                println('{}, 助力好友:{}失败!'.format(self.account, code))
-                break
 
-            if res['data']['bizCode'] != 0:
-                println('{}, 助力好友:{}失败, {}!'.format(self.account, code, res['data']['bizMsg']))
-                if res['data']['bizCode'] in [108]:
-                    break
-            else:
-                println('{}, 助力好友:{}成功!'.format(self.account, code))
+                if res['data']['bizCode'] != 0:
+                    println('{}, 助力好友:{}失败, {}!'.format(self.account, friend_account, res['data']['bizMsg']))
+                    if res['data']['bizCode'] in [108]:
+                        break
+                else:
+                    println('{}, 助力好友:{}成功!'.format(self.account, friend_account))
 
-            await asyncio.sleep(1)
+                await asyncio.sleep(1)
 
-        println('{}, 完成好友助力!'.format(self.account))
-    
     @logger.catch
     async def lottery(self, session):
         """
@@ -249,7 +230,6 @@ class JdFlashSaleBox:
         """
         async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             await self.do_tasks(session)
-            await self.help_friend(session)
             await self.lottery(session)
 
 
