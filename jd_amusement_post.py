@@ -3,7 +3,7 @@
 # @Time    : 2021/8/2 下午9:50
 # @Project : jd_scripts
 # @File    : jd_amusement_post.py
-# @Cron    : 45 8 * * *
+# @Cron    : 45 8,15 * * *
 # @Desc    : 京小鸽游乐寄
 import asyncio
 import json
@@ -14,6 +14,8 @@ from config import USER_AGENT
 
 from utils.wraps import jd_init
 from utils.console import println
+from utils.logger import logger
+from db.model import Code, CODE_AMUSEMENT_POST
 
 
 @jd_init
@@ -55,6 +57,7 @@ class JdAmusementPost:
                 'success': False
             }
 
+    @logger.catch
     async def get_index_data(self, session):
         """
         获取首页数据
@@ -68,6 +71,7 @@ class JdAmusementPost:
             return None
         return res['content']
 
+    @logger.catch
     async def get_card(self, session, code):
         """
         领取卡片
@@ -86,6 +90,7 @@ class JdAmusementPost:
         else:
             println('{}, 领取卡片失败!'.format(self.account))
 
+    @logger.catch
     async def sign(self, session):
         """
         每日签到
@@ -101,6 +106,7 @@ class JdAmusementPost:
         else:
             println('{}, 签到成功!'.format(self.account))
 
+    @logger.catch
     async def visit_jc(self, session):
         """
         访问精彩
@@ -112,6 +118,50 @@ class JdAmusementPost:
         }]
         await self.request(session, 'mangHeApi/setUserHasView', body)
 
+    @logger.catch
+    async def run_help(self):
+        """
+        执行助力
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies,
+                                         json_serialize=ujson.dumps) as session:
+
+            code_list = Code.get_code_list(code_key=CODE_AMUSEMENT_POST)
+
+            if not code_list:
+                return
+            for code in code_list:
+                friend_account = code.get('account')
+                friend_code = code.get('code')
+                if friend_account == self.account:
+                    continue
+                res = await self.request(session, 'MangHeApi/helpFriend', [{
+                    "userNo": "$cooMrdGatewayUid$",
+                    "missionNo": friend_code
+                }])
+                success = res.get('success', False)
+                if success:
+                    println('{}, 成功助力好友:{}!'.format(self.account, friend_account))
+                else:
+                    println('{}, 无法助力好友:{}!'.format(self.account, friend_account))
+
+    async def get_share_code(self, session):
+        """
+        获取助力码
+        :return:
+        """
+        res = await self.request(session, 'MangHeApi/newShare', [{
+            "userNo": "$cooMrdGatewayUid$"
+        }])
+        code = res.get('data', None)
+        if code:
+            println('{}, 助力码:{}'.format(self.account, code))
+            Code.insert_code(code_key=CODE_AMUSEMENT_POST, code_val=code, account=self.account,
+                             sort=self.sort)
+        return code
+
+    @logger.catch
     async def run(self):
         """
         :return:
@@ -133,6 +183,9 @@ class JdAmusementPost:
                 elif jump_type == 31:
                     await self.sign(session)
                     await asyncio.sleep(1)
+                elif jump_type == 1:
+                    await self.get_share_code(session)
+
             data = await self.get_index_data(session)
 
             for item in data:
@@ -142,8 +195,7 @@ class JdAmusementPost:
 
 if __name__ == '__main__':
     # from config import JD_COOKIES
-    # app = JdAmusementPost(**JD_COOKIES[0])
+    # app = JdAmusementPost(**JD_COOKIES[8])
     # asyncio.run(app.run())
-
     from utils.process import process_start
     process_start(JdAmusementPost, '京小鸽-游乐寄')

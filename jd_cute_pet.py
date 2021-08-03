@@ -428,7 +428,7 @@ class JdCutePet:
         :return:
         """
         async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
-            self.message = '【活动名称】东东萌宠\n【京东账号】{}\n'
+            self.message = '【活动名称】东东萌宠\n【京东账号】{}\n'.format(self.account)
             is_success = await self.init(session)
             if not is_success:
                 println('{}, 初始化失败, 退出程序!'.format(self.account))

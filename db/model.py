@@ -10,6 +10,13 @@ from config import DB_PATH
 
 db = SqliteDatabase(DB_PATH)
 
+# 京小鸽游乐寄助力码
+CODE_AMUSEMENT_POST = 'amusement_post'
+
+CODE_TITLE_MAP = {
+    CODE_AMUSEMENT_POST: '京小鸽游乐寄助力码',
+}
+
 
 class Code(Model):
     """
@@ -45,8 +52,12 @@ class Code(Model):
         :param code_type:
         :return:
         """
-        rowid = (cls.insert(code_key=code_key, account=account, code_val=code_val, code_type=code_type, sort=sort).execute())
-        return rowid
+        exists = cls.select().where(cls.code_key == code_key, cls.account == account, cls.code_val == code_val,
+                                    cls.sort == sort, cls.code_type == code_type, cls.created_at == datetime.now().date())
+        if not exists:
+            rowid = (cls.insert(code_key=code_key, account=account,
+                                code_val=code_val, code_type=code_type, sort=sort, created_at=datetime.now().date()).execute())
+            return rowid
 
     @classmethod
     def get_code_list(cls, code_key=''):
@@ -55,8 +66,19 @@ class Code(Model):
         :param code_key: 助力码类型
         :return:
         """
-        code_list = cls.select().where(cls.code_key == code_key, cls.created_at == datetime.now().date()).order_by(cls.sort)
-        return code_list
+        result = []
+
+        code_list = cls.select().where(cls.code_key == code_key, cls.created_at == datetime.now().date()).order_by(cls.sort).execute()
+        if not code_list:
+            return result
+
+        for code in code_list:
+            result.append({
+                'account': code.account,
+                'code': code.code_val,
+            })
+
+        return result
 
 
 db.create_tables([Code])
