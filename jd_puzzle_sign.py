@@ -31,8 +31,7 @@ class JdPuzzleSign:
         println('{}, 正在打开京东内衣页面...'.format(self.account))
         page = await open_page(browser, url, self.user_agent, self.browser_cookies)
 
-        sign_button_selector = '#J_babelOptPage > div > div.bab_opt_mod.bab_opt_mod_1_4.module_60978540.customcode' \
-                               '.shared > div > div.sign_contain > div.sign_btn'
+        sign_button_selector = '#J_babelOptPage > div > div.bab_opt_mod.bab_opt_mod_1_4.module_60978540.customcode.shared > div > div.sign_contain > div.sign_btn'
 
         await page.waitForSelector(sign_button_selector)
 
@@ -43,9 +42,13 @@ class JdPuzzleSign:
             return
         println('{}, 立即翻牌！'.format(self.account))
         await sign_button_element.click()
+
         await asyncio.sleep(1)
-        # document.getElementsByClassName('man-machine-container')[0].style.cssText='width:400px;height:299px';
-        await self.puzzle_validate(page, (32, 32), (230, 89))
+        await page.evaluate(('''() => {
+                                document.getElementsByClassName('man-machine-container')[0].style.cssText += 'width:400px;height:299px';
+                                                }'''))
+        # document.getElementsByClassName('man-machine-container')[0].style.cssText += 'width:400px;height:299px';
+        await self.puzzle_validate(page)
 
     async def run(self):
         """
@@ -67,9 +70,10 @@ class JdPuzzleSign:
         println('{}, 正在打开浏览器...'.format(self.account))
         browser = await open_browser()
         await self.undies_sign(browser)
+        await browser.close()
 
 
 if __name__ == '__main__':
     from config import JD_COOKIES
-    app = JdPuzzleSign(**JD_COOKIES[4])
+    app = JdPuzzleSign(**JD_COOKIES[7])
     asyncio.run(app.run())

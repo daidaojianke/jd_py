@@ -37,7 +37,7 @@ def detect_displacement(img_slider_path, image_background_path, img_slider_dim=(
     template = cv2.imread(image_background_path, 0)
 
     image = cv2.resize(image, img_slider_dim, interpolation=cv2.INTER_AREA)
-    template = cv2.resize(template, (360.0, 140.0), interpolation=cv2.INTER_AREA)
+    template = cv2.resize(template, img_bg_dim, interpolation=cv2.INTER_AREA)
 
     # 寻找最佳匹配
     res = cv2.matchTemplate(_tran_canny(image), _tran_canny(template), cv2.TM_CCOEFF_NORMED)
