@@ -8,13 +8,14 @@
 import asyncio
 import aiohttp
 import json
-from urllib.parse import unquote, quote
+from urllib.parse import quote
 
 from utils.console import println
 from utils.process import process_start
 from utils.wraps import jd_init
 from utils.logger import logger
-from config import USER_AGENT, JD_FACTORY_CODE
+from config import USER_AGENT
+from db.model import Code, CODE_JD_FACTORY
 
 
 @jd_init
@@ -126,16 +127,23 @@ class JdFactory:
         :param session:
         :return:
         """
-        println('{}, 正在帮好友助力!'.format(self.account))
-        for code in JD_FACTORY_CODE:
-            if code == self.code:
+        item_list = Code.get_code_list(CODE_JD_FACTORY)
+        for item in item_list:
+            friend_account, friend_code = item.get('account'), item.get('code')
+            if friend_account == self.account:
                 continue
+
             params = {
-                "taskToken": code,
+                "taskToken": friend_code,
             }
+
             data = await self.request(session, 'jdfactory_collectScore', params)
 
-            println('{}, 助力好友{}, {}'.format(self.account, code, data['bizMsg']))
+            println('{}, 助力好友{}, {}'.format(self.account, friend_account, data['bizMsg']))
+
+            if data['bizCode'] in [-1001, -7]:  # 活动火爆=黑号, 助力次数用完
+                break
+            await asyncio.sleep(1)
 
     @logger.catch
     async def get_share_code(self):
@@ -191,6 +199,8 @@ class JdFactory:
         for task in task_list:
             if task['taskType'] == 14:  # 互助码
                 self.code = task['assistTaskDetailVo']['taskToken']
+                Code.insert_code(code_key=CODE_JD_FACTORY, code_val=self.code, account=self.account, sort=self.sort)
+                println('{}, 助力码:{}'.format(self.account, self.code))
                 task_list.remove(task)
                 break
 
@@ -458,9 +468,16 @@ class JdFactory:
                 return
             await self.collect_electricity(session)
             task_list = await self.get_task_list(session)
-            await self.help_friend(session)
             await self.do_tasks(session, task_list)
             await self.notify_result(session)
+
+    async def run_help(self):
+        """
+        助力入口
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
+            await self.help_friend(session)
 
 
 if __name__ == '__main__':

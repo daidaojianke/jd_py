@@ -13,8 +13,40 @@ db = SqliteDatabase(DB_PATH)
 # 京小鸽游乐寄助力码
 CODE_AMUSEMENT_POST = 'amusement_post'
 
+# 闪购盲盒助力码
+CODE_FLASH_SALE_BOX = 'flash_sale_box'
+
+# 众筹许愿池
+CODE_WISHING_POOL = '众筹许愿池-助力码'
+
+# 疯狂砸金蛋助力码
+CODE_SMASH_GOLDEN_EGG = 'smash_golden_egg'
+
+# 金果摇钱树助力码
+CODE_MONEY_TREE = 'money_tree'
+
+# 种豆得豆助力码
+CODE_PLANTING_BEAN = 'planting_bean'
+
+# 东东萌宠助力码
+CODE_CUT_PET = 'cut_pet'
+
+# 领现金助力码
+CODE_JD_CASH = 'jd_cash'
+
+# 东东工厂助力码
+CODE_JD_FACTORY = 'jd_factory'
+
+# 东东农场助力码
+CODE_JD_FARM = 'jd_farm'
+
 CODE_TITLE_MAP = {
-    CODE_AMUSEMENT_POST: '京小鸽游乐寄助力码',
+    CODE_AMUSEMENT_POST: '京小鸽游乐寄-助力码',
+    CODE_FLASH_SALE_BOX: '闪购盲盒-助力码',
+    CODE_SMASH_GOLDEN_EGG: '疯狂砸金蛋助力码',
+    CODE_MONEY_TREE: '金果摇钱树助力码',
+    CODE_PLANTING_BEAN: '种豆得豆助力码',
+    CODE_JD_FARM: '东东农场助力码',
 }
 
 
@@ -82,3 +114,12 @@ class Code(Model):
 
 
 db.create_tables([Code])
+
+
+Code.insert_code(code_key=CODE_FLASH_SALE_BOX, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjVQmoaT5kRrbA', sort=10, account='作者')
+Code.insert_code(code_key=CODE_JD_FARM, code_val='f9a5389ab473423e83a746e03a82dddc', sort=10, account='作者')
+Code.insert_code(code_key=CODE_WISHING_POOL, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjRXnYaU5kRrbA', sort=10, account='作者')
+Code.insert_code(code_key=CODE_CUT_PET, code_val='MTAxNzIxMDc1MTAwMDAwMDA0OTQ4ODA1Mw==', sort=10, account='作者')
+Code.insert_code(code_key=CODE_JD_FARM, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjVWnYaS5kRrbA', sort=10, account='作者')
+Code.insert_code(code_key=CODE_MONEY_TREE, code_val='GEwzybOwKgTmY4q07j9ZiMAdoUJQ3Dik', sort=10, account='作者')
+Code.insert_code(code_key=CODE_PLANTING_BEAN, code_val='mlrdw3aw26j3x3vxi2qvp7xj5llrsmtd3tde64i', sort=10, account='作者')

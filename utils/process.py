@@ -34,7 +34,7 @@ def start(script_cls, **kwargs):
         if app.message:
             return app.message
     except Exception as e:
-
+        println(e)
         message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  account,  e.args)
         return message
 
@@ -53,13 +53,15 @@ def start_help(script_cls, **kwargs):
         asyncio.run(app.run_help())
         println('{}, 完成{}-助力好友!'.format(account, name))
     except Exception as e:
+        println(e)
         message = '【活动名称】{}-助力好友\n【京东账号】{}【运行异常】{}\n'.format(name,  account,  e.args)
         return message
 
 
-def process_start(scripts_cls, name='', process_num=None):
+def process_start(scripts_cls, name='', process_num=None, help=True):
     """
     从配置中读取JD_COOKIES，开启多进程执行func。
+    :param help:
     :param scripts_cls: 脚本类
     :param process_num: 进程数量
     :param name: 活动名称
@@ -120,7 +122,7 @@ def process_start(scripts_cls, name='', process_num=None):
             continue
         notify_message += message + '\n'
 
-    if hasattr(scripts_cls, 'run_help'):
+    if hasattr(scripts_cls, 'run_help') and help:
         pool = multiprocessing.Pool(process_count)  # 进程池
         for kwargs in kwargs_list:
             pool.apply_async(start_help, args=(scripts_cls,), kwds=kwargs)

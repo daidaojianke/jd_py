@@ -27,4 +27,4 @@ class JrMoneyTreeCollect(JrMoneyTree):
 
 
 if __name__ == '__main__':
-    process_start(JrMoneyTreeCollect, '金果摇钱树收金果')
+    process_start(JrMoneyTreeCollect, '金果摇钱树收金果', help=False)

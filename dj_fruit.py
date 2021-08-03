@@ -11,7 +11,7 @@ import asyncio
 from utils.console import println
 from utils.logger import logger
 from utils.dj_base import dj_init
-from config import DJ_FRUIT_CODE, DJ_FRUIT_KEEP_WATER
+from config import DJ_FRUIT_KEEP_WATER
 
 
 @dj_init
@@ -261,7 +261,7 @@ class DjFruit:
             code = None
             task_list = res['result']['taskInfoList']
             for task in task_list:
-                if task['taskType'] == 1201:
+                if task['taskType'] == 1201:  # 助力好友
                     body = {
                         'taskId': task['taskId'],
                         'uniqueId': task['uniqueId'],
@@ -290,37 +290,37 @@ class DjFruit:
             return False
         return res['result']
 
-    @logger.catch
-    async def help_friend(self, session):
-        """
-        助力好友
-        :return:
-        """
-        for code in DJ_FRUIT_CODE:
-            try:
-                params = json.loads(code)
-            except Exception as e:
-                println('{}, 助力失败, 助力码错误, {}'.format(self.account, e.args))
-                continue
-            if 'assistTargetPin' not in params:
-                println('{}, 助力码错误, 无法助力!'.format(self.account))
-                continue
-
-            params.update({
-                "plateCode": 5,
-                "modelId": "M10007",
-                "taskType": 1201,
-            })
-            user_pin = params['assistTargetPin']
-
-            res = await self.get(session, 'task/finished', params)
-            if res['code'] != '0':
-                println(res)
-                println('{}, 助力好友:{}失败, {}'.format(self.account, user_pin, res))
-                break
-            else:
-                println('{}, 成功助力好友:{}!'.format(self.account, user_pin))
-                await asyncio.sleep(1)
+    # @logger.catch
+    # async def help_friend(self, session):
+    #     """
+    #     助力好友
+    #     :return:
+    #     """
+    #     for code in DJ_FRUIT_CODE:
+    #         try:
+    #             params = json.loads(code)
+    #         except Exception as e:
+    #             println('{}, 助力失败, 助力码错误, {}'.format(self.account, e.args))
+    #             continue
+    #         if 'assistTargetPin' not in params:
+    #             println('{}, 助力码错误, 无法助力!'.format(self.account))
+    #             continue
+    #
+    #         params.update({
+    #             "plateCode": 5,
+    #             "modelId": "M10007",
+    #             "taskType": 1201,
+    #         })
+    #         user_pin = params['assistTargetPin']
+    #
+    #         res = await self.get(session, 'task/finished', params)
+    #         if res['code'] != '0':
+    #             println(res)
+    #             println('{}, 助力好友:{}失败, {}'.format(self.account, user_pin, res))
+    #             break
+    #         else:
+    #             println('{}, 成功助力好友:{}!'.format(self.account, user_pin))
+    #             await asyncio.sleep(1)
 
     @logger.catch
     async def set_notify_message(self, session):
@@ -360,7 +360,6 @@ class DjFruit:
             # result = await self.init(session)
             # if not result:
             #     return
-            await self.help_friend(session)
             await self.do_task(session)  # 做任务
             await self.receive_water_red_packet(session)  # 领取浇水红包
             await self.receive_water_bottle(session)  # 领取水瓶
@@ -368,22 +367,18 @@ class DjFruit:
             await self.watering(session, batch=True, keep_water=DJ_FRUIT_KEEP_WATER)
             # await self.set_notify_message(session)
 
-
-def start(pt_pin, pt_key, name='到家果园'):
-    """
-    程序入口
-    :param name:
-    :param pt_pin:
-    :param pt_key:
-    :return:
-    """
-    try:
-        app = DjFruit(pt_pin, pt_key)
-        asyncio.run(app.run())
-        return app.message
-    except Exception as e:
-        message = '【活动名称】{}\n【京东账号】{}【运行异常】{}\n'.format(name,  pt_pin,  e.args)
-        return message
+    # async def run_help(self):
+    #     """
+    #     :return:
+    #     """
+    #     async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
+    #         dj_cookies = await self.login(session)
+    #         if not dj_cookies:
+    #             return
+    #         println('{}, 登录成功...'.format(self.account))
+    #
+    #     async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
+    #         await self.help_friend(session)
 
 
 if __name__ == '__main__':

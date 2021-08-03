@@ -74,8 +74,6 @@ def generate_default_crontab(output='default_crontab.sh'):
         '# 定时更新脚本\n30 15 * * * /bin/docker-entrypoint >> /dev/null  2>&1\n\n',
         '# 每2个小时检查一次cookies是否过期\n0 */2 * * * /scripts/check_cookies.py >> /scripts/logs/check_cookies_`date '
         '"+\%Y-\%m-\%d"`.log 2>&1\n\n',
-        '### 更新助力码\n3 0,16 * * * /scripts/update_share_code.py >> /scripts/logs/update_share_code_`date '
-        '"+\%Y-\%m-\%d"`.log 2>&1\n\n '
     ]
     for script in script_list:
         filepath = os.path.join(pwd, script)

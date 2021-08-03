@@ -6,18 +6,18 @@
 # @Cron    : 5 10,21 * * *
 # @Desc    : 金果摇钱树
 import aiohttp
-import random
 import time
 import asyncio
 import json
 
 from urllib.parse import unquote, quote
 from furl import furl
-from config import USER_AGENT, JR_MONEY_TREE_CODE
-
+from config import USER_AGENT
 from utils.console import println
 from utils.process import process_start
 from utils.wraps import jd_init
+from utils.logger import logger
+from db.model import Code, CODE_MONEY_TREE
 
 
 @jd_init
@@ -96,17 +96,7 @@ class JrMoneyTree:
         """
         return await self.request(session, path, params, 'get')
 
-    async def get_share_code(self):
-        """
-        :return:
-        """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
-            success = await self.login(session, output=False)
-            if not success:
-                return None
-            println('{}, 助力码:{}'.format(self.account, self.code))
-            return self.code
-
+    @logger.catch
     async def login(self, session, output=True):
         """
         获取用户信息
@@ -147,8 +137,12 @@ class JrMoneyTree:
         self.fruit = data['treeInfo']['fruit']
         self.jt_rest = data['jtRest']
 
+        if self.code:
+            Code.insert_code(code_key=CODE_MONEY_TREE, code_val=self.code, account=self.account, sort=self.sort)
+
         return True
 
+    @logger.catch
     async def daily_sign(self, session):
         """
         每日签到
@@ -186,6 +180,7 @@ class JrMoneyTree:
         else:
             println('{}, 签到失败!'.format(self.account))
 
+    @logger.catch
     async def do_browser_work(self, session, work):
         """
         浏览任务
@@ -224,6 +219,7 @@ class JrMoneyTree:
         else:
             println('{}, 领取任务《{}》奖励结果失败, {}'.format(self.account, work['workName'], res['data']['opMsg']))
 
+    @logger.catch
     async def daily_work(self, session):
         """
         每日任务
@@ -259,6 +255,7 @@ class JrMoneyTree:
             if work['workType'] == 6 and 'readTime' in work['url']:  # 浏览任务
                 await self.do_browser_work(session, work)
 
+    @logger.catch
     async def harvest(self, session):
         """
         收金果
@@ -281,6 +278,7 @@ class JrMoneyTree:
         data = data['data']
         println('{}, 收金果成功, 获得金果:{}个!'.format(self.account, data['fruitNumInLimitedTimeTask']))
 
+    @logger.catch
     async def sell(self, session):
         """
         卖金果
@@ -301,33 +299,7 @@ class JrMoneyTree:
         else:
             println('{}, 当前金果数量不够兑换 0.07金贴!'.format(self.account))
 
-    async def work_for_friend(self, session):
-        """
-        帮好友打工
-        :param session:
-        :return:
-        """
-        code_list = []
-        for code in JR_MONEY_TREE_CODE:
-            if code == self.code:
-                continue
-            code_list.append(code)
-
-        # 随机帮一名好友打工
-        code = random.choice(code_list)
-        params = {
-            "sharePin": code,
-            "shareType": "1",
-            "channelLV": "",
-            "source": 0,
-            "riskDeviceParam": "{}"
-        }
-        data = await self.request(session, 'login', params)
-        if data['code'] == '200':
-            println('{}, 正在帮好友打工!'.format(self.account))
-        else:
-            println('{}, 无法为好友打工!'.format(self.account))
-
+    @logger.catch
     async def steal_fruit(self, session):
         """
         偷金果
@@ -375,6 +347,7 @@ class JrMoneyTree:
 
         println('{}, 共偷取{}个好友金果, 总共获得{}个金果!'.format(self.account, count, total))
 
+    @logger.catch
     async def notify_result(self, session):
         """
         查询摇钱树及金果金贴信息并发送通知
@@ -390,6 +363,7 @@ class JrMoneyTree:
 
         self.message = message
 
+    @logger.catch
     async def run(self):
         """
         :return:
@@ -403,9 +377,37 @@ class JrMoneyTree:
             await self.daily_work(session)  # 每日任务
             await self.harvest(session)  # 收金果
             await self.sell(session)  # 卖金果
-            await self.work_for_friend(session)  # 帮好友打工
             await self.steal_fruit(session)  # 偷好友金果
-            await self.notify_result(session) # 设置通知消息
+            await self.notify_result(session)  # 设置通知消息
+
+    @logger.catch
+    async def run_help(self):
+        """
+        助力入口
+        :return:
+        """
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
+            is_success = await self.login(session)
+            if not is_success:
+                println('{}, 登录失败, 退出程序...'.format(self.account))
+                return
+            item_list = Code.get_code_list(CODE_MONEY_TREE)
+            for item in item_list:
+                friend_account, friend_code = item.get('account'), item.get('code')
+                if friend_account == self.account:
+                    continue
+                params = {
+                    "sharePin": friend_account,
+                    "shareType": "1",
+                    "channelLV": "",
+                    "source": 0,
+                    "riskDeviceParam": "{}"
+                }
+                data = await self.request(session, 'login', params)
+                if data['code'] == '200':
+                    println('{}, 正在帮好友:{}打工!'.format(self.account, friend_account))
+                else:
+                    println('{}, 无法为好友:{}打工!'.format(self.account, friend_account))
 
 
 if __name__ == '__main__':

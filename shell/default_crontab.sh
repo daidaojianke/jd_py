@@ -28,6 +28,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #  到家果园收水滴
 42 */1 * * * /scripts/dj_fruit_collect.py >> /scripts/logs/dj_fruit_collect_`date "+\%Y-\%m-\%d"`.log 2>&1
 
+#  京小鸽游乐寄
+45 8,15 * * * /scripts/jd_amusement_post.py >> /scripts/logs/jd_amusement_post_`date "+\%Y-\%m-\%d"`.log 2>&1
+
 #  资产变动通知
 15 */8 * * * /scripts/jd_bean_change.py >> /scripts/logs/jd_bean_change_`date "+\%Y-\%m-\%d"`.log 2>&1
 
@@ -88,7 +91,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #  种豆得豆
 10 3,15 * * * /scripts/jd_planting_bean.py >> /scripts/logs/jd_planting_bean_`date "+\%Y-\%m-\%d"`.log 2>&1
 
-# 
+#  种豆得豆收营养液
 40 */2 * * * /scripts/jd_planting_bean_collect.py >> /scripts/logs/jd_planting_bean_collect_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 #  京东排行榜
@@ -96,9 +99,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 #  京东APP->我的->签到领豆->摇京豆
 6 0,18,23 * * * /scripts/jd_shark_bean.py >> /scripts/logs/jd_shark_bean_`date "+\%Y-\%m-\%d"`.log 2>&1
-
-#  京东签到合集
-7 0,17 * * * /scripts/jd_sign_collection.py >> /scripts/logs/jd_sign_collection_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 #  京东APP->每日特价->疯狂砸金蛋
 45 5,19 * * * /scripts/jd_smash_golden_egg.py >> /scripts/logs/jd_smash_golden_egg_`date "+\%Y-\%m-\%d"`.log 2>&1
@@ -110,7 +110,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 35 9,22 * * * /scripts/jr_daily_take_goose.py >> /scripts/logs/jr_daily_take_goose_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 #  天天提额收鹅蛋
-5 */1 * * * /scripts/jr_daily_take_goose_collect.py >> /scripts/logs/jr_daily_take_goose_collect_`date "+\%Y-\%m-\%d"`.log 2>&1
+17 */1 * * * /scripts/jr_daily_take_goose_collect.py >> /scripts/logs/jr_daily_take_goose_collect_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 #  金果摇钱树
 5 10,21 * * * /scripts/jr_money_tree.py >> /scripts/logs/jr_money_tree_`date "+\%Y-\%m-\%d"`.log 2>&1

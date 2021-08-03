@@ -31,4 +31,4 @@ class JdFactoryCollect(JdFactory):
 
 
 if __name__ == '__main__':
-    process_start(JdFactoryCollect, '东东工厂-收电量')
+    process_start(JdFactoryCollect, '东东工厂-收电量', help=False)

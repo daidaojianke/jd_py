@@ -17,7 +17,9 @@ from utils.console import println
 from utils.logger import logger
 from utils.process import process_start
 from utils.wraps import jd_init
-from config import USER_AGENT, JD_PLANTING_BEAN_CODE
+
+from db.model import Code, CODE_PLANTING_BEAN
+from config import USER_AGENT
 
 
 def println_task(func=None):
@@ -352,53 +354,58 @@ class JdPlantingBean:
         data = await self.post(session, 'receiveNutrientsTask', {"awardType": '7'})
         println('{}, {}:{}'.format(self.account, task['taskName'], data))
 
-    async def get_share_code(self):
+    async def get_share_code(self, session):
         """
-        获取当前账号的助力码
+        获取助力码
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
-            data = await self.get(session, 'plantSharePageIndex', {'roundId': ''}, wait_time=0)
-            if data['code'] != '0':
-                return None
-            share_url = furl(data['data']['jwordShareInfo']['shareUrl'])
-            share_code = share_url.args.get('plantUuid', '')
-            println('{} 助力码:{}'.format(self.account, share_code))
-            return share_code
+        data = await self.post(session=session, function_id='plantBeanIndex')
+        if not data or data['code'] != '0' or 'errorMessage' in data:
+            println('{}, 获取助力码失败:{}'.format(self.account, data.get('errorMessage', '未知')))
+            return None
+        share_url = furl(data['data']['jwordShareInfo']['shareUrl'])
+        code = share_url.args.get('plantUuid', '')
+        println('{} 助力码:{}'.format(self.account, code))
+        Code.insert_code(code_key=CODE_PLANTING_BEAN, code_val=code, account=self.account, sort=self.sort)
+        return code
 
-    @println_task
-    async def help_friend_task(self, session, task):
+    async def help_friend(self, session):
         """
         助力好友任务
         :param session:
-        :param task:
         :return:
         """
-        println('开始助力{}的好友, 如有剩余助力将助力作者!'.format(self.account))
-        for planting_code in JD_PLANTING_BEAN_CODE:
-            if self.share_code == planting_code:  # 跳过自己的助力码
+        item_list = Code.get_code_list(code_key=CODE_PLANTING_BEAN)
+        for item in item_list:
+            friend_account, friend_code = item.get('account'), item.get('code')
+            if self.account == friend_account:
                 continue
-            println('{}, 开始助力好友:{}'.format(self.account, planting_code))
             body = {
-                "plantUuid": planting_code,
+                "plantUuid": friend_code,
                 "wxHeadImgUrl": "",
                 "shareUuid": "",
                 "followType": "1",
             }
             data = await self.post(session, 'plantBeanIndex', body)
+            message = '{}, 助力好友{}, 结果:{}'
             if data['code'] == '0':
                 if 'helpShareRes' not in data:
-                    println('{}, 助力结果:{}'.format(self.account, '未知'))
+                    message = message.format(self.account, friend_account, '未知')
+                    println(message)
                     continue
+
                 if data['data']['helpShareRes']['state'] == '2':
-                    println('{}, 助力结果:{}'.format(self.account, '您今日助力的机会已耗尽，已不能再帮助好友助力了!'))
+                    message = message.format(self.account, friend_account, '您今日助力的机会已耗尽，已不能再帮助好友助力了!')
+                    println(message)
                     break
                 elif data['data']['helpShareRes']['state'] == '3':
-                    println('{}, 助力结果:{}'.format(self.account, '该好友今日已满9人助力/20瓶营养液,明天再来为Ta助力吧'))
+                    message = message.format(self.account, friend_account, '该好友今日已满9人助力/20瓶营养液,明天再来为Ta助力吧')
                 else:
-                    println('{}, 助力结果:{}'.format(self.account, data['data']['helpShareRes']['promptText']))
+                    message = message.format(self.account,  friend_account, data['data']['helpShareRes']['promptText'])
+                println(message)
             else:
-                println('{}, 助力结果:{}'.format(self.account, '无法为该好友助力！'))
+                message = message.format(self.account, message, '原因未知!')
+                println(message)
             await asyncio.sleep(1)
 
     async def do_tasks(self, session):
@@ -409,11 +416,11 @@ class JdPlantingBean:
         """
         task_map = {
             1: self.receive_nutrient_task,  # 每日签到
-            2: self.help_friend_task,  # 助力好友
+            # 2: self.help_friend_task,  # 助力好友
             3: self.visit_shop_task,  # 浏览店铺
             # 4: self.visit_meeting_place_task,  # 逛逛会场
             5: self.pick_goods_task,  # 挑选商品
-            #7: self.double_sign_task,  # 金融双签
+            # 7: self.double_sign_task,  # 金融双签
             8: self.evaluation_goods_task,  # 评价商品,
             10: self.focus_channel_task,  # 关注频道,
             33: self.jx_red_packet,  # 京喜红包
@@ -488,10 +495,6 @@ class JdPlantingBean:
         self.message += f'【本期时间】:{self.cur_round_list["dateDesc"].replace("上期 ", "")}\n'
         self.message += f'【本期成长值】:{self.cur_round_list["growth"]}\n'
 
-    @property
-    def message(self):
-        return self.message
-
     async def run(self):
         """
         :return:
@@ -501,12 +504,20 @@ class JdPlantingBean:
             if not is_success:
                 println('{}, 无法获取活动数据!'.format(self.account))
                 return
-            self.share_code = await self.get_share_code()  # 获取当前账号助力码
+            self.share_code = await self.get_share_code(session)  # 获取当前账号助力码
             await self.receive_nutrient(session)
             await self.do_tasks(session)
             await self.get_friend_nutriments(session)
             await self.collect_nutriments(session)
             await self.get_reward(session)
+
+    async def run_help(self):
+        """
+        助力入口
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
+            await self.help_friend(session)
 
 
 if __name__ == '__main__':

@@ -9,12 +9,12 @@ import aiohttp
 import asyncio
 
 import json
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 from utils.console import println
 from utils.process import process_start
 from utils.wraps import jd_init
 from utils.logger import logger
-from config import JD_CASH_CODE
+from db.model import Code, CODE_JD_CASH
 
 
 @jd_init
@@ -89,21 +89,33 @@ class JdCash:
             println('{}, 获取任务列表失败:{}!'.format(self.account, e.args))
             return []
 
+    async def get_wx_task_list(self, session):
+        """
+        获取微信小程序里面的任务
+        :param session:
+        :return:
+        """
+        res = await self.request(session, 'cash_mob_home', {"isLTRedPacket": "1"})
+        if res['code'] != 0 or res['data']['bizCode'] != 0:
+            return []
+        return res['data']['result']['taskInfos']
+
     @logger.catch
-    async def get_share_code(self):
+    async def get_share_code(self, session):
         """
         获取助力码
         :return:
         """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
-            data = await self.request(session, 'cash_getJDMobShareInfo', {"source": 2})
-            if data['code'] != 0 or data['data']['bizCode'] != 0:
-                return None
-            else:
-                data = data['data']['result']
-                share_code = data['inviteCode'] + '@' + data['shareDate']
-            println('{}, 助力码:{}'.format(self.account, share_code))
-            return share_code
+        data = await self.request(session, 'cash_getJDMobShareInfo', {"source": 2})
+        if data['code'] != 0 or data['data']['bizCode'] != 0:
+            return None
+        else:
+            data = data['data']['result']
+            share_code = data['inviteCode'] + '@' + data['shareDate']
+
+        println('{}, 助力码:{}'.format(self.account, share_code))
+        Code.insert_code(code_key=CODE_JD_CASH, code_val=share_code, account=self.account, sort=self.sort)
+        return share_code
 
     @logger.catch
     async def init(self, session):
@@ -120,7 +132,7 @@ class JdCash:
         return True
 
     @logger.catch
-    async def do_tasks(self, session, times=3):
+    async def do_tasks(self, session, times=4):
         """
         做任务
         :param times:
@@ -131,6 +143,9 @@ class JdCash:
             return
 
         task_list = await self.get_task_list(session)
+        wx_task_list = await self.get_wx_task_list(session)
+        task_list.extend(wx_task_list)
+
         for task in task_list:
             if task['finishFlag'] == 1:
                 println('{}, 任务:《{}》, 今日已完成!'.format(self.account, task['name']))
@@ -143,7 +158,10 @@ class JdCash:
                 task_info = task['jump']['params']['shopId']
             elif task['type'] in [16, 3, 5, 17, 21]:
                 task_info = task['jump']['params']['url']
+            # elif task['type'] in [30, 31]:
+            #     task_info = task['jump']['params']['path']
             else:
+
                 println('{}, 跳过任务:《{}》!'.format(self.account, task['name']))
                 continue
 
@@ -170,10 +188,11 @@ class JdCash:
         for i in [1, 2]:
             data = await self.request(session, 'cash_mob_reward', {"source": i, "rewardNode": ""})
             if data['code'] != 0 or data['data']['bizCode'] != 0:
+                println(data)
                 println('{}, 领取奖励失败!'.format(self.account))
             else:
                 println('{}, 成功领取奖励!'.format(self.account))
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
 
     @logger.catch
     async def help_friend(self, session):
@@ -182,11 +201,14 @@ class JdCash:
         :return:
         """
         session.headers.add('Referer', 'https://h5.m.jd.com/babelDiy/Zeus/GzY6gTjVg1zqnQRnmWfMKC4PsT1/index.html')
-        for code in JD_CASH_CODE:
-            if code == self.code:
+
+        item_list = Code.get_code_list(code_key=CODE_JD_CASH)
+        for item in item_list:
+            friend_account, friend_code = item.get('account'), item.get('code')
+            if friend_account == self.account:
                 continue
-            await asyncio.sleep(1)
-            invite_code, share_date = code.split('@')
+
+            invite_code, share_date = friend_code.split('@')
 
             data = await self.request(session, 'cash_mob_assist', {"inviteCode": invite_code,
                                                                    "shareDate": share_date, "source": 2})
@@ -196,6 +218,8 @@ class JdCash:
                     break
             else:
                 println('{}, 助力好友:{}成功!'.format(self.account, invite_code))
+
+            await asyncio.sleep(2.5)
 
     async def run(self):
         """
@@ -207,9 +231,17 @@ class JdCash:
             if not success:
                 println('{}, 无法初始化数据, 退出程序!'.format(self.account))
                 return
-            await self.help_friend(session)
+            await self.get_share_code(session)
             await self.do_tasks(session)
-            await self.get_award(session)
+            # await self.get_award(session)
+
+    async def run_help(self):
+        """
+        助力入口
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
+            await self.help_friend(session)
 
 
 if __name__ == '__main__':

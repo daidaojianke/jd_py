@@ -10,10 +10,11 @@ import re
 import aiohttp
 import asyncio
 
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 from utils.wraps import jd_init
-from config import USER_AGENT, JD_WISHING_POOL_CODE
+from config import USER_AGENT
 from utils.console import println
+from db.model import Code, CODE_WISHING_POOL
 
 
 @jd_init
@@ -63,26 +64,6 @@ class JdWishingPool:
             return None
         return data['result']['taskVos']
 
-    async def help_friend(self, session, task_token, task_id):
-        """
-        :return:
-        """
-        for code in JD_WISHING_POOL_CODE:
-            if code == task_token:
-                continue
-            res = await self.request(session, 'harmony_collectScore', {
-                "appId": "1E1NXxq0",
-                "taskToken": code,
-                "taskId": task_id,
-                "actionType": 1
-            })
-            if res['bizCode'] != 0:
-                println('{}, 助力好友:{}失败, {}'.format(self.account, code, res['bizMsg']))
-                if res['bizCode'] == 108:  # 助力已上限
-                    break
-            else:
-                println('{}, 成功助力好友:{}!'.format(self.account, code))
-            await asyncio.sleep(1)
 
     async def finish_task(self, session, task_token, task_id, task_name):
         """
@@ -135,7 +116,13 @@ class JdWishingPool:
                 println('{}, 任务：《{}》今日已完成!'.format(self.account, task['taskName']))
                 continue
             if task['taskType'] == 14:
-                await self.help_friend(session, task_token, task['taskId'])
+                res = re.search(r"'taskToken': '(.*?)'", str(task))
+                if not res:
+                    println('{}, 获取助力码失败!'.format(self.account))
+                else:
+                    code = res.group(1)
+                    println('{}, 助力码:{}!'.format(self.account, code))
+                    Code.insert_code(code_key=CODE_WISHING_POOL, code_val=code, account=self.account, sort=self.sort)
                 continue
 
             if task['maxTimes'] > 1:
@@ -174,20 +161,6 @@ class JdWishingPool:
                 println('{}, 抽奖成功, 获得:{}!'.format(self.account, message))
             await asyncio.sleep(1)
 
-    async def get_share_code(self):
-        """
-        获取助力码
-        """
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
-            data = await self.get_task_list(session)
-            if not data:
-                return None
-            for item in data:
-                if item['taskType'] == 14:
-                    code = re.search(r"'taskToken': '(.*?)'", str(item)).group(1)
-                    println('{}, 助力码:{}!'.format(self.account, code))
-                    return code
-
     async def run(self):
         """
         程序入口
@@ -199,6 +172,31 @@ class JdWishingPool:
                 return
             await self.do_tasks(session, task_list)
             await self.lottery(session)
+
+    async def run_help(self):
+        """
+        助力入口
+        :return:
+        """
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
+            item_list = Code.get_code_list(CODE_WISHING_POOL)
+            for item in item_list:
+                friend_account, friend_code = item.get('account'), item.get('code')
+                if friend_account == self.account:
+                    continue
+                res = await self.request(session, 'harmony_collectScore', {
+                    "appId": "1E1NXxq0",
+                    "taskToken": friend_code,
+                    "taskId": 4,
+                    "actionType": 1,
+                })
+                if res['bizCode'] != 0:
+                    println('{}, 助力好友:{}失败, {}'.format(self.account, friend_account, res['bizMsg']))
+                    if res['bizCode'] == 108:  # 助力已上限
+                        break
+                else:
+                    println('{}, 成功助力好友:{}!'.format(self.account, friend_account))
+                await asyncio.sleep(1)
 
 
 if __name__ == '__main__':

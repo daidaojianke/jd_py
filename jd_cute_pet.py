@@ -9,12 +9,13 @@ import aiohttp
 import asyncio
 import json
 from datetime import datetime
-from config import USER_AGENT, JD_CUTE_PET_CODE
+from config import USER_AGENT
 from urllib.parse import quote
 from utils.logger import logger
 from utils.console import println
 from utils.process import process_start
 from utils.wraps import jd_init
+from db.model import Code, CODE_CUT_PET
 
 
 @jd_init
@@ -78,30 +79,19 @@ class JdCutePet:
         :param session:
         :return:
         """
-        for code in JD_CUTE_PET_CODE:
-            if code == self.share_code:
+        item_list = Code.get_code_list(CODE_CUT_PET)
+        for item in item_list:
+            friend_account, friend_code = item.get('account'), item.get('code')
+            if self.account == friend_account:
                 continue
             data = await self.request(session, 'slaveHelp', {
-                'shareCode': code
+                'shareCode': friend_code
             })
             if data['resultCode'] != '0':
-                println('{}, 无法助力好友:{}, {}!'.format(self.account, code, data['message']))
+                println('{}, 无法助力好友:{}, {}!'.format(self.account, friend_account, data['message']))
             else:
-                println('{}, 成功助力好友:{}!'.format(self.account, data['masterNickName']))
-    
-    @logger.catch
-    async def get_share_code(self):
-        """
-        获取助力码
-        :return:
-        """
-        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.cookies) as session:
-            data = await self.request(session, 'initPetTown', wait_time=0)
-            if data['resultCode'] != '0':
-                return None
-            println('{}, 助力码:{}'.format(self.account, data['shareCode']))
-            return data['shareCode']
-    
+                println('{}, 成功助力好友:{}!'.format(self.account, friend_account))
+
     @logger.catch
     async def init(self, session):
         """
@@ -125,6 +115,9 @@ class JdCutePet:
         self.invite_code = data['inviteCode']
         println('{}的互助码为:{}'.format(self.account, self.share_code))
         println('{}的邀请码为:{}'.format(self.account, self.invite_code))
+
+        if self.share_code: # 保存助力码
+            Code.insert_code(code_key=CODE_CUT_PET, code_val=self.share_code, account=self.account, sort=self.sort)
 
         if data['petStatus'] == 5:
             println('{}, 已可兑换商品!'.format(self.account))
@@ -247,13 +240,6 @@ class JdCutePet:
         else:
             println('{}, 当前狗粮(剩余狗粮{}-保留狗粮{})不足10g ,无法喂食!'.format(self.account, food_amount, keep_amount))
 
-        data = await self.request(session, 'initPetTown')
-        if data['resultCode'] != '0':
-            println('{}, 获取活动数据失败!'.format(self.account))
-            return
-
-        self.message += '【剩余狗粮】{}g\n'.format(data['foodAmount'])
-    
     @logger.catch
     async def feed_reach_hundred(self, session, task):
         """
@@ -433,7 +419,6 @@ class JdCutePet:
             if not is_success:
                 println('{}, 初始化失败, 退出程序!'.format(self.account))
                 return
-            await self.help_friend(session)  # 助力好友
             task_list = await self.get_task_list(session)
             await self.do_tasks(session, task_list)
             await self.pet_sport(session)
@@ -441,6 +426,14 @@ class JdCutePet:
             await self.collect_energy(session)
             await self.get_friend_help_award(session)
             self.message += '【活动入口】京东APP->我的->东东萌宠\n'
+
+    async def run_help(self):
+        """
+        助力入口
+        :return:
+        """
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
+            await self.help_friend(session)
 
 
 if __name__ == '__main__':

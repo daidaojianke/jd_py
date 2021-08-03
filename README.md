@@ -1,6 +1,8 @@
 # 薅薅乐
 
-- python:3.7+
+**不要给我提什么适配青龙，青龙怎么拉取你的代码之类的issue, 一律直接close。**
+
+- python版本:3.7.*
 
 ## 安裝
 
@@ -42,7 +44,7 @@
     # 此处省略更多配置
     ```
 
-- 配置好JD_COOKIES, 随便运行一个脚本检查配置, 如: `python update_share_code.py`.
+- 配置好JD_COOKIES, 随便运行一个脚本检查配置, 如: `python jd_bean_change.py`.
 
 - 内置定时任务, 配好JD_COOKIES自动会执行脚本。
 
@@ -60,7 +62,6 @@
 | 脚本名称                  | 脚本描述            | 完成进度 |
 |:---:|:---:|:---:|
 | jd_big_winner.py      | 京东极速版->大赢家翻翻乐 | 100% |
-| update_share_code.py  | 更新助力码| 100%|
 | jd_bean_change.py      | 资产变动通知 | 100% |
 | get_jd_cookies.py     | 获取京东的COOKIES    | 100%      |
 | jd_cute_pet.py        | 京东APP->东东萌宠     | 100%        |
