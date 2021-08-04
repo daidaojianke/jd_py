@@ -96,6 +96,7 @@
 | jd_flash_sale_box.py| 京东APP->品牌闪购->闪购盲盒|100%|
 | jd_amusement_post.py| 京东APP->京小鸽游乐寄| 100% |
 | jd_puzzle_sign.py | 京东需要拼图验证的签到 | 100%|
+| jd_health.py | 京东APP-东东健康社区 | 50%|
 | jd_beauty.py          | 京东APP->美丽研究院   | 0%        |
 | jx_factory.py | 京喜APP->京喜工厂 | 0% |
 | jx_farm.py | 京喜APP->京喜农场| 0% |
