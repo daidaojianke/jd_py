@@ -13,13 +13,26 @@ from utils.console import println
 from config import IMAGES_DIR
 
 
-async def puzzle_validate(self, page, img_slider_dim=(50, 50), img_bg_dim=(360, 140)):
+async def puzzle_validate(self, page, validator_selector):
     """
     拼图验证
+    :param validator_selector:
     :param self:
     :param page:
     :return:
     """
+    validator = await page.querySelector(validator_selector)
+    if not validator:
+        println('{}, 不需要拼图验证...'.format(self.account))
+        return True
+    else:
+        box = await validator.boundingBox()
+        if not box:
+            println('{}, 不需要拼图验证...'.format(self.account))
+            return True
+
+    println('{}, 需要进行拼图验证...'.format(self.account))
+
     bg_img_selector = '#man-machine-box > div > div.JDJRV-img-panel.JDJRV-embed > div.JDJRV-img-wrap > ' \
                       'div.JDJRV-bigimg > img'
 
@@ -43,19 +56,25 @@ async def puzzle_validate(self, page, img_slider_dim=(50, 50), img_bg_dim=(360, 
         bg_image_path = os.path.join(IMAGES_DIR, 'jd_pet_dog_bg_{}.png'.format(self.account))
         slider_image_path = os.path.join(IMAGES_DIR, 'jd_pet_dog_slider_{}.png'.format(self.account))
 
-        println('{}, 保存拼图验证背景图片:{}!'.format(self.account, bg_image_path))
-        save_img(bg_img_content, bg_image_path)
+        try:
+            println('{}, 保存拼图验证背景图片:{}!'.format(self.account, bg_image_path))
+            save_img(bg_img_content, bg_image_path)
 
-        println('{}, 保存拼图验证滑块图片:{}!'.format(self.account, slider_image_path))
-        save_img(slider_img_content, slider_image_path)
+            println('{}, 保存拼图验证滑块图片:{}!'.format(self.account, slider_image_path))
+            save_img(slider_img_content, slider_image_path)
+            offset = detect_displacement(slider_image_path, bg_image_path)
+        except Exception as e:
+            println('{}, 保存拼图图片失败或计算偏移量错误:{}!'.format(self.account, e.args))
+            continue
 
-        offset = detect_displacement(slider_image_path, bg_image_path, img_slider_dim, img_bg_dim)
         println('{}. 拼图偏移量为:{}'.format(self.account, offset))
 
         slider_btn_selector = '#man-machine-box > div > div.JDJRV-slide-bg > div.JDJRV-slide-inner.JDJRV-slide-btn'
         ele = await page.querySelector(slider_btn_selector)
         box = await ele.boundingBox()
+
         println('{}, 开始拖动拼图滑块...'.format(self.account))
+
         await page.hover(slider_btn_selector)
         await page.mouse.down()
 
@@ -86,7 +105,7 @@ async def puzzle_validate(self, page, img_slider_dim=(50, 50), img_bg_dim=(360, 
             delay = random.randint(100, 500)
             steps = random.randint(1, 20)
             total_delay += delay
-            println('{}, 拼图offset:{}, delay:{}, steps:{}'.format(self.account, cur_x, delay, steps))
+            # println('{}, 拼图offset:{}, delay:{}, steps:{}'.format(self.account, cur_x, delay, steps))
             await page.mouse.move(cur_x, cur_y,
                                   {'delay': delay, 'steps': steps})
 
@@ -107,7 +126,7 @@ async def puzzle_validate(self, page, img_slider_dim=(50, 50), img_bg_dim=(360, 
             total_delay += delay
             # 往右拉
             cur_x += px
-            println('{}, 拼图向右滑动:offset:{}, delay:{}, steps:{}'.format(self.account, px, delay, steps))
+            # println('{}, 拼图向右滑动:offset:{}, delay:{}, steps:{}'.format(self.account, px, delay, steps))
             await page.mouse.move(cur_x, cur_y,
                                   {'delay': delay, 'steps': steps})
 
@@ -117,19 +136,26 @@ async def puzzle_validate(self, page, img_slider_dim=(50, 50), img_bg_dim=(360, 
 
             # 往左拉
             cur_x -= px
-            println('{}, 拼图向左滑动:offset:{}, delay:{}, steps:{}'.format(self.account, px, delay, steps))
+            # println('{}, 拼图向左滑动:offset:{}, delay:{}, steps:{}'.format(self.account, px, delay, steps))
             await page.mouse.move(cur_x, cur_y,
                                   {'delay': delay, 'steps': steps})
         println('{}, 第{}次拼图验证, 耗时:{}s.'.format(self.account, i + 1, total_delay / 1000))
         await page.mouse.up()
         await asyncio.sleep(3)
-        println('{}, 正在获取验证结果, 等待3s...'.format(self.account))
-        slider_img_ele = await page.querySelector(slider_img_selector)
-        if slider_img_ele is None:
-            println('{}, 第{}次拼图验证, 验证成功!'.format(self.account, i + 1))
+
+        validator = await page.querySelector(validator_selector)
+
+        if not validator:
+            println('{}, 已完成拼图验证...'.format(self.account))
             return True
         else:
-            println('{}, 第{}次拼图验证, 验证失败, 继续验证!'.format(self.account, i + 1))
+            box = await validator.boundingBox()
+            if not box:
+                println('{}, 已完成拼图验证...'.format(self.account))
+                return True
+            else:
+                println('{}, 无法完成拼图验证...'.format(self.account))
+                continue
 
     return False
 

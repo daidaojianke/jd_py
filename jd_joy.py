@@ -7,14 +7,11 @@
 # @Desc    : 京东APP->我的->宠汪汪
 import asyncio
 import json
-import os
-import random
 import aiohttp
 import ujson
 from utils.console import println
 from urllib.parse import urlencode
-from config import USER_AGENT, IMAGES_DIR
-from utils.image import save_img, detect_displacement
+from config import USER_AGENT
 from utils.browser import open_page, open_browser
 from utils.logger import logger
 from utils.wraps import jd_init
@@ -55,7 +52,7 @@ class JdJoy:
             println(e.args)
 
     @logger.catch
-    async def validate(self):
+    async def validate(self, validator_selector='#app > div > div > div > div.man-machine > div.man-machine-container'):
         """
         拼图验证
         :return:
@@ -76,35 +73,12 @@ class JdJoy:
             self.browser = await open_browser()
         if not self.page:
             self.page = await open_page(self.browser, self.url, USER_AGENT, cookies)
-        page = self.page
-        validator_selector = '#app > div > div > div > div.man-machine > div.man-machine-container'
-        validator = await page.querySelector(validator_selector)
-        if not validator:
-            println('{}, 不需要拼图验证...'.format(self.account))
-            return True
-        else:
-            box = await validator.boundingBox()
-            if not box:
-                println('{}, 不需要拼图验证...'.format(self.account))
-                return True
 
-        println('{}, 需要进行拼图验证...'.format(self.account))
-
-        await self.puzzle_validate(page)
-
-        validator = await page.querySelector(validator_selector)
-
-        if not validator:
-            println('{}, 已完成拼图验证...'.format(self.account))
-            return True
-        else:
-            box = await validator.boundingBox()
-            if not box:
-                println('{}, 已完成拼图验证...'.format(self.account))
-                return True
-            else:
-                println('{}, 无法完成拼图验证...'.format(self.account))
-                return None
+        try:
+            return await self.puzzle_validate(self.page, validator_selector)
+        except Exception as e:
+            logger.error(e.args)
+            return False
 
     async def request(self, session, path, body=None, method='GET', post_type='json'):
         """
@@ -149,9 +123,11 @@ class JdJoy:
 
             if data['errorCode'] == 'H0001':  # 需要拼图验证
                 println('{}, 需要进行拼图验证!'.format(self.account))
-                is_success = await self.validate()
-                if is_success:
-                    return await self.request(session, path, body, method)
+                for i in range(3):
+                    is_success = await self.validate()
+                    if is_success:
+                        return await self.request(session, path, body, method)
+
             return data
 
         except Exception as e:
@@ -421,9 +397,9 @@ class JdJoy:
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-    app = JdJoy(**JD_COOKIES[8])
-    asyncio.run(app.run())
-    # from utils.process import process_start
-    # from config import JOY_PROCESS_NUM
-    # process_start(JdJoy, '宠汪汪做任务', process_num=JOY_PROCESS_NUM)
+    # from config import JD_COOKIES
+    # app = JdJoy(**JD_COOKIES[8])
+    # asyncio.run(app.run())
+    from utils.process import process_start
+    from config import JOY_PROCESS_NUM
+    process_start(JdJoy, '宠汪汪做任务', process_num=JOY_PROCESS_NUM)

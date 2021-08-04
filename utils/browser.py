@@ -17,9 +17,9 @@ async def open_browser():
     :return:
     """
     if platform.system() == 'Linux':
-        headless = False
+        headless = True
     else:
-        headless = False
+        headless = True
     browser = await launch({
         'headless': headless,
         'dumpio': True,
@@ -37,7 +37,6 @@ async def open_browser():
             '-–window-size=1920,1080',
             '--disable-extensions',
             '-–single-process',
-            '–-no-zygote',
             '--hide-scrollbars',
             '--disable-bundled-ppapi-flash',
             '--disable-setuid-sandbox',
@@ -54,12 +53,12 @@ async def open_page(browser, url, user_agent, cookies):
     :return:
     """
     try:
-        context = await browser.createIncognitoBrowserContext()
-        pages = await context.pages()
+        # context = await browser.createIncognitoBrowserContext()
+        pages = await browser.pages()
         if len(pages) > 0:
             page = pages[0]
         else:
-            page = await context.newPage()
+            page = await browser.newPage()
 
         await page.setUserAgent(user_agent)  # 设置USER-AGENT
 
@@ -70,7 +69,6 @@ async def open_page(browser, url, user_agent, cookies):
         })
 
         await page.setCookie(*cookies)  # 设置cookies
-        print('正在打开页面...')
         await page.goto(url, timeout=40000)  # 打开活动页面
 
         return page
