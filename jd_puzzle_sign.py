@@ -127,13 +127,15 @@ class JdPuzzleSign:
         await asyncio.sleep(1)
         await self.children_clothing_sign(browser)  # 京东童装
         await asyncio.sleep(1)
-        await self.personal_care_sign(browser)  # 个护馆
-        await asyncio.sleep(1)
         await self.purifying_sign(browser)  # 清洁馆
         await asyncio.sleep(1)
         await self.baby_sign(browser)  # 母婴馆
         await asyncio.sleep(1)
-        await browser.close()
+        await self.personal_care_sign(browser)  # 个护馆
+        await asyncio.sleep(1)
+
+        if browser:
+            await browser.close()
 
 
 if __name__ == '__main__':
