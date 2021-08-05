@@ -100,7 +100,7 @@ class DjFruit:
         println('{}, 当前水滴:{}, 需要浇水:{}次!'.format(self.account, water_balance, times))
 
         if batch:
-            res = await self.post(session, 'fruit/watering', {"waterTime": times})
+            res = await self.wx_post(session, 'fruit/watering', {"waterTime": times})
             if res['code'] != '0':
                 println('{}, {}次浇水失败!'.format(self.account, times))
             else:
@@ -236,7 +236,7 @@ class DjFruit:
         #     println('{}, 水车水滴未满, 暂不收取!'.format(self.account))
         #     return
 
-        res = await self.get(session, 'fruit/collectWater')
+        res = await self.wx_get(session, 'fruit/collectWater')
         if res['code'] != '0':
             println('{}, 收取水车水滴失败!'.format(self.account))
         else:

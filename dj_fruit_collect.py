@@ -27,8 +27,8 @@ class DjFruitCollect(DjFruit):
 
         async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
             await self.receive_water_wheel(session)  # 领取水车水滴
-            await self.watering(keep_water=DJ_FRUIT_KEEP_WATER)
+            await self.watering(session, keep_water=DJ_FRUIT_KEEP_WATER)
 
 
 if __name__ == '__main__':
-    process_start(DjFruit, '到家果园领水滴')
+    process_start(DjFruitCollect, '到家果园领水滴')

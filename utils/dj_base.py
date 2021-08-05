@@ -136,6 +136,85 @@ async def post(self, session, function_id, body=None):
     return await self.request(session, function_id, body, method='POST')
 
 
+async def wx_request(self, session, function_id='', body=None, method='GET'):
+    """
+    请求微信小程序端数据
+    :param session:
+    :param function_id:
+    :param body:
+    :param method:
+    :return:
+    """
+    try:
+        if not body:
+            body = {}
+        params = {
+            '_jdrandom': int(time.time() * 1000),
+            '_funid_': function_id,
+            'functionId': function_id,
+            'body': json.dumps(body),
+            'tranceId': self.trace_id,
+            'deviceToken': self.device_id,
+            'deviceId': self.device_id,
+            'deviceModel': 'appmodel',
+            'appName': 'paidaojia',
+            'appVersion': '5.0.0',
+            'platform': '5.0.0',
+            'platCode':	'mini',
+            'channel':	'wx_xcx',
+            'mpChannel': 'wx_xcx',
+            'xcxVersion':	'8.10.1',
+            'business':	'djgyzhuli',
+            'city_id': self.city_id,
+            'lng_pos': self.lng,
+            'lat_pos': self.lat,
+            'lng': self.lng,
+            'lat': self.lat,
+            'isNeedDealError': 'true',
+            'signKeyV1': ''
+        }
+        if method == 'GET':
+            url = 'https://daojia.jd.com/client?' + urlencode(params)
+            response = await session.get(url=url)
+        else:
+            params['method'] = 'POST'
+            url = 'https://daojia.jd.com/client?' + urlencode(params)
+            response = await session.post(url=url)
+
+        text = await response.text()
+        data = json.loads(text)
+
+        # 所有API等待1s, 避免操作繁忙
+        await asyncio.sleep(1)
+
+        return data
+    except Exception as e:
+        println('{}, 无法获取服务器数据, {}!'.format(self.account, e.args))
+        return None
+
+
+async def wx_post(self, session, function_id, body=None):
+    """
+        post 方法
+        :param session:
+        :param function_id:
+        :param body:
+        :return:
+        """
+    return await self.wx_request(session, function_id, body, method='POST')
+
+
+async def wx_get(self, session, function_id, body=None):
+    """
+    get 方法
+    :param session:
+    :param function_id:
+    :param body:
+    :return:
+    """
+    return await self.wx_request(session, function_id, body, method='GET')
+
+
 async def login(self, session):
     """
     用京东APP获取京东到家APP的cookies
@@ -286,6 +365,9 @@ def dj_init(cls):
     cls.browse_task = browse_task
     cls.receive_task = receive_task
     cls.finish_task = finish_task
+    cls.wx_request = wx_request
+    cls.wx_get = wx_get
+    cls.wx_post = wx_post
     cls.__init__ = init
 
     return cls
