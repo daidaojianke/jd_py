@@ -129,7 +129,7 @@ class JdSharkBean:
         }
 
         res = await self.request(session, sign_params, self.METHOD_POST)
-        if 'success' in res and res['success']:
+        if res.get('success', False):
             println('{}, 签到成功!'.format(self.account))
             for reward in res['data']['rewardVos']:
                 if reward['jingBeanVo'] is not None:
@@ -173,12 +173,12 @@ class JdSharkBean:
                     }
                 }
                 res = await self.request(session, params, self.METHOD_GET)
-                if res['success']:
+                if res.get('success', False):
                     println('{}, 完成{}任务!'.format(self.account, task['title']))
                 else:
                     println('{}, 做{}{}任务失败, {}!'.format(self.account, task['title'], task['subTitle'], res))
 
-                await asyncio.sleep(1)
+                await asyncio.sleep(1.5)
 
         println('{}, 完成浏览任务！'.format(self.account))
 
@@ -216,7 +216,7 @@ class JdSharkBean:
                 'body': {}
             }
             res = await self.request(session, params, self.METHOD_POST)
-            if 'success' in res and res['success']:
+            if res.get('success', False):
                 if res['data']['lotteryType'] == 2:  # 优惠券
                     coupon_info = res['data']['couponInfo']
                     discount = coupon_info['couponDiscount']
