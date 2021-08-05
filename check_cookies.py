@@ -19,19 +19,20 @@ async def check_cookies():
     :return:
     """
     println('开始检查账号cookies状态, 共{}个!'.format(len(JD_COOKIES)))
-    message = '【脚本名称】check_cookies.py\n【过期cookies列表】'
+    title = '\n======📣【过期cookies列表】📣======\n'
+    message = ''
     need_notify = False
     for cookies in JD_COOKIES:
         account = unquote(cookies['pt_pin'])
         ok = await async_check_cookie(cookies)
         if not ok:
-            message += account + '\n'
+            message += ' ' * 6 + account + '\n'
             println('{}, cookies已过期!'.format(account))
             need_notify = True
         else:
             println('{}, cookies正常!'.format(account))
     if need_notify:
-        notify(message)
+        notify(title, message)
 
 
 if __name__ == '__main__':
