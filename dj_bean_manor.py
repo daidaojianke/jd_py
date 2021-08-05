@@ -69,7 +69,7 @@ class DjBeanManor:
         :param session:
         :return:
         """
-        res = await self.post(session, 'plantBeans/getWater', {"activityId": self.activity_id})
+        res = await self.wx_post(session, 'plantBeans/getWater', {"activityId": self.activity_id})
         if res['code'] == '0':
             println('{}, 成功收取水滴!'.format(self.account))
         else:
@@ -96,8 +96,8 @@ class DjBeanManor:
             println('{}, 水滴不足, 不浇水!'.format(self.account))
             return
 
-        res = await self.post(session, 'plantBeans/watering', {"activityId": self.activity_id,
-                                                               "waterAmount": water_num})
+        res = await self.wx_post(session, 'plantBeans/watering', {"activityId": self.activity_id,
+                                                                  "waterAmount": water_num})
         if res['code'] == '0':
             println('{}, 成功浇水{}g!'.format(self.account, water_num))
         else:
@@ -159,4 +159,5 @@ class DjBeanManor:
 
 if __name__ == '__main__':
     from utils.process import process_start
+
     process_start(DjBeanManor, '鲜豆庄园任务')
