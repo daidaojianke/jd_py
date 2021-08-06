@@ -40,6 +40,9 @@ CODE_JD_FACTORY = 'jd_factory'
 # 东东农场助力码
 CODE_JD_FARM = 'jd_farm'
 
+# 抢京豆
+CODE_JD_GRAB_BEAN = 'jd_grab_bean'
+
 CODE_TITLE_MAP = {
     CODE_AMUSEMENT_POST: '京小鸽游乐寄-助力码',
     CODE_FLASH_SALE_BOX: '闪购盲盒-助力码',
@@ -47,6 +50,7 @@ CODE_TITLE_MAP = {
     CODE_MONEY_TREE: '金果摇钱树助力码',
     CODE_PLANTING_BEAN: '种豆得豆助力码',
     CODE_JD_FARM: '东东农场助力码',
+    CODE_JD_GRAB_BEAN: '抢京豆助力码'
 }
 
 
@@ -85,11 +89,18 @@ class Code(Model):
         :return:
         """
         exists = cls.select().where(cls.code_key == code_key, cls.account == account, cls.code_val == code_val,
-                                    cls.sort == sort, cls.code_type == code_type, cls.created_at == datetime.now().date())
+                                    cls.sort == sort, cls.code_type == code_type,
+                                    cls.created_at == datetime.now().date()).exists()
         if not exists:
             rowid = (cls.insert(code_key=code_key, account=account,
-                                code_val=code_val, code_type=code_type, sort=sort, created_at=datetime.now().date()).execute())
+                                code_val=code_val, code_type=code_type, sort=sort,
+                                created_at=datetime.now().date()).execute())
             return rowid
+
+        cls.update({cls.code_val: code_val, cls.sort: sort}).where(cls.account == account,
+                                                                   cls.code_key == code_key,
+                                                                   cls.created_at == datetime.now().date(),
+                                                                   )
 
     @classmethod
     def get_code_list(cls, code_key=''):
@@ -100,7 +111,8 @@ class Code(Model):
         """
         result = []
 
-        code_list = cls.select().where(cls.code_key == code_key, cls.created_at == datetime.now().date()).order_by(cls.sort).execute()
+        code_list = cls.select().where(cls.code_key == code_key, cls.created_at == datetime.now().date()).order_by(
+            cls.sort).execute()
         if not code_list:
             return result
 
@@ -115,8 +127,8 @@ class Code(Model):
 
 db.create_tables([Code])
 
-
-Code.insert_code(code_key=CODE_FLASH_SALE_BOX, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjVQmoaT5kRrbA', sort=10, account='作者')
+Code.insert_code(code_key=CODE_FLASH_SALE_BOX, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjVQmoaT5kRrbA', sort=10,
+                 account='作者')
 Code.insert_code(code_key=CODE_JD_FARM, code_val='f9a5389ab473423e83a746e03a82dddc', sort=10, account='作者')
 Code.insert_code(code_key=CODE_WISHING_POOL, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjRXnYaU5kRrbA', sort=10, account='作者')
 Code.insert_code(code_key=CODE_CUT_PET, code_val='MTAxNzIxMDc1MTAwMDAwMDA0OTQ4ODA1Mw==', sort=10, account='作者')

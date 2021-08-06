@@ -32,7 +32,8 @@ async def check_cookies():
         else:
             println('{}, cookies正常!'.format(account))
     if need_notify:
-        notify(title, message)
+        notify(title=title, content=message)
+
 
 
 if __name__ == '__main__':
