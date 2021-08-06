@@ -10,10 +10,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 # 每2个小时检查一次cookies是否过期
 0 */2 * * * /scripts/check_cookies.py >> /scripts/logs/check_cookies_`date "+\%Y-\%m-\%d"`.log 2>&1
 
-### 更新助力码
-3 0,16 * * * /scripts/update_share_code.py >> /scripts/logs/update_share_code_`date "+\%Y-\%m-\%d"`.log 2>&1
-
- #  京东到家 签到赚鲜豆
+#  京东到家 签到赚鲜豆
 45 7,12,19 * * * /scripts/dj_bean.py >> /scripts/logs/dj_bean_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 #  京东到家->鲜豆庄园
@@ -73,6 +70,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #  京东APP早起福利
 30 6 * * * /scripts/jd_good_morning.py >> /scripts/logs/jd_good_morning_`date "+\%Y-\%m-\%d"`.log 2>&1
 
+#  京东APP->首页->领京豆->抢京豆
+5 2,22 * * * /scripts/jd_grab_bean.py >> /scripts/logs/jd_grab_bean_`date "+\%Y-\%m-\%d"`.log 2>&1
+
 #  京东APP->我的->宠汪汪
 45 8,12,17 * * * /scripts/jd_joy.py >> /scripts/logs/jd_joy_`date "+\%Y-\%m-\%d"`.log 2>&1
 
@@ -94,14 +94,17 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #  种豆得豆收营养液
 40 */2 * * * /scripts/jd_planting_bean_collect.py >> /scripts/logs/jd_planting_bean_collect_`date "+\%Y-\%m-\%d"`.log 2>&1
 
+#  京东拼图签到
+47 10,4 * * * /scripts/jd_puzzle_sign.py >> /scripts/logs/jd_puzzle_sign_`date "+\%Y-\%m-\%d"`.log 2>&1
+
 #  京东排行榜
 21 9 * * * /scripts/jd_ranking_list.py >> /scripts/logs/jd_ranking_list_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 #  京东APP->我的->签到领豆->摇京豆
 6 0,18,23 * * * /scripts/jd_shark_bean.py >> /scripts/logs/jd_shark_bean_`date "+\%Y-\%m-\%d"`.log 2>&1
 
-#  京东APP->每日特价->疯狂砸金蛋
-45 5,19 * * * /scripts/jd_smash_golden_egg.py >> /scripts/logs/jd_smash_golden_egg_`date "+\%Y-\%m-\%d"`.log 2>&1
+#  京东APP相关签到
+0 3,19 * * * /scripts/jd_sign.py >> /scripts/logs/jd_sign_`date "+\%Y-\%m-\%d"`.log 2>&1
 
 #  众筹许愿池,
 45 */12 * * * /scripts/jd_wishing_pool.py >> /scripts/logs/jd_wishing_pool_`date "+\%Y-\%m-\%d"`.log 2>&1
