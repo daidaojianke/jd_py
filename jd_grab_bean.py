@@ -97,7 +97,7 @@ class JdGrabBean:
             println('{}, 无法获取助力码!'.format(self.account))
             return
 
-        code = data['shareCode']
+        code = data['shareCode'] + '@' + data['groupCode']
         Code.insert_code(code_key=CODE_JD_GRAB_BEAN, code_val=code, account=self.account, sort=self.sort)
         println('{}, 助力码: {}'.format(self.account, code))
 
@@ -114,7 +114,7 @@ class JdGrabBean:
 
         params = {
             'activeType': data['activityType'],
-            'groupCode': data['groupCode'],
+            'groupCode': '',
             'activeId': str(data['activityMsg']['activityId']),
             'shareCode': '',
             "source": "guest"
@@ -127,7 +127,7 @@ class JdGrabBean:
                 account, code = item.get('account'), item.get('code')
                 if account == self.account:
                     continue
-                params['shareCode'] = code
+                params['shareCode'], params['groupCode'] = code.split('@')
                 res = await self.request(session, 'signGroupHelp', params)
                 if res.get('code', '-') != '0':
                     println('{}, 无法助力好友:{}, {}!'.format(self.account, account, res.get('errorMessage')))
