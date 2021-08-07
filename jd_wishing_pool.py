@@ -64,7 +64,6 @@ class JdWishingPool:
             return None
         return data['result']['taskVos']
 
-
     async def finish_task(self, session, task_token, task_id, task_name):
         """
         完成任务
@@ -100,7 +99,6 @@ class JdWishingPool:
             item_list = []
 
         for item in item_list:
-            println(item)
             task_token = item['taskToken']
             task_id = task['taskId']
             await self.finish_task(session, task_token, task_id, task['taskName'])

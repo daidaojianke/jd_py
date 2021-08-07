@@ -3,13 +3,17 @@
 # @Time    : 2021/8/4 4:12 下午
 # @File    : jd_health.py
 # @Project : jd_scripts
+# @Cron    : 35 6,16 * * *
 # @Desc    : 东东健康社区
 import asyncio
 import aiohttp
 import json
+
+from db.model import Code, CODE_JD_HEALTH
 from urllib.parse import urlencode
 from utils.wraps import jd_init
 from utils.console import println
+from utils.process import process_start
 from config import USER_AGENT
 
 ERRCODE_DEFAULT = 9999
@@ -20,6 +24,9 @@ class JdHealth:
     """
     东东健康社区
     """
+
+    energy = 0  # 当前能量
+
     headers = {
         'user-agent': 'jdapp;' + USER_AGENT,
         'content-type': 'application/x-www-form-urlencoded',
@@ -185,6 +192,37 @@ class JdHealth:
                 break
             await asyncio.sleep(1)
 
+    async def health_a_bit(self, session):
+        """
+        健康一下
+        :return:
+        """
+        data = await self.request(session, 'jdhealth_getTaskDetail', {"buildingId": "", "taskId": 22, "channelId": 1})
+
+        status = data.get('result', dict()).get('taskVos',
+                                                dict())[-1].get('status', 0)
+        if status == 2:
+            println('{}, 健康一下已完成!'.format(self.account))
+            return
+
+        task_token = data.get('result', dict()).get('taskVos',
+                                                    dict())[-1].get('shoppingActivityVos')[-1].get('taskToken', None)
+        if not task_token:
+            println('{}, 无法进行健康一下!'.format(self.account))
+            return
+
+        println('{}, 正在进行健康一下, 等待6秒!'.format(self.account))
+        await self.request(session, 'jdhealth_collectScore', {"taskToken": task_token, "taskId": 22, "actionType": 1})
+        await asyncio.sleep(6)
+
+        res = await self.request(session, 'jdhealth_collectScore',
+                                 {"taskToken": task_token, "taskId": 22, "actionType": 0})
+
+        if res.get('bizCode', ERRCODE_DEFAULT) == 0:
+            println('{}, 完成健康一下!'.format(self.account))
+        else:
+            println('{}, 无法完成健康一下!'.format(self.account))
+
     async def do_task_list(self, session, task_list):
         """
         做任务
@@ -217,18 +255,126 @@ class JdHealth:
             else:
                 println(task_type, task_name)
 
+    async def sign(self, session):
+        """
+        签到
+        :param session:
+        :return:
+        """
+        data = await self.request(session, 'jdhealth_getTaskDetail',
+                                  {"buildingId": "", "taskId": 16, "channelId": 1})
+        if data.get('bizCode', ERRCODE_DEFAULT) != 0:
+            println('{}, 获取签到数据失败!'.format(self.account))
+            return
+
+        status = data['result']['taskVos'][-1]['status']
+
+        if status == 2:
+            println('{}, 今日已签到!'.format(self.account))
+            return
+        task_token = data['result']['taskVos'][-1]['simpleRecordInfoVo']['taskToken']
+
+        sign_params = {"taskToken": task_token, "taskId": 16, "actionType": "0"}
+
+        res = await self.request(session, 'jdhealth_collectScore', sign_params)
+
+        if res.get('bizCode', ERRCODE_DEFAULT) == 0:
+            println('{}, 签到成功!'.format(self.account))
+        else:
+            println('{}, 签到失败!'.format(self.account))
+
+    async def collect_health_energy(self, session):
+        res = await self.request(session, 'jdhealth_collectProduceScore')
+        if res.get('bizCode', ERRCODE_DEFAULT) != 0:
+            println('{}, 收能量失败!'.format(self.account))
+        else:
+            self.energy = int(res.get('result', dict()).get('userScore', '0'))
+            println('{}, 成功收取能量{}, 当前能量:{}!'.format(self.account,
+                                                    res.get('result', dict()).get('produceScore'),
+                                                    self.energy))
+
+    async def exchange_bean(self, session):
+        """
+        兑换京豆
+        :param session:
+        :return:
+        """
+        res = await self.request(session, 'jdhealth_getCommodities')
+        if res.get('bizCode', ERRCODE_DEFAULT) != 0:
+            println('{}, 无法获取可兑换物品列表!'.format(self.account))
+            return
+        await asyncio.sleep(1)
+        item_list = res.get('result', dict()).get('jBeans')
+
+        for i in range(len(item_list)):
+            item = item_list[len(item_list) - 1 - i]
+            if self.energy < int(item['exchangePoints']):
+                continue
+
+            res = await self.request(session, 'jdhealth_exchange',
+                                     {"commodityType": item['type'], "commodityId": item['id']})
+
+            if res.get('bizCode', ERRCODE_DEFAULT) == 0:
+                println('{}, 成功兑换{}京豆!'.format(self.account, item['title']))
+            else:
+                println('{}, 无法兑换{}京豆, {}!'.format(self.account, item['title'], res.get('bizMsg', '原因未知')))
+                if res.get('bizCode', ERRCODE_DEFAULT) == -6055:  # 到达今日兑换次数上限，不能再兑换哦~
+                    break
+            await asyncio.sleep(1)
+
+    async def get_share_code(self, session):
+        """
+        获取助力码
+        :param session:
+        :return:
+        """
+        res = await self.request(session, 'jdhealth_getTaskDetail', {"buildingId": "", "taskId": 6, "channelId": 1})
+        if res.get('bizCode', ERRCODE_DEFAULT) != 0:
+            println('{}, 无法获取助力码!'.format(self.account))
+            return
+        code = res['result']['taskVos'][0]['assistTaskDetailVo']['taskToken']
+        println('{}, 助力码:{}'.format(self.account, code))
+        Code.insert_code(code_key=CODE_JD_HEALTH, code_val=code, account=self.account, sort=self.sort)
+
+    async def help(self, session):
+        """
+        :param session:
+        :return:
+        """
+        item_list = Code.get_code_list(CODE_JD_HEALTH)
+
+        for item in item_list:
+            account, code = item.get('account'), item.get('code')
+
+            res = await self.request(session, 'jdhealth_collectScore',
+                                     {"taskToken": code, "taskId": "6", "actionType": 0})
+            if res.get('bizCode', ERRCODE_DEFAULT) == 0:
+                println('{}, 成功助力好友{}!'.format(self.account, account))
+            else:
+                println('{}, 无法助力好友:{}, {}'.format(self.account, account, res.get('bizMsg', '原因未知')))
+
     async def run(self):
         """
         :return:
         """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
-            task_list = await self.get_task_list(session)
+            await self.sign(session)
+            for i in range(3):
+                task_list = await self.get_task_list(session)
+                await self.do_task_list(session, task_list)
+            await self.get_share_code(session)
+            await self.health_a_bit(session)
+            await self.collect_health_energy(session)
+            await self.exchange_bean(session)
 
-            await self.do_task_list(session, task_list)
+    async def run_help(self):
+        """
+        助力入口
+        :return:
+        """
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
+            await self.help(session)
 
 
 if __name__ == '__main__':
-    from config import JD_COOKIES
-
-    app = JdHealth(**JD_COOKIES[8])
-    asyncio.run(app.run())
+    process_start(JdHealth, '东东健康社区')

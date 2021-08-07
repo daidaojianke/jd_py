@@ -27,6 +27,7 @@ class JdPlantingBeanCollect(JdPlantingBean):
                 return
             await self.receive_nutrient(session)
             await self.collect_nutriments(session)
+            self.message = None
 
 
 if __name__ == '__main__':

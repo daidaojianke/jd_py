@@ -73,6 +73,12 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #  京东APP->首页->领京豆->抢京豆
 5 2,22 * * * /scripts/jd_grab_bean.py >> /scripts/logs/jd_grab_bean_`date "+\%Y-\%m-\%d"`.log 2>&1
 
+#  东东健康社区
+35 6,16 * * * /scripts/jd_health.py >> /scripts/logs/jd_health_`date "+\%Y-\%m-\%d"`.log 2>&1
+
+#  东东健康社区收能量
+0 */30 * * * /scripts/jd_health_collect.py >> /scripts/logs/jd_health_collect_`date "+\%Y-\%m-\%d"`.log 2>&1
+
 #  京东APP->我的->宠汪汪
 45 8,12,17 * * * /scripts/jd_joy.py >> /scripts/logs/jd_joy_`date "+\%Y-\%m-\%d"`.log 2>&1
 
