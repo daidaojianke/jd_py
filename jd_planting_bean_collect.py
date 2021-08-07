@@ -21,6 +21,7 @@ class JdPlantingBeanCollect(JdPlantingBean):
         :return:
         """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
+            self.message = None
             is_success = await self.planting_bean_index(session)
             if not is_success:
                 println('{}, 无法获取活动数据!'.format(self.accountaccount))

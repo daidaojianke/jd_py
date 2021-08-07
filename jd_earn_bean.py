@@ -52,7 +52,7 @@ class JdEarnBean:
                 response = await session.get(url=url)
             else:
                 response = await session.post(url=url)
-            println('{}, 等待1秒, 避免出现活动太火爆!'.format(self.account))
+
             await asyncio.sleep(1)
             text = await response.text()
             data = json.loads(text)
@@ -104,7 +104,7 @@ class JdEarnBean:
         if not data['success']:
             println('{}, 开红包失败!'.format(self.account))
             return
-        println('{}, 开红包成功, 当前京豆:{}!'.format(self.account, data['activityBeanInitAmount']))
+        println('{}, 开红包成功!')
     
     @logger.catch
     async def do_tasks(self, session):
