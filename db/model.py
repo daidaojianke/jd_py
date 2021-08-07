@@ -43,6 +43,8 @@ CODE_JD_FARM = 'jd_farm'
 # 抢京豆
 CODE_JD_GRAB_BEAN = 'jd_grab_bean'
 
+CODE_JD_HEALTH = 'jd_health'
+
 CODE_TITLE_MAP = {
     CODE_AMUSEMENT_POST: '京小鸽游乐寄-助力码',
     CODE_FLASH_SALE_BOX: '闪购盲盒-助力码',
@@ -50,7 +52,8 @@ CODE_TITLE_MAP = {
     CODE_MONEY_TREE: '金果摇钱树助力码',
     CODE_PLANTING_BEAN: '种豆得豆助力码',
     CODE_JD_FARM: '东东农场助力码',
-    CODE_JD_GRAB_BEAN: '抢京豆助力码'
+    CODE_JD_GRAB_BEAN: '抢京豆助力码',
+    CODE_JD_HEALTH: '东东健康社区助力码'
 }
 
 
@@ -100,7 +103,7 @@ class Code(Model):
         cls.update({cls.code_val: code_val, cls.sort: sort}).where(cls.account == account,
                                                                    cls.code_key == code_key,
                                                                    cls.created_at == datetime.now().date(),
-                                                                   )
+                                                                   ).execute()
 
     @classmethod
     def get_code_list(cls, code_key=''):
