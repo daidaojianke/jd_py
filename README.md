@@ -67,23 +67,25 @@
 | get_jd_cookies.py     | 获取京东的COOKIES    | 100%      |
 | jd_cute_pet.py        | 京东APP->东东萌宠     | 100%        |
 | jd_factory.py         | 京东APP->东东工厂     |  100%       |
+| jd_factory_collect.py         | 京东APP->东东工厂-收电量     |  100%       |
 | jd_farm.py            | 京东APP->东东农场     |  100%       |
 | jd_lucky_turntable.py| 幸运大转盘 | 100%  |
 | jd_joy.py | 京东APP-> 宠汪汪 | 90% |
 | jd_joy_exchange.py | 京东APP-> 宠汪汪 -> 兑换京豆| 100% |
 | jd_joy_feed.py | 京东APP-> 宠汪汪 -> 喂狗粮 | 100% |
 | jd_planting_bean.py | 京东APP->种豆得豆|  100% |
+| jd_planting_bean_collect.py | 京东APP->种豆得豆-收取营养液|  100% |
 | jd_ranking_list.py | 京东APP->排行榜 | 100% |
 | jd_shark_bean.py | 京东APP->摇京豆 | 100%|
 | jd_collar_bean.py | 京东APP->领京豆 | 99%|
-| jd_sign_collection.py| 京东签到合集 | 100% |
+| jd_sign.py| 京东签到合集 | 100% |
 | jr_daily_task_goose.py| 京东金融->天天提鹅 | 100% |
 | jr_pet_pig.py | 京东金融->养猪猪| 100% |
 | jr_money_tree.py| 京东金融->摇钱树| 100%|
 | jd_bean_lottery.py | 京东APP->签到领京豆->摇京豆->京豆夺宝| 100% |
 | jd_earn_bean.py | 微信小程序-赚京豆 | 100% |
 | jd_cash.py | 京东APP-领现金 | 100% |
-| jd_burning_summer.py | 京东APP-燃动夏季| 100% |
+| jd_burning_summer.py | 京东APP-燃动夏季| 100%(过期) |
 | jd_wishing_pool.py | 京东APP-京东众筹-许愿池| 100% |
 | jd_good_morning.py | 京东APP-领京豆->早起福利| 100% |
 | jd_bean_home.py | 京东APP-签到领豆->额外京豆/浏览商品| 100% |
@@ -96,11 +98,10 @@
 | jd_flash_sale_box.py| 京东APP->品牌闪购->闪购盲盒|100%|
 | jd_amusement_post.py| 京东APP->京小鸽游乐寄| 100% |
 | jd_puzzle_sign.py | 京东需要拼图验证的签到 | 100%|
-| jd_health.py | 京东APP-东东健康社区 | 50%|
-| jd_beauty.py          | 京东APP->美丽研究院   | 0%        |
-| jx_factory.py | 京喜APP->京喜工厂 | 0% |
-| jx_farm.py | 京喜APP->京喜农场| 0% |
-| jd_esports_manager.py | 京东APP->电竞经理     | 0%        |
+| jd_health.py | 京东APP-东东健康社区 | 100%|
+| jx_factory.py | 京喜APP->京喜工厂 | 100% |
+| jx_factory_collect.py | 京喜APP->京喜工厂收电量 | 100% |
+
 
 ## 配置说明
 

@@ -221,6 +221,42 @@ class JdCash:
 
             await asyncio.sleep(2.5)
 
+    async def sign(self, session):
+        """
+        签到
+        :param session:
+        :return:
+        """
+        try:
+            url = 'https://api.m.jd.com/client.action?functionId=cash_sign&clientVersion=10.0.11&build=89314&client' \
+                  '=android&osVersion=11&partner=jingdong&openudid=a27b83d3d1dba1cc&sdkVersion=30&uuid=a27b83d3d1dba1cc' \
+                  '&aid=a27b83d3d1dba1cc&networkType=wifi&st=1628419999801&sign=9c2543218680da1f16e0a36afb8c5ba1&sv=100' \
+                  '&body=%7B%22breakReward%22%3A0%2C%22inviteCode%22%3Anull%2C%22remind%22%3A0%2C%22type%22%3A0%7D&'
+            response = await session.post(url)
+            text = await response.text()
+            data = json.loads(text)
+            println('{}, 签到结果;{}!'.format(self.account, data['data']['bizMsg']))
+        except Exception as e:
+            println('{}, 签到异常, {}'.format(self.account, e.args))
+
+    async def withdraw_ten(self, session):
+        """
+        提现10元
+        :return:
+        """
+        try:
+            url = 'https://api.m.jd.com/client.action?functionId=cash_wx_withdraw&clientVersion=10.0.11&build=89314' \
+                  '&client=android&screen=2293*1080&partner=jingdong&oaid=&openudid=a27b83d3d1dba1cc&sdkVersion=30' \
+                  '&lang=zh_CN&uuid=a27b83d3d1dba1cc&aid=a27b83d3d1dba1cc&networkType=wifi&st=1628420578663&sign' \
+                  '=9dc459ed7419420373445f67bbd6c12b&sv=122&body=%7B%22amount%22%3A1000%2C%22code%22%3A%22001nc' \
+                  'QFa1THZwB0muVFa16WXOe0ncQFm%22%7D&'
+            response = await session.post(url)
+            text = await response.text()
+            data = json.loads(text)
+            println('{}, 提现10元结果{}!'.format(self.account, data['data']['bizMsg']))
+        except Exception as e:
+            println('{}, 提现10元异常, {}'.format(self.account, e.args))
+
     async def run(self):
         """
         入口
@@ -231,12 +267,14 @@ class JdCash:
             if not success:
                 println('{}, 无法初始化数据, 退出程序!'.format(self.account))
                 return
+            await self.sign(session)
             await self.get_share_code(session)
             await self.do_tasks(session)
             # await self.get_award(session)
+            await self.withdraw_ten(session)
 
     async def run_help(self):
-        """
+        """GetSuggestContent?zone=dream_factory&type=1&_time=1628418529947&_stk=_time%2Ctype%2Czone&_ste=1&h5st=20210808182849947%3B4637489386822162%3B10001%3Btk01w9d981bd9a8nU3BBZnNWbHpVdP%2BPHSAkpQ8STHtPYCGIoNHoE4qjMHxdHfHS%2BsnSiGY6mMv%2FRkxxrPkap3g6947E%3Bf98c48ae6521045a461eaa18e9bd1bd3c584c493b1880540dbc19533b0cc7da1&_=1628418529952&sceneval=2&g_login_type=1&callback=jsonpCBKU&g_ty=ls
         助力入口
         :return:
         """
