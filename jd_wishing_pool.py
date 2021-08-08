@@ -11,7 +11,7 @@ import aiohttp
 import asyncio
 
 from urllib.parse import quote
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from config import USER_AGENT
 from utils.console import println
 from db.model import Code, CODE_WISHING_POOL

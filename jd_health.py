@@ -11,7 +11,7 @@ import json
 
 from db.model import Code, CODE_JD_HEALTH
 from urllib.parse import urlencode
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from utils.console import println
 from utils.process import process_start
 from config import USER_AGENT

@@ -12,7 +12,7 @@ import json
 from urllib.parse import quote
 from utils.console import println
 from utils.process import process_start
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from utils.logger import logger
 from db.model import Code, CODE_JD_CASH
 

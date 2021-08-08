@@ -8,14 +8,4 @@
 
 
 class JxFactory:
-
-    def __init__(self, pt_pin, pt_key):
-
-        self._cookies = {
-            'pt_pin': pt_pin,
-            'pt_key': pt_key
-        }
-
-    async def run(self):
-        """
-        """
+    pass

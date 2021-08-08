@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 from config import USER_AGENT
 from utils.browser import open_page, open_browser
 from utils.logger import logger
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from utils.validate import puzzle_validate_decorator
 
 

@@ -24,7 +24,7 @@ class JdPlantingBeanCollect(JdPlantingBean):
             self.message = None
             is_success = await self.planting_bean_index(session)
             if not is_success:
-                println('{}, 无法获取活动数据!'.format(self.accountaccount))
+                println('{}, 无法获取活动数据!'.format(self.account))
                 return
             await self.receive_nutrient(session)
             await self.collect_nutriments(session)

@@ -15,7 +15,7 @@ from urllib.parse import quote
 from utils.browser import open_page, open_browser
 from utils.console import println
 from utils.logger import logger
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from config import USER_AGENT, JD_BURNING_SUMMER_CODE
 
 

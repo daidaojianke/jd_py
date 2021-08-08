@@ -14,7 +14,7 @@ import random
 from urllib.parse import unquote, quote
 from config import USER_AGENT
 from utils.console import println
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 
 
 @jd_init

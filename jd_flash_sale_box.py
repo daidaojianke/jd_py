@@ -12,7 +12,7 @@ from urllib.parse import urlencode
 from utils.console import println
 from utils.process import process_start
 from utils.logger import logger
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from db.model import Code, CODE_FLASH_SALE_BOX
 from config import USER_AGENT
 

@@ -10,7 +10,7 @@ import json
 import asyncio
 from utils.console import println
 from utils.logger import logger
-from utils.dj_base import dj_init
+from utils.dj_init import dj_init
 from config import DJ_FRUIT_KEEP_WATER
 
 

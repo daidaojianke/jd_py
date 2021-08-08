@@ -9,7 +9,7 @@ import moment
 import aiohttp
 import asyncio
 from utils.console import println
-from utils.dj_base import dj_init
+from utils.dj_init import dj_init
 from utils.logger import logger
 
 

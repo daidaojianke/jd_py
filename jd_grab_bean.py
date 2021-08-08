@@ -11,7 +11,7 @@ import json
 from config import USER_AGENT
 from urllib.parse import urlencode
 from utils.console import println
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from db.model import Code, CODE_JD_GRAB_BEAN
 
 

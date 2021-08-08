@@ -45,6 +45,10 @@ CODE_JD_GRAB_BEAN = 'jd_grab_bean'
 
 CODE_JD_HEALTH = 'jd_health'
 
+CODE_JX_FACTORY_TUAN = 'jx_factory_tuan'
+
+CODE_JX_FACTORY_WORK = 'jx_factory_work'
+
 CODE_TITLE_MAP = {
     CODE_AMUSEMENT_POST: '京小鸽游乐寄-助力码',
     CODE_FLASH_SALE_BOX: '闪购盲盒-助力码',
@@ -53,7 +57,9 @@ CODE_TITLE_MAP = {
     CODE_PLANTING_BEAN: '种豆得豆助力码',
     CODE_JD_FARM: '东东农场助力码',
     CODE_JD_GRAB_BEAN: '抢京豆助力码',
-    CODE_JD_HEALTH: '东东健康社区助力码'
+    CODE_JD_HEALTH: '东东健康社区助力码',
+    CODE_JX_FACTORY_TUAN: '京喜工厂团ID',
+    CODE_JX_FACTORY_WORK: '京喜工厂招工'
 }
 
 
@@ -138,3 +144,4 @@ Code.insert_code(code_key=CODE_CUT_PET, code_val='MTAxNzIxMDc1MTAwMDAwMDA0OTQ4OD
 Code.insert_code(code_key=CODE_JD_FARM, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjVWnYaS5kRrbA', sort=10, account='作者')
 Code.insert_code(code_key=CODE_MONEY_TREE, code_val='GEwzybOwKgTmY4q07j9ZiMAdoUJQ3Dik', sort=10, account='作者')
 Code.insert_code(code_key=CODE_PLANTING_BEAN, code_val='mlrdw3aw26j3x3vxi2qvp7xj5llrsmtd3tde64i', sort=10, account='作者')
+Code.insert_code(code_key=CODE_JX_FACTORY_WORK, code_val='3uRnk7OghCCAuKJAPLEajA==', sort=10, account='作者')

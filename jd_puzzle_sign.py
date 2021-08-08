@@ -7,7 +7,7 @@
 # @Desc    : 京东拼图签到
 import asyncio
 from utils.console import println
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from utils.browser import open_browser, open_page
 from config import USER_AGENT
 from utils.validate import puzzle_validate_decorator

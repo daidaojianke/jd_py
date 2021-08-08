@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/8/2 11:32 上午
-# @File    : wraps.py
+# @File    : jd_init.py
 # @Project : jd_scripts
 # @Desc    : 装饰器定义
 from urllib.parse import unquote

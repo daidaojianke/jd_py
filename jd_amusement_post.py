@@ -12,7 +12,7 @@ import ujson
 import aiohttp
 from config import USER_AGENT
 
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from utils.console import println
 from utils.logger import logger
 from db.model import Code, CODE_AMUSEMENT_POST

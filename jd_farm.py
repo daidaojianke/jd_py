@@ -15,7 +15,7 @@ import json
 from urllib.parse import quote
 from utils.console import println
 from utils.logger import logger
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from config import USER_AGENT, JD_FARM_BEAN_CARD, JD_FARM_RETAIN_WATER
 from db.model import Code, CODE_JD_FARM
 

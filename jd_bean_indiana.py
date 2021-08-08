@@ -11,7 +11,7 @@ import aiohttp
 import json
 
 from utils.console import println
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from utils.logger import logger
 from utils.process import process_start
 

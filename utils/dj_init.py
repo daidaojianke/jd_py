@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 # @Time    : 2021/7/28 2:06 下午
-# @File    : dj_base.py
+# @File    : dj_init.py
 # @Project : jd_scripts
 # @Desc    :
 import json

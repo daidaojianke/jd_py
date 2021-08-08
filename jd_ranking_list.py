@@ -12,7 +12,7 @@ import aiohttp
 from urllib.parse import unquote
 from utils.console import println
 from utils.logger import logger
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from utils.process import process_start
 
 

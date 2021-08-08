@@ -9,7 +9,7 @@ import aiohttp
 import re
 import json
 from utils.console import println
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from utils.process import process_start
 
 

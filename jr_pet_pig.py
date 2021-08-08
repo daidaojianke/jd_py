@@ -13,7 +13,7 @@ from urllib.parse import quote, urlencode
 from furl import furl
 from utils.process import process_start
 from utils.console import println
-from utils.wraps import jd_init
+from utils.jd_init import jd_init
 from config import USER_AGENT
 
 
