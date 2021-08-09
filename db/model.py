@@ -141,7 +141,7 @@ Code.insert_code(code_key=CODE_FLASH_SALE_BOX, code_val='T0225KkcRRYR_QbSIkmgkPU
 Code.insert_code(code_key=CODE_JD_FARM, code_val='f9a5389ab473423e83a746e03a82dddc', sort=10, account='作者')
 Code.insert_code(code_key=CODE_WISHING_POOL, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjRXnYaU5kRrbA', sort=10, account='作者')
 Code.insert_code(code_key=CODE_CUT_PET, code_val='MTAxNzIxMDc1MTAwMDAwMDA0OTQ4ODA1Mw==', sort=10, account='作者')
-Code.insert_code(code_key=CODE_JD_FARM, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjVWnYaS5kRrbA', sort=10, account='作者')
+Code.insert_code(code_key=CODE_JD_FACTORY, code_val='T0225KkcRRYR_QbSIkmgkPUDJQCjVWnYaS5kRrbA', sort=10, account='作者')
 Code.insert_code(code_key=CODE_MONEY_TREE, code_val='GEwzybOwKgTmY4q07j9ZiMAdoUJQ3Dik', sort=10, account='作者')
 Code.insert_code(code_key=CODE_PLANTING_BEAN, code_val='mlrdw3aw26j3x3vxi2qvp7xj5llrsmtd3tde64i', sort=10, account='作者')
 Code.insert_code(code_key=CODE_JX_FACTORY_WORK, code_val='3uRnk7OghCCAuKJAPLEajA==', sort=10, account='作者')
