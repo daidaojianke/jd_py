@@ -139,10 +139,10 @@ class JdPlantingBean:
         data = data['data']
 
         round_list = data['roundList']
-        self.cur_round_id = round_list[1]['roundId']
+        self.cur_round_id = round_list[2]['roundId']
         self.task_list = data['taskList']
-        self.cur_round_list = round_list[1]
-        self.prev_round_list = round_list[0]
+        self.cur_round_list = round_list[2]
+        self.prev_round_list = round_list[1]
         self.message = '\n【活动名称】种豆得豆\n'
         self.message += f"【京东昵称】:{data['plantUserInfo']['plantNickName']}\n"
         self.message += f'【上期时间】:{round_list[0]["dateDesc"].replace("上期 ", "")}\n'
