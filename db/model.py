@@ -133,6 +133,16 @@ class Code(Model):
 
         return result
 
+    @classmethod
+    def get_codes(cls, code_key=''):
+        """
+        :param code_key:
+        :return:
+        """
+        code_list = cls.select().where(cls.code_key == code_key, cls.created_at == datetime.now().date()).order_by(
+            cls.sort).execute()
+        return code_list
+
 
 db.create_tables([Code])
 
