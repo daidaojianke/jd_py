@@ -7,11 +7,13 @@
 # @Desc    : 种豆得豆
 
 import asyncio
+import aiohttp
+import re
 import json
+import moment
 from functools import wraps
 from urllib.parse import quote
 
-import aiohttp
 from furl import furl
 from utils.console import println
 from utils.logger import logger
@@ -139,14 +141,29 @@ class JdPlantingBean:
         data = data['data']
 
         round_list = data['roundList']
-        self.cur_round_id = round_list[1]['roundId']
+        cur_idx = 2
+        prev_idx = 1
+        prev_start_date = moment.date('01-01')
+        for i in range(len(round_list)):
+            rnd = round_list[i]
+            if '本期' in rnd['dateDesc']:
+                cur_idx = i
+                break
+            elif '上期' in rnd['dateDesc']:
+                temp = re.search('-(\d+月\d+)日', rnd['dateDesc']).group(1).replace('月', '-')
+                prev_date = moment.date(temp)
+                if prev_date > prev_start_date:
+                    prev_start_date = prev_date
+                    prev_idx = i
+
+        self.cur_round_id = round_list[cur_idx]['roundId']
         self.task_list = data['taskList']
-        self.cur_round_list = round_list[1]
-        self.prev_round_list = round_list[0]
+        self.cur_round_list = round_list[cur_idx]
+        self.prev_round_list = round_list[prev_idx]
         self.message = '\n【活动名称】种豆得豆\n'
         self.message += f"【京东昵称】:{data['plantUserInfo']['plantNickName']}\n"
-        self.message += f'【上期时间】:{round_list[0]["dateDesc"].replace("上期 ", "")}\n'
-        self.message += f'【上期成长值】:{round_list[0]["growth"]}\n'
+        self.message += f'【上期时间】:{round_list[prev_idx]["dateDesc"].replace("上期 ", "")}\n'
+        self.message += f'【上期成长值】:{round_list[prev_idx]["growth"]}\n'
         return True
 
     async def receive_nutrient(self, session):
