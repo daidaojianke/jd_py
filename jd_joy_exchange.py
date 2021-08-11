@@ -57,21 +57,19 @@ class JdJoyExchange(JdJoy):
             pet_coin = 0
 
         println('{}, 当前积分:{}!'.format(self.account, pet_coin))
-        gift_id = None
-        gift_name = None
+
+        can_exchange_map = dict()
+
         for gift in gift_list:
-            # 积分够兑换并且库存大于0
-            if pet_coin > gift['salePrice'] and gift['leftStock'] > 0:
-                gift_id = gift['id']
-                gift_name = gift['giftName']
-        if not gift_id:
-            println('{}, 当前不满足兑换商品条件!'.format(self.account))
+            if pet_coin > gift['salePrice']:
+                can_exchange_map[int(gift['giftValue'])] = gift['id']
+
+        if not can_exchange_map:
+            println('{}, 当前暂无可兑换商品!'.format(self.account))
             return
 
-        println('{}, 正在兑换, 商品: {}!'.format(self.account, gift_name))
-
-        exchange_path = 'gift/new/exchange'
-        exchange_params = {"buyParam": {"orderSource": 'pet', "saleInfoId": gift_id}, "deviceInfo": {}}
+        can_exchange_map = {i[0]: i[1] for i in sorted(can_exchange_map.items(),
+                                                       key=lambda item: item[1], reverse=True)}
 
         exchange_start_datetime = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
         exchange_start_timestamp = int(time.mktime(time.strptime(start_time, "%Y-%m-%d %H:%M:%S")) * 1000)
@@ -80,7 +78,7 @@ class JdJoyExchange(JdJoy):
         while True:
             now = int(time.time()*1000)
             if now + delay * 1000 >= exchange_start_timestamp or now >= exchange_start_timestamp:
-                println('{}, 当前时间大于兑换时间, 去兑换:{}'.format(self.account, gift_name))
+                println('{}, 当前时间大于兑换时间, 去兑换商品!'.format(self.account))
                 break
             else:
                 now = datetime.now()
@@ -100,31 +98,47 @@ class JdJoyExchange(JdJoy):
                 println('{}, 当前时间小于兑换时间, 等待{}秒!'.format(self.account, timeout))
                 await asyncio.sleep(timeout)
 
-        exchange_success = False
-        exchange_success_datetime = None
+        exchange_name = None # 兑换成功商品
+        exchange_success = False  # 是否兑换成功
+        exchange_success_datetime = None  # 兑换成功时间
+        exchange_finish = False  # 表示兑换结束
 
-        for i in range(10):
-            println('{}, 正在尝试第{}次兑换!'.format(self.account, i+1))
-            data = await self.request(session, exchange_path, exchange_params, method='POST')
-            if data and data['errorCode'] and 'success' in data['errorCode']:
-                exchange_success = True
-                exchange_success_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        for gift_val, gift_id in can_exchange_map.items():
+            exchange_path = 'gift/new/exchange'
+            gift_name = f'{gift_val}京豆'
 
+            exchange_params = {"buyParam": {"orderSource": 'pet', "saleInfoId": gift_id}, "deviceInfo": {}}
+
+            println('{}, 正在兑换:{}京豆!'.format(self.account, gift_val))
+
+            for i in range(10):
+                println('{}, 正在尝试第{}次兑换!'.format(self.account, i+1))
+                data = await self.request(session, exchange_path, exchange_params, method='POST')
+                if data and data['errorCode'] and 'success' in data['errorCode']:
+                    exchange_success = True
+                    exchange_success_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+                    exchange_finish = True
+                    break
+                elif data and data['errorCode'] and 'limit' in data['errorCode']:
+                    println('{}, 今日已兑换商品:{}!'.format(self.account, gift_name))
+                    exchange_finish = True
+                    break
+                elif data and data['errorCode'] and 'empty' in data['errorCode']:
+                    println('{}, 奖品:{}已无库存!'.format(self.account, gift_name))
+                    exchange_finish = True
+                    break
+                else:
+                    println('{}, 兑换请求结果: {}'.format(self.account, data))
+                await asyncio.sleep(0.5)
+
+            if exchange_finish:
                 break
-            elif data and data['errorCode'] and 'limit' in data['errorCode']:
-                println('{}, 今日已兑换商品:{}!'.format(self.account, gift_name))
-                break
-            elif data and data['errorCode'] and 'empty' in data['errorCode']:
-                println('{}, 奖品:{}已无库存!'.format(self.account, gift_name))
-                break
-            await asyncio.sleep(0.5)
 
         if exchange_success:
-            println('{}, 成功兑换商品:{}, 兑换时间:{}'.format(self.account, gift_name, exchange_success_datetime))
+            println('{}, 成功兑换商品:{}, 兑换时间:{}'.format(self.account, exchange_name, exchange_success_datetime))
             self.message = '【活动名称】宠汪汪\n【京东账号】{}\n【兑换奖品】{}\n【兑换状态】成功\n【兑换时间】{}\n'.\
-                format(self.account, gift_name, exchange_success_datetime)
-        else:
-            println('{}, 无法兑换商品:{}!'.format(self.account, gift_name))
+                format(self.account, exchange_name, exchange_success_datetime)
+
 
     async def run(self):
         async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies,
