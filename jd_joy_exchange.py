@@ -116,6 +116,7 @@ class JdJoyExchange(JdJoy):
                 data = await self.request(session, exchange_path, exchange_params, method='POST')
                 if data and data['errorCode'] and 'success' in data['errorCode']:
                     exchange_success = True
+                    exchange_name = gift_name
                     exchange_success_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
                     exchange_finish = True
                     break
@@ -125,7 +126,6 @@ class JdJoyExchange(JdJoy):
                     break
                 elif data and data['errorCode'] and 'empty' in data['errorCode']:
                     println('{}, 奖品:{}已无库存!'.format(self.account, gift_name))
-                    exchange_finish = True
                     break
                 else:
                     println('{}, 兑换请求结果: {}'.format(self.account, data))
