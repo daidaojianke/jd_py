@@ -11,6 +11,7 @@ import json
 import ujson
 import aiohttp
 from config import USER_AGENT
+from utils.process import get_code_list
 
 from utils.jd_init import jd_init
 from utils.console import println
@@ -128,7 +129,7 @@ class JdAmusementPost:
                                          json_serialize=ujson.dumps) as session:
 
             code_list = Code.get_code_list(code_key=CODE_AMUSEMENT_POST)
-
+            code_list.extend(get_code_list(CODE_AMUSEMENT_POST))
             if not code_list:
                 return
             for code in code_list:
@@ -145,6 +146,25 @@ class JdAmusementPost:
                     println('{}, 成功助力好友:{}!'.format(self.account, friend_account))
                 else:
                     println('{}, 无法助力好友:{}!'.format(self.account, friend_account))
+
+    async def synthesis(self, session):
+        """
+        合卡
+        :return:
+        """
+        res = await self.request(session, '/MangHeApi/synthesize', [{
+            "userNo": "$cooMrdGatewayUid$"
+        }])
+        if res.get('success', False):
+            println('{}, 成功合成一张抽奖卡, 去抽奖...'.format(self.account))
+        else:
+            println('{}, 无法合成抽奖卡，卡片不足!'.format(self.account))
+            return
+
+        res = await self.request(session, '/MangHeApi/getBigReward', [{
+            "userNo": "$cooMrdGatewayUid$"
+        }])
+        println('{}, 抽奖结果:{}!'.format(self.account, res.get('content', '未知')))
 
     async def get_share_code(self, session):
         """
@@ -192,10 +212,13 @@ class JdAmusementPost:
                 if item['status'] == 11:
                     await self.get_card(session, item['getRewardNos'][0])
 
+            await self.synthesis(session)
+
 
 if __name__ == '__main__':
     # from config import JD_COOKIES
     # app = JdAmusementPost(**JD_COOKIES[8])
     # asyncio.run(app.run())
     from utils.process import process_start
-    process_start(JdAmusementPost, '京小鸽-游乐寄')
+
+    process_start(JdAmusementPost, '京小鸽-游乐寄', code_key=CODE_AMUSEMENT_POST)

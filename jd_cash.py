@@ -14,6 +14,7 @@ from utils.console import println
 from utils.process import process_start
 from utils.jd_init import jd_init
 from utils.logger import logger
+from utils.process import get_code_list
 from db.model import Code, CODE_JD_CASH
 
 
@@ -203,6 +204,7 @@ class JdCash:
         session.headers.add('Referer', 'https://h5.m.jd.com/babelDiy/Zeus/GzY6gTjVg1zqnQRnmWfMKC4PsT1/index.html')
 
         item_list = Code.get_code_list(code_key=CODE_JD_CASH)
+        item_list.extend(get_code_list(CODE_JD_CASH))
         for item in item_list:
             friend_account, friend_code = item.get('account'), item.get('code')
             if friend_account == self.account:
@@ -214,7 +216,7 @@ class JdCash:
                                                                    "shareDate": share_date, "source": 2})
             if data['code'] != 0 or data['data']['bizCode'] != 0:
                 println('{}, 助力好友:{}失败, {}！'.format(self.account, invite_code, data['data']['bizMsg']))
-                if data['data']['bizCode'] == 206:  # 助力次数用完
+                if data['data']['bizCode'] in [206, 188]:  # 助力次数用完/活动太火爆了
                     break
             else:
                 println('{}, 助力好友:{}成功!'.format(self.account, invite_code))
@@ -283,4 +285,4 @@ class JdCash:
 
 
 if __name__ == '__main__':
-    process_start(JdCash, '签到领现金')
+    process_start(JdCash, '签到领现金', code_key=CODE_JD_CASH)

@@ -17,6 +17,7 @@ from utils.console import println
 from utils.logger import logger
 from utils.jd_init import jd_init
 from config import USER_AGENT, JD_FARM_BEAN_CARD, JD_FARM_RETAIN_WATER
+from utils.process import get_code_list
 from db.model import Code, CODE_JD_FARM
 
 
@@ -145,20 +146,12 @@ class JdFarm:
         invite_friend_max = data['inviteFriendMax']  # 每日邀请上限
         println('{}, 今日已邀请好友{}个 / 每日邀请上限{}个'.format(self.account, invite_friend_count, invite_friend_max))
         friends = data['friends']  # 好友列表
-        cur_friend_count = len(friends)  # 当前好友数量
 
-        if cur_friend_count > 0:
-            println('{}, 开始删除{}个好友, 可拿每天的邀请奖励!'.format(self.account, cur_friend_count))
-            for friend in friends:
-                res = await self.request(session, 'deleteFriendForFarm', {
-                    'shareCode': friend['shareCode']
-                })
-                if res['code'] == '0':
-                    println('{}, 成功删除好友:{}'.format(self.account, friend['nickName']))
 
         m_pin = await self.get_encrypted_pin(session)
 
         item_list = Code.get_code_list(CODE_JD_FARM)
+        item_list.extend(get_code_list(CODE_JD_FARM))
         for item in item_list:
             friend_account, friend_code = item.get('account'), item.get('code')
             # 自己不能邀请自己成为好友
@@ -183,6 +176,16 @@ class JdFarm:
                 println('{}, 领取邀请好友奖励结果:{}'.format(self.account, res))
         else:
             println('{}, 今日未邀请过好友!'.format(self.account))
+
+        cur_friend_count = len(friends)  # 当前好友数量
+        if cur_friend_count > 0:
+            println('{}, 开始删除{}个好友, 可拿每天的邀请奖励!'.format(self.account, cur_friend_count))
+            for friend in friends:
+                res = await self.request(session, 'deleteFriendForFarm', {
+                    'shareCode': friend['shareCode']
+                })
+                if res['code'] == '0':
+                    println('{}, 成功删除好友:{}'.format(self.account, friend['nickName']))
 
     @logger.catch
     async def timed_collar_drop(self, session):
@@ -562,6 +565,7 @@ class JdFarm:
         help_max_count = 3  # 每人每天只有三次助力机会
         cur_count = 0  # 当前已助力次数
         item_list = Code.get_code_list(CODE_JD_FARM)
+        item_list.extend(get_code_list(CODE_JD_FARM))
         for item in item_list:
             friend_account, friend_code = item.get('account'), item.get('code')
             if cur_count >= help_max_count:
@@ -743,6 +747,7 @@ class JdFarm:
         """
         println('{}, 开始天天抽奖--好友助力--每人每天只有三次助力机会!'.format(self.account))
         item_list = Code.get_code_list(CODE_JD_FARM)
+        item_list.extend(get_code_list(CODE_JD_FARM))
         for item in item_list:
             friend_account, friend_code = item.get('account'), item.get('code')
             if friend_account == self.account:
@@ -759,6 +764,7 @@ class JdFarm:
                 println('{}, 天天抽奖-无法重复助力用户:《{}》!'.format(self.account, friend_account))
             elif res['helpResult']['code'] == '13':
                 println('{}, 天天抽奖-助力用户:《{}》失败, 助力次数已用完!'.format(self.account, friend_account))
+                break
             else:
                 println('{}, 天天抽奖助力用户:《{}》失败, 原因未知!'.format(self.account, friend_account))
         println('{}, 完成天天抽奖--好友助力!'.format(self.account))
@@ -775,16 +781,16 @@ class JdFarm:
             Code.insert_code(code_key=CODE_JD_FARM, code_val=self.farm_info['shareCode'],
                              account=self.account, sort=self.sort)
             println('{}, 助力码:{}'.format(self.account, self.farm_info['shareCode']))
-
-            await self.do_daily_task(session)  # 每日任务
-            await self.do_ten_water(session)  # 浇水十次
-            await self.get_first_water_award(session)  # 领取首次浇水奖励
-            await self.get_ten_water_award(session)  # 领取十次浇水奖励
-            await self.get_water_friend_award(session)  # 领取给好友浇水的奖励
-            await self.click_duck(session)  # 点鸭子任务
-            await self.do_ten_water_again(session)  # 再次浇水
-            await self.got_water(session)  # 领水滴
-            await self.notify_result(session)  # 结果通知
+            #
+            # await self.do_daily_task(session)  # 每日任务
+            # await self.do_ten_water(session)  # 浇水十次
+            # await self.get_first_water_award(session)  # 领取首次浇水奖励
+            # await self.get_ten_water_award(session)  # 领取十次浇水奖励
+            # await self.get_water_friend_award(session)  # 领取给好友浇水的奖励
+            # await self.click_duck(session)  # 点鸭子任务
+            # await self.do_ten_water_again(session)  # 再次浇水
+            # await self.got_water(session)  # 领水滴
+            # await self.notify_result(session)  # 结果通知
 
     async def run_help(self):
         """
@@ -804,4 +810,4 @@ class JdFarm:
 
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(JdFarm, '东东农场')
+    process_start(JdFarm, '东东农场', code_key=CODE_JD_FARM)

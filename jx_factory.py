@@ -16,6 +16,7 @@ from datetime import datetime
 from urllib.parse import unquote, urlencode
 from utils.jx_init import jx_init
 from utils.console import println
+from utils.process import get_code_list
 from db.model import Code, CODE_JX_FACTORY_TUAN, CODE_JX_FACTORY_WORK
 
 
@@ -176,7 +177,7 @@ class JxFactory:
             '_stk': '_time,materialTuanId,materialTuanPin,pin,sharePin,shareType,source,zone'
         }
         item_list = Code.get_code_list(CODE_JX_FACTORY_WORK)
-
+        item_list.extend(get_code_list(CODE_JX_FACTORY_WORK))
         for item in item_list:
             account, code = item.get('account'), item.get('code')
             if account == self.account:
@@ -532,7 +533,7 @@ class JxFactory:
         :return:
         """
         item_list = Code.get_code_list(CODE_JX_FACTORY_TUAN)
-
+        item_list.extend(CODE_JX_FACTORY_TUAN)
         path = 'dreamfactory/tuan/JoinTuan'
         for item in item_list:
             account, code = item.get('account'), item.get('code')
@@ -679,4 +680,4 @@ class JxFactory:
 
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(JxFactory, '京喜工厂')
+    process_start(JxFactory, '京喜工厂', code_key=[CODE_JX_FACTORY_WORK, CODE_JX_FACTORY_TUAN])
