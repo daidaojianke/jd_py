@@ -781,16 +781,16 @@ class JdFarm:
             Code.insert_code(code_key=CODE_JD_FARM, code_val=self.farm_info['shareCode'],
                              account=self.account, sort=self.sort)
             println('{}, 助力码:{}'.format(self.account, self.farm_info['shareCode']))
-            #
-            # await self.do_daily_task(session)  # 每日任务
-            # await self.do_ten_water(session)  # 浇水十次
-            # await self.get_first_water_award(session)  # 领取首次浇水奖励
-            # await self.get_ten_water_award(session)  # 领取十次浇水奖励
-            # await self.get_water_friend_award(session)  # 领取给好友浇水的奖励
-            # await self.click_duck(session)  # 点鸭子任务
-            # await self.do_ten_water_again(session)  # 再次浇水
-            # await self.got_water(session)  # 领水滴
-            # await self.notify_result(session)  # 结果通知
+
+            await self.do_daily_task(session)  # 每日任务
+            await self.do_ten_water(session)  # 浇水十次
+            await self.get_first_water_award(session)  # 领取首次浇水奖励
+            await self.get_ten_water_award(session)  # 领取十次浇水奖励
+            await self.get_water_friend_award(session)  # 领取给好友浇水的奖励
+            await self.click_duck(session)  # 点鸭子任务
+            await self.do_ten_water_again(session)  # 再次浇水
+            await self.got_water(session)  # 领水滴
+            await self.notify_result(session)  # 结果通知
 
     async def run_help(self):
         """
