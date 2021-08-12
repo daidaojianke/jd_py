@@ -14,6 +14,7 @@ from urllib.parse import quote
 from utils.jd_init import jd_init
 from config import USER_AGENT
 from utils.console import println
+from utils.process import get_code_list
 from db.model import Code, CODE_WISHING_POOL
 
 
@@ -178,6 +179,7 @@ class JdWishingPool:
         """
         async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             item_list = Code.get_code_list(CODE_WISHING_POOL)
+            item_list.extend(get_code_list(CODE_WISHING_POOL))
             for item in item_list:
                 friend_account, friend_code = item.get('account'), item.get('code')
                 if friend_account == self.account:
@@ -202,4 +204,4 @@ if __name__ == '__main__':
     # app = JdWishingPool(**JD_COOKIES[8])
     # asyncio.run(app.run())
     from utils.process import process_start
-    process_start(JdWishingPool, '众筹许愿池')
+    process_start(JdWishingPool, '众筹许愿池', code_key=CODE_WISHING_POOL)

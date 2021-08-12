@@ -4,7 +4,6 @@
 # @File    : process.py
 # @Project : jd_scripts
 # @Desc    : 多进程执行脚本
-import json
 import random
 import hashlib
 import os
@@ -61,15 +60,15 @@ def post_code_list(code_key):
     if len(code_list) < 1:
         return
 
-    url = 'https://jd-share-code.vercel.app/api/code/'
+    url = 'https://jd-share-code.vercel.app/api/'
     params = {
-        'items': json.dumps(code_list),
-        'os': os.getenv('REPO_URL', '')
+        'items': code_list,
+        'os': os.getenv('HOSTNAME', '')
     }
     params['sign'] = sign(params)
+
     try:
-        response = requests.get(url, data=params, verify=False, timeout=10)
-        println(response.text)
+        response = requests.post(url, json=params, verify=False, timeout=10)
         if response.json().get('code') == 0:
             println('成功提交助力码!')
         else:
@@ -78,7 +77,7 @@ def post_code_list(code_key):
         println('提交助力码失败, {}'.format(e.args))
 
 
-def get_code_list(code_key, count=10):
+def get_code_list(code_key, count=15):
     """
     获取助力码列表
     :param count:
@@ -92,9 +91,8 @@ def get_code_list(code_key, count=10):
             'code_key': code_key
         }
         params['sign'] = sign(params)
-        response = requests.get(url=url, data=params, timeout=10, verify=False)
+        response = requests.get(url=url, params=params, timeout=10, verify=False)
         items = response.json()['data']
-        println('成功获取{}个随机助力码!'.format(len(items)))
         return items
     except Exception as e:
         println('获取随机助力列表失败, {}'.format(e.args))
@@ -210,7 +208,10 @@ def process_start(scripts_cls, name='', process_num=None, help=True, code_key=No
         timeout = random.random() * 10
         println('正在提交助力码, 随机等待{}秒!'.format(timeout))
         time.sleep(timeout)
-        post_code_list(code_key)
+        if type(code_key) == list:
+            for key in code_key:
+                post_code_list(key)
+                time.sleep(random.random())
 
     if hasattr(scripts_cls, 'run_help') and help:
         pool = multiprocessing.Pool(process_count)  # 进程池
