@@ -4,6 +4,8 @@
 # @File    : dj_init.py
 # @Project : jd_scripts
 # @Desc    :
+import hashlib
+import hmac
 import json
 import time
 import math
@@ -18,6 +20,18 @@ from utils.console import println
 from config import USER_AGENT
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
+def dj_sign(data):
+    """
+    :param data:
+    :return:
+    """
+    key = '923047ae3f8d11d8b19aeb9f3d1bc200'
+    data = dict(sorted(data.items(), key=lambda x: x[0]))
+    values = [v for k, v in data.items() if k != 'functionId' and v]
+    obj = hmac.new(key.encode(), '&'.join(values).encode(), hashlib.sha256)
+    return obj.hexdigest()
 
 
 def uuid():
@@ -69,7 +83,7 @@ async def request(self, session, function_id='', body=None, method='GET'):
         if not body:
             body = {}
         params = {
-            '_jdrandom': int(time.time() * 1000),
+            '_jdrandom': str(int(time.time() * 1000)),
             '_funid_': function_id,
             'functionId': function_id,
             'body': json.dumps(body),
@@ -88,17 +102,18 @@ async def request(self, session, function_id='', body=None, method='GET'):
             'lng': self.lng,
             'lat': self.lat,
             'isNeedDealError': 'true',
-            'signKeyV1': ''
         }
 
         if function_id == 'xapp/loginByPtKeyNew':
             params['code'] = '011UYn000apwmL1nWB000aGiv74UYn03'
 
         if method == 'GET':
+            params['signKeyV1'] = dj_sign(params)
             url = 'https://daojia.jd.com/client?' + urlencode(params)
             response = await session.get(url=url)
         else:
             params['method'] = 'POST'
+            params['signKeyV1'] = dj_sign(params)
             url = 'https://daojia.jd.com/client?' + urlencode(params)
             response = await session.post(url=url)
 
@@ -255,7 +270,7 @@ async def finish_task(self, session, task_name, body):
     :return:
     """
     res = await self.get(session, 'task/finished', body)
-    if res['code'] != '0':
+    if res.get('code') != '0':
         println('{}, 无法完成任务:《{}》!'.format(self.account, task_name))
     else:
         println('{}, 成功完成任务:《{}》!'.format(self.account, task_name))
@@ -355,6 +370,7 @@ def dj_init(cls):
             'deviceid_pdj_jd': self.device_id
         }
         self.message = ''
+        self.sort = kwargs.get('sort', 1)
 
     cls.request = request
     cls.get = get

@@ -43,11 +43,19 @@ CODE_JD_FARM = 'jd_farm'
 # 抢京豆
 CODE_JD_GRAB_BEAN = 'jd_grab_bean'
 
+# 东东健康社区
 CODE_JD_HEALTH = 'jd_health'
 
+# 京喜工厂开团
 CODE_JX_FACTORY_TUAN = 'jx_factory_tuan'
 
+# 惊喜工厂招工
 CODE_JX_FACTORY_WORK = 'jx_factory_work'
+
+
+#  到家果园助力
+CODE_DJ_FRUIT = 'dj_fruit'
+
 
 CODE_TITLE_MAP = {
     CODE_AMUSEMENT_POST: '京小鸽游乐寄-助力码',

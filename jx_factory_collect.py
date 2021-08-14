@@ -9,8 +9,10 @@ import aiohttp
 from jx_factory import JxFactory
 from utils.console import println
 from utils.process import process_start
+from utils.jx_init import jx_init
 
 
+@jx_init
 class JxFactoryCollect(JxFactory):
     """
     京喜工厂收电量
