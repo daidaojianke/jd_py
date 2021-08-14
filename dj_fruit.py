@@ -325,7 +325,7 @@ class DjFruit:
         if not data:
             return
         active_info = data['activityInfoResponse']
-        message = '【活动名称】到家果园\n【活动账号】{}\n【活动昵称】{}\n'.format(self.account, self.nickname, '到家果园')
+        message = '【活动名称】到家果园\n【活动账号】{}\n'.format(self.account)
         message += '【奖品名称】{}\n'.format(active_info['fruitName'])
         message += '【{}进度】{}/{}\n'.format(
             active_info['stageName'],
@@ -375,7 +375,7 @@ class DjFruit:
 
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(DjFruit, '到家果园')
+    process_start(DjFruit, '到家果园', code_key=CODE_DJ_FRUIT)
     # from config import JD_COOKIES
     # app = DjFruit(**JD_COOKIES[0])
     # asyncio.run(app.run())
