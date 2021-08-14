@@ -325,7 +325,7 @@ class DjFruit:
         if not data:
             return
         active_info = data['activityInfoResponse']
-        message = '【活动名称】到家果园\n【活动账号】{}\n【活动昵称】{}\n'.format(self.account, self.nickname)
+        message = '【活动名称】到家果园\n【活动账号】{}\n【活动昵称】{}\n'.format(self.account, self.nickname, '到家果园')
         message += '【奖品名称】{}\n'.format(active_info['fruitName'])
         message += '【{}进度】{}/{}\n'.format(
             active_info['stageName'],
@@ -357,7 +357,7 @@ class DjFruit:
             await self.receive_water_bottle(session)  # 领取水瓶
             await self.receive_water_wheel(session)  # 领取水车
             await self.watering(session, batch=True, keep_water=DJ_FRUIT_KEEP_WATER)
-            # await self.set_notify_message(session)
+            await self.set_notify_message(session)
 
     async def run_help(self):
         """
