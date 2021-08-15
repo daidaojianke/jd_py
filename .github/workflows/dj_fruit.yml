@@ -38,6 +38,7 @@ jobs:
                   sed -i "s@#pt@#  - pt@#g" config.yaml
                   mkdir conf 
                   cp ~/jdpy/config.yaml ~/jdpy/conf/config.yaml        
-                  tree ~/jdpy           
+                  ls
+                  cat ~/jdpy/conf/config.yaml
                   #python dj_fruit.py
                   
