@@ -13,27 +13,27 @@ jobs:
     build:
         runs-on: ubuntu-latest
         if: github.event.repository.owner.id == github.event.sender.id
-         steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v2
 
-      - name: 'Set up Python'
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.7
+          - name: 'Set up Python'
+            uses: actions/setup-python@v1
+            with:
+              python-version: 3.7
 
-      - name: 'Install requirements'
-        run: pip install -r ./requirements.txt
+          - name: 'Install requirements'
+            run: pip install -r ./requirements.txt
             
                   
-      - name: run
-        run: |             
-            sed -i '15c/${{ secrets.JD_COOKIE1 }}' ./config.yaml
-            sed -i '16c/${{ secrets.JD_COOKIE2 }}' ./config.yaml
-            sed -i '17c/${{ secrets.JD_COOKIE3 }}' ./config.yaml
-            sed -i "s#pt_pin#  - pt_pin#g" config.yaml
-            mkdir conf 
-            cp ./config.yaml ./conf/config.yaml        
-            cat ./conf/config.yaml
-            python3 dj_fruit.py
+          - name: run
+            run: |             
+             sed -i '15c/${{ secrets.JD_COOKIE1 }}' ./config.yaml
+             sed -i '16c/${{ secrets.JD_COOKIE2 }}' ./config.yaml
+             sed -i '17c/${{ secrets.JD_COOKIE3 }}' ./config.yaml
+             sed -i "s#pt_pin#  - pt_pin#g" config.yaml
+             mkdir conf 
+             mv ./config.yaml ./conf/config.yaml        
+             cat ./conf/config.yaml
+             python3 dj_fruit.py
                   
