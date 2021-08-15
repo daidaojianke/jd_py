@@ -1,0 +1,40 @@
+name: dj_fruit
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: "1 2,13 * * *"
+    watch:
+        types: [started]
+    repository_dispatch:
+        types: dj_fruit
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        if: github.event.repository.owner.id == github.event.sender.id
+        steps:
+            #- uses: actions/checkout@v1
+            
+                  
+            - name: 'Set up Python'
+              uses: actions/setup-python@v1
+              with:
+                python-version: 3.7
+         
+            - name: 'Install requirements'
+              run: pip install -r ./-/requirements.txt 
+                  
+            - name: run
+              run: |
+                  cd ./
+                  pip install virtualenv
+                  virtualenv venv && source ./venv/bin/activate
+                  
+                  sed -i "15c/'${{ secrets.JD_COOKIE1 }}'" .config.yaml
+                  sed -i "16c/'${{ secrets.JD_COOKIE2 }}'" .config.yaml
+                  sed -i "17c/'${{ secrets.JD_COOKIE3 }}'" .config.yaml
+                  mkdir conf && cp .config.yaml ./conf/             
+                             
+                  python dj_fruit.py
+                  
