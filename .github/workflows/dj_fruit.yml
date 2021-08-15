@@ -22,15 +22,14 @@ jobs:
               with:
                 python-version: 3.7
          
-            - name: 'Install requirements'
-              run: pip install -r ./requirements.txt
+            
                   
             - name: run
               run: |
                   cd ./
                   pip install virtualenv
                   virtualenv venv && source ./venv/bin/activate
-                  
+                  pip install -r requirements.txt
                   sed -i "15c/'${{ secrets.JD_COOKIE1 }}'" .config.yaml
                   sed -i "16c/'${{ secrets.JD_COOKIE2 }}'" .config.yaml
                   sed -i "17c/'${{ secrets.JD_COOKIE3 }}'" .config.yaml
