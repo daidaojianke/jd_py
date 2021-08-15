@@ -35,7 +35,7 @@ jobs:
                   sed -i '15c/${{ secrets.JD_COOKIE1 }}' config.yaml
                   sed -i '16c/${{ secrets.JD_COOKIE2 }}' config.yaml
                   sed -i '17c/${{ secrets.JD_COOKIE3 }}' config.yaml
-                  sed -i "s@#pt_pin@#  - pt_pin@#g" config.yaml
+                  sed -i "s#pt_pin#  - pt_pin#g" config.yaml
                   mkdir conf 
                   cp ./config.yaml ./conf/config.yaml        
                   cat ./conf/config.yaml
