@@ -22,7 +22,8 @@ jobs:
       - name: '运行同步'
         run: |
           git clone https://github.com/ClassmateLin/jd_scripts.git py
-          cp -r py/*.py /home/runner/work/jd_py/jd_py
+          cp -r py/*.* /home/runner/work/jd_py/jd_py
+          cp -r py/utils/*.* /home/runner/work/jd_py/jd_py
           rm -rf py
       - name: commit
         run: |
