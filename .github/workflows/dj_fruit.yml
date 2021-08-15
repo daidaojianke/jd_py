@@ -36,7 +36,7 @@ jobs:
                   sed -i "16c/'${{ secrets.JD_COOKIE2 }}'" config.yaml
                   sed -i "17c/'${{ secrets.JD_COOKIE3 }}'" config.yaml
                   mkdir conf 
-                  cp ~/jdpy/config.yaml conf/config.yaml        
+                  cp ~/jdpy/config.yaml ~/jdpy/conf/config.yaml        
                              
                   python dj_fruit.py
                   
