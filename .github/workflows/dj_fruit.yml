@@ -27,17 +27,17 @@ jobs:
             - name: run
               run: |
                   
-                  git clone https://github.com/wudongdefeng/jd_py.git ~/jdpy
-                  cd ~/jdpy
+                  
+                  cd ./
                   pip install virtualenv
                   virtualenv venv && source ./venv/bin/activate
                   pip3 install -r requirements.txt
                   sed -i '15c/${{ secrets.JD_COOKIE1 }}' config.yaml
                   sed -i '16c/${{ secrets.JD_COOKIE2 }}' config.yaml
                   sed -i '17c/${{ secrets.JD_COOKIE3 }}' config.yaml
-                  sed -i "s/pt/  - pt/g" config.yaml
+                  sed -i "s@#pt_pin@#  - pt_pin@#g" config.yaml
                   mkdir conf 
-                  cp ~/jdpy/config.yaml ~/jdpy/conf/config.yaml        
-                  cat ~/jdpy/conf/config.yaml
+                  cp ./config.yaml ./conf/config.yaml        
+                  cat ./conf/config.yaml
                   #python dj_fruit.py
                   
