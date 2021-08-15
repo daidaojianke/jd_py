@@ -147,7 +147,7 @@ async def get_encrypt(self):
             data = json.loads(text)
             if data['status'] == 200:
                 self.token = data['data']['result']['tk']
-                self.random = re.search("random='(.*)';", data['data']['result']['algo']).group(1)
+                self.random = re.search("rd='(.*)';", data['data']['result']['algo']).group(1)
                 algo = re.search(r'algo\.(.*)\(', data['data']['result']['algo']).group(1)
 
                 if algo.lower() in self.algo_map:
