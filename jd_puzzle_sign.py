@@ -166,6 +166,7 @@ class JdPuzzleSign:
 
 
 if __name__ == '__main__':
+    from config import JD_PUZZLE_PROCESS_NUM
     from utils.process import process_start
-    process_start(JdPuzzleSign, '京东拼图签到', process_num=1)
+    process_start(JdPuzzleSign, '京东拼图签到', process_num=JD_PUZZLE_PROCESS_NUM)
 

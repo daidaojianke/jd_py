@@ -130,9 +130,8 @@ PUSH_P_TOKEN = cfg.get('notify', dict()).get('push_p_token', None)
 #  企业微信配置
 QYWX_AM = cfg.get('notify', dict()).get('qywx_am', None)
 
-# 是否开启京豆夺宝
-JD_BEAN_INDIANA_OPEN = cfg.get('jd_bean_indiana', False)
-
 # 到家果园保留水滴
 DJ_FRUIT_KEEP_WATER = cfg.get('dj_fruit_keep_water', 10)
 
+# 拼图签到默认进程数量
+JD_PUZZLE_PROCESS_NUM = cfg.get('jd_puzzle_process_num', 1)

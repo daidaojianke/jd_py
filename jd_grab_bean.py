@@ -159,5 +159,5 @@ class JdGrabBean:
 
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(JdGrabBean, '抢京豆', process_num=1, code_key=CODE_JD_GRAB_BEAN)
+    process_start(JdGrabBean, '抢京豆', code_key=CODE_JD_GRAB_BEAN)
 

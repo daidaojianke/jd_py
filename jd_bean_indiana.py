@@ -322,7 +322,4 @@ class JdBeanIndiana:
 
 
 if __name__ == '__main__':
-    if not JD_BEAN_INDIANA_OPEN:
-        println('配置未开启京豆夺宝功能不运行!')
-    else:
-        process_start(JdBeanIndiana, '京豆夺宝')
+    process_start(JdBeanIndiana, '京豆夺宝')

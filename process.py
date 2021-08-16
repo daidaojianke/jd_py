@@ -17,7 +17,7 @@ from utils.cookie import sync_check_cookie
 from utils.console import println
 from utils.notify import notify
 from utils.logger import logger
-from config import JD_COOKIES, PROCESS_NUM
+from config import JD_COOKIES, PROCESS_NUM, USER_AGENT
 from db.model import Code
 
 
@@ -60,7 +60,7 @@ def post_code_list(code_key):
     if len(code_list) < 1:
         return
 
-    url = 'https://jd-share-code.vercel.app/api/'
+    url = 'http://service-ex55qwbk-1258942535.gz.apigw.tencentcs.com/release/'
     params = {
         'items': code_list,
         'os': os.getenv('HOSTNAME', '')
@@ -68,7 +68,11 @@ def post_code_list(code_key):
     params['sign'] = sign(params)
 
     try:
-        response = requests.post(url, json=params, verify=False, timeout=10)
+        headers = {
+            'user-agent': USER_AGENT,
+            'Content-Type': 'application/json'
+        }
+        response = requests.post(url, json=params, verify=False, timeout=20, headers=headers)
         if response.json().get('code') == 0:
             println('成功提交助力码!')
         else:
@@ -85,14 +89,20 @@ def get_code_list(code_key, count=15):
     :return:
     """
     try:
-        url = 'https://jd-share-code.vercel.app/api/'
+        url = 'http://service-ex55qwbk-1258942535.gz.apigw.tencentcs.com/release/'
+        headers = {
+            'user-agent': USER_AGENT,
+            'content-type': 'application/json'
+        }
         params = {
             'count': count,
             'code_key': code_key
         }
         params['sign'] = sign(params)
-        response = requests.get(url=url, params=params, timeout=10, verify=False)
+        response = requests.get(url=url, json=params, timeout=20, verify=False, headers=headers)
         items = response.json()['data']
+        if not items:
+            return []
         return items
     except Exception as e:
         println('获取随机助力列表失败, {}'.format(e.args))
