@@ -93,7 +93,7 @@ class JdJoy:
         try:
             default_params = {
                 'reqSource': 'h5',
-                'invokeKey': 'qRKHmL4sna8ZOP9F'
+                'invokeKey': 'ztmFUCxcPMNyUq0P'
             }
             if method == 'GET' and body:
                 default_params.update(body)
@@ -122,7 +122,7 @@ class JdJoy:
                 return data
 
             if data['errorCode'] == 'H0001':  # 需要拼图验证
-                println('{}, 需要进行拼图验证!'.format(self.account))
+                println('{}, 等待进行拼图验证!'.format(self.account))
                 for i in range(3):
                     is_success = await self.validate()
                     if is_success:
@@ -266,6 +266,31 @@ class JdJoy:
             await asyncio.sleep(3.1)
 
     @logger.catch
+    async def get_share_code(self, session, task):
+        """
+        获取助力码
+        :param session:
+        :param task:
+        :return:
+        """
+        pass
+
+    async def run_help(self):
+        """
+        :return:
+        """
+        pin = 'jd_dkZHblelNXNY'
+        url = 'https://draw.jdfcloud.com/common/pet/helpFriend?friendPin={}&reqSource=weapp&invokeKey=ztmFUCxcPMNyUq0P'.format(
+            pin)
+        headers = self.headers
+        headers['LKYLToken'] = 'fe13ef50dc2d7f45aa9ed21209fa1dad'
+        headers['Referer'] = 'https://servicewechat.com/wxccb5c536b0ecd1bf/746/page-frame.html'
+        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
+            response = await session.get(url=url)
+            text = await response.text()
+            println(text)
+
+    @logger.catch
     async def do_task(self, session):
         """
         做任务
@@ -298,6 +323,12 @@ class JdJoy:
             elif task['taskType'] == 'FollowShop':  # 关注店铺
                 await self.follow_shop(session, task)
 
+            elif task['taskType'] == 'InviteUser':  # 邀请好友
+                await self.get_share_code(session, task)
+
+            elif task['taskType'] == 'ReserveSku':  # 商品预约
+                println('{}, 无法执行任务:《预约{}》!'.format(self.account, task.get('taskName')))
+
             elif task['taskType'] == 'ScanMarket':  # 逛会场
                 await self.scan_market(session, task)
 
@@ -317,11 +348,12 @@ class JdJoy:
         return friend_list
 
     @logger.catch
-    async def help_friend_feed(self, session):
+    async def help_friend_feed(self, session, count=1):
         """
         帮好友喂狗
         """
         cur_page = 0
+        cur_count = 1
         while True:
             cur_page += 1
             friend_list = await self.get_friend_list(session, page=cur_page)
@@ -329,6 +361,8 @@ class JdJoy:
                 break
 
             for friend in friend_list:
+                if cur_count > count:
+                    break
                 if friend['status'] == 'chance_full':
                     println('{}, 今日帮好友喂狗次数已用完成!'.format(self.account))
                     return
@@ -343,10 +377,11 @@ class JdJoy:
                 data = await self.request(session, feed_path, feed_params)
                 if data and data['errorCode'] and 'ok' in data['errorCode']:
                     println('{}, 成功帮好友:{} 喂狗!'.format(self.account, friend['friendName']))
+                    cur_count += 1
                 else:
                     println('{}, 无法帮好友:{}喂狗!'.format(self.account, friend['friendName']))
                     error_code = data.get('errorCode', '')
-                    if 'full' in error_code:
+                    if 'full' in error_code or 'insufficient' in error_code:
                         break
                 await asyncio.sleep(1)
             await asyncio.sleep(1)
@@ -389,16 +424,16 @@ class JdJoy:
         """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies,
                                          json_serialize=ujson.dumps) as session:
+            await self.do_task(session)
             await self.joy_race(session)
             await self.help_friend_feed(session)
-            await self.do_task(session)
 
         await self.close_browser()
 
 
 if __name__ == '__main__':
     # from config import JD_COOKIES
-    # app = JdJoy(**JD_COOKIES[8])
+    # app = JdJoy(**JD_COOKIES[0])
     # asyncio.run(app.run())
     from utils.process import process_start
     from config import JOY_PROCESS_NUM
