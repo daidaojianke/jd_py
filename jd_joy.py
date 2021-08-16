@@ -266,31 +266,6 @@ class JdJoy:
             await asyncio.sleep(3.1)
 
     @logger.catch
-    async def get_share_code(self, session, task):
-        """
-        获取助力码
-        :param session:
-        :param task:
-        :return:
-        """
-        pass
-
-    async def run_help(self):
-        """
-        :return:
-        """
-        pin = 'jd_dkZHblelNXNY'
-        url = 'https://draw.jdfcloud.com/common/pet/helpFriend?friendPin={}&reqSource=weapp&invokeKey=ztmFUCxcPMNyUq0P'.format(
-            pin)
-        headers = self.headers
-        headers['LKYLToken'] = 'fe13ef50dc2d7f45aa9ed21209fa1dad'
-        headers['Referer'] = 'https://servicewechat.com/wxccb5c536b0ecd1bf/746/page-frame.html'
-        async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
-            response = await session.get(url=url)
-            text = await response.text()
-            println(text)
-
-    @logger.catch
     async def do_task(self, session):
         """
         做任务
@@ -322,9 +297,6 @@ class JdJoy:
 
             elif task['taskType'] == 'FollowShop':  # 关注店铺
                 await self.follow_shop(session, task)
-
-            elif task['taskType'] == 'InviteUser':  # 邀请好友
-                await self.get_share_code(session, task)
 
             elif task['taskType'] == 'ReserveSku':  # 商品预约
                 println('{}, 无法执行任务:《预约{}》!'.format(self.account, task.get('taskName')))
