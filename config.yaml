@@ -27,8 +27,14 @@ notify:
   tg_bot_token: aaa
   # TG用户ID
   tg_user_id: bbb
-  # push+ token: https://pushplus.hxtrip.com/
   push_plus_token: null
 
-# 是否开启京豆夺宝功能
-jd_bean_indiana: true
+  # push+ group 一对多推送才需要次配置
+  push_plus_group: null
+
+  # 依次填上corpid的值,corpsecret的值,touser的值,agentid,media_id的值，注意用,号隔开。
+  qywx_am: null
+
+# 在此列表中的脚本, 将不会加入到定时任务中, 如需立即生效, 请手动执行命令: docker-entrypoint
+crontab_exclude_scripts:
+  #- jd_bean_indiana.py
