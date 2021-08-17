@@ -28,12 +28,13 @@ jobs:
                   
           - name: run
             run: |             
-             sed -i "15c/  -${{ secrets.JD_COOKIE1 }}" ./config.yaml
-             sed -i "16c/  -${{ secrets.JD_COOKIE2 }}" ./config.yaml
-             sed -i "17c/  -${{ secrets.JD_COOKIE3 }}" ./config.yaml
+             sed -i "15c/${{ secrets.JD_COOKIE1 }}" ./config.yaml
+             sed -i "16c/${{ secrets.JD_COOKIE2 }}" ./config.yaml
+             sed -i "17c/${{ secrets.JD_COOKIE3 }}" ./config.yaml
+             sed -i "15,17s/^/  - /g" ./config.yaml
              
              mkdir conf 
              mv ./config.yaml ./conf/config.yaml        
-             cat ./conf/config.yaml
+             
              python3 jd_bean_change.py
                   
