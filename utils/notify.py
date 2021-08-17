@@ -8,7 +8,7 @@ import requests
 import telegram
 import os, re
 import json
-from config import TG_BOT_TOKEN, TG_USER_ID, PUSH_P_TOKEN,  QYWX_AM
+from config import TG_BOT_TOKEN, TG_USER_ID, PUSH_PLUS_TOKEN, PUSH_PLUS_GROUP,  QYWX_AM
 from utils.console import println
 
 
@@ -42,7 +42,8 @@ def wecom_app(title, content):
             print('推送失败！错误信息如下：\n', response)
     except Exception as e:
         print(e)
-        
+
+
 class WeCom:
     def __init__(self, corpid, corpsecret, agentid):
         self.CORPID = corpid
@@ -105,21 +106,23 @@ def push_plus_notify(title, content):
     :return:
     """
     try:
-        if not PUSH_P_TOKEN:
+        if not PUSH_PLUS_TOKEN:
             println('未配置PUSH+ token, 不推送PUSH+信息!')
             return
-        url = 'http://pushplus.hxtrip.com/send'
+        url = 'https://pushplus.hxtrip.com/send'
 
         headers = {
             'Content-Type': 'application/json',
         }
         content = content.replace('\n', '<br>')
         data = {
-            'token': PUSH_P_TOKEN,
+            'token': PUSH_PLUS_TOKEN,
             'title': title,
             'content': content,
             'template': 'html'
         }
+        if PUSH_PLUS_GROUP:
+            data['topic'] = PUSH_PLUS_GROUP
 
         response = requests.post(url=url, json=data, headers=headers)
         response_data = response.json()

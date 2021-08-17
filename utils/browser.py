@@ -5,6 +5,7 @@
 # @Project : jd_scripts 
 # @Desc    :
 import platform
+import os
 from pyppeteer import launcher
 
 launcher.DEFAULT_ARGS.remove("--enable-automation")
@@ -74,3 +75,15 @@ async def open_page(browser, url, user_agent, cookies):
         return page
     except Exception as e:
         await browser.close()
+
+
+async def close_browser(browser=None):
+    """
+    关闭浏览器
+    :param browser:
+    :return:
+    """
+    if browser:
+        await browser.close()
+    os.system('pkill chrome')
+    os.system('pkill Chromium')
