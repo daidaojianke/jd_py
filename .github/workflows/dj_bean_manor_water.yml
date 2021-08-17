@@ -1,4 +1,4 @@
-name: dj_bean_manor_water
+name: dj_bean_manor_water&dj_fruit_collect
 
 on:
     workflow_dispatch:
@@ -7,7 +7,7 @@ on:
     watch:
         types: [started]
     repository_dispatch:
-        types: dj_bean_manor_water
+        types: dj_bean_manor_water&dj_fruit_collect
 
 jobs:
     build:
@@ -37,4 +37,5 @@ jobs:
              mv ./config.yaml ./conf/config.yaml        
              
              python3 dj_bean_manor_water.py
+             python3 dj_fruit_collect.py
                   
