@@ -37,4 +37,4 @@ jobs:
              mv ./config.yaml ./conf/config.yaml        
              
              python3 dj_bean.py
-                  
+             python3 dj_bean_manor.py     
