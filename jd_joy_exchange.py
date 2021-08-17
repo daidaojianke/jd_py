@@ -16,6 +16,7 @@ from datetime import datetime
 
 from utils.logger import logger
 from utils.console import println
+from utils.browser import close_browser
 
 
 class JdJoyExchange(JdJoy):
@@ -35,23 +36,26 @@ class JdJoyExchange(JdJoy):
             return
 
         # 23~6点运行兑换8点场
-        if datetime.now().hour >= 23 or datetime.now().hour < 7:  # 0点场
+        if datetime.now().hour >= 23 or 0 <= datetime.now().hour < 7:  # 0点场
             start_time = datetime.strftime((datetime.now() + relativedelta(days=1)), "%Y-%m-%d 00:00:00")
             key = 'beanConfigs0'
         # 7~15点运行兑换8点场
-        elif 7 < datetime.now().hour < 16:  # 8点场
+        elif 7 <= datetime.now().hour < 15:  # 8点场
             start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 08:00:00")
             key = 'beanConfigs8'
         # 15~22点运行兑换16点场
-        elif 15 < datetime.now().hour < 23:  # 16点场
+        elif 15 <= datetime.now().hour < 23:  # 16点场
             start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 16:00:00")
             key = 'beanConfigs16'
         # 其他兑换16点场
-        else:  # 默认16点场
+        else:
             start_time = datetime.now().strftime("%Y-%m-%d 16:00:00")
             key = 'beanConfigs16'
 
-        gift_list = data[key]
+        gift_list = data.get(key, None)
+        if not gift_list:
+            println('{}, 获取兑换商品列表失败!'.format(self.account))
+            return
         pet_coin = data.get('petCoin')  # 当前积分
         if not pet_coin:
             pet_coin = 0
@@ -139,13 +143,12 @@ class JdJoyExchange(JdJoy):
             self.message = '【活动名称】宠汪汪\n【京东账号】{}\n【兑换奖品】{}\n【兑换状态】成功\n【兑换时间】{}\n'.\
                 format(self.account, exchange_name, exchange_success_datetime)
 
-
     async def run(self):
         async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies,
                                          json_serialize=ujson.dumps) as session:
             await self.exchange_bean(session)
 
-        await self.close_browser()
+        await close_browser(self.browser)
 
 
 if __name__ == '__main__':

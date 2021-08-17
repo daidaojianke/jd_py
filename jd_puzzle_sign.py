@@ -8,9 +8,10 @@
 import asyncio
 from utils.console import println
 from utils.jd_init import jd_init
-from utils.browser import open_browser, open_page
+from utils.browser import open_browser, open_page, close_browser
 from config import USER_AGENT
 from utils.validate import puzzle_validate_decorator
+from utils.logger import logger
 
 
 @jd_init
@@ -22,6 +23,7 @@ class JdPuzzleSign:
     browser_cookies = []
     user_agent = 'jdapp;' + USER_AGENT
 
+    @logger.catch
     async def sign(self, browser, url='', name=''):
 
         println('{}, 正在打开{}页面...'.format(self.account, name))
@@ -60,6 +62,7 @@ class JdPuzzleSign:
         else:
             println('{}, {}签到失败!'.format(self.account, name))
 
+    @logger.catch
     async def undies_sign(self, browser):
         """
         京东内衣签到
@@ -69,6 +72,7 @@ class JdPuzzleSign:
         name = '京东内衣'
         await self.sign(browser, url, name)
 
+    @logger.catch
     async def children_clothing_sign(self, browser):
         """
         京东童装签到
@@ -79,11 +83,13 @@ class JdPuzzleSign:
         name = '京东童装'
         await self.sign(browser, url, name)
 
+    @logger.catch
     async def purifying_sign(self, browser):
         url = 'https://pro.m.jd.com/mall/active/2Tjm6ay1ZbZ3v7UbriTj6kHy9dn6/index.html'
         name = '清洁馆'
         await self.sign(browser, url, name)
 
+    @logger.catch
     async def baby_sign(self, browser):
         """
         母婴馆签到
@@ -94,6 +100,7 @@ class JdPuzzleSign:
         name = '母婴馆'
         await self.sign(browser, url, name)
 
+    @logger.catch
     async def personal_care_sign(self, browser):
         """
         个护签到
@@ -104,6 +111,7 @@ class JdPuzzleSign:
         name = '个护馆'
         await self.sign(browser, url, name)
 
+    @logger.catch
     async def supermarket_sign(self, browser):
         """
         京东超市签到
@@ -115,6 +123,7 @@ class JdPuzzleSign:
         name = '京东超市'
         await self.sign(browser, url, name)
 
+    @logger.catch
     async def digital_3C(self, browser):
         """
         数码3C签到
@@ -126,6 +135,18 @@ class JdPuzzleSign:
         name = '数码3C'
         await self.sign(browser, url, name)
 
+    @logger.catch
+    async def electrical_appliance(self, browser):
+        """
+        京东电器签到
+        :param browser:
+        :return:
+        """
+        url = 'https://prodev.m.jd.com/mall/active/4SWjnZSCTHPYjE5T7j35rxxuMTb6/index.html'
+        name = '京东电器'
+        await self.sign(browser, url, name)
+
+    @logger.catch
     async def run(self):
         """
         签到入口
@@ -150,19 +171,20 @@ class JdPuzzleSign:
         await asyncio.sleep(1)
         await self.children_clothing_sign(browser)  # 京东童装
         await asyncio.sleep(1)
-        await self.purifying_sign(browser)  # 清洁馆
-        await asyncio.sleep(1)
         await self.baby_sign(browser)  # 母婴馆
         await asyncio.sleep(1)
         await self.digital_3C(browser)
         await asyncio.sleep(1)
         await self.supermarket_sign(browser)  # 京东超市签到
         await asyncio.sleep(1)
-        await self.personal_care_sign(browser)  # 个护馆
+        await self.electrical_appliance(browser)  # 京东电器签到
+        await asyncio.sleep(1)
+        await self.personal_care_sign(browser)  # 个护馆签到
+        await asyncio.sleep(1)
+        await self.purifying_sign(browser)  # 清洁馆
         await asyncio.sleep(1)
 
-        if browser:
-            await browser.close()
+        await close_browser(browser)
 
 
 if __name__ == '__main__':

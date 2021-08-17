@@ -7,10 +7,10 @@
 # @Desc    : 宠汪汪喂狗
 import aiohttp
 import ujson
-import asyncio
 from utils.logger import logger
 from jd_joy import JdJoy
 from utils.console import println
+from utils.browser import close_browser
 
 
 class JdJoyFeed(JdJoy):
@@ -38,7 +38,7 @@ class JdJoyFeed(JdJoy):
                                          json_serialize=ujson.dumps) as session:
             await self.feed_food(session)
 
-        await self.close_browser()
+        await close_browser(self.browser)
 
 
 if __name__ == '__main__':

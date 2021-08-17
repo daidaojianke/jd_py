@@ -12,7 +12,7 @@ import ujson
 from utils.console import println
 from urllib.parse import urlencode
 from config import USER_AGENT
-from utils.browser import open_page, open_browser
+from utils.browser import open_page, open_browser, close_browser
 from utils.logger import logger
 from utils.jd_init import jd_init
 from utils.validate import puzzle_validate_decorator
@@ -39,17 +39,7 @@ class JdJoy:
 
     browser = None  # 浏览器对象
     page = None  # 页面标签对象
-    
-    async def close_browser(self):
-        """
-        关闭浏览器
-        :return:
-        """
-        try:
-            if self.browser:
-                await self.browser.close()
-        except Exception as e:
-            println(e.args)
+
 
     @logger.catch
     async def validate(self, validator_selector='#app > div > div > div > div.man-machine > div.man-machine-container'):
@@ -400,7 +390,7 @@ class JdJoy:
             await self.joy_race(session)
             await self.help_friend_feed(session)
 
-        await self.close_browser()
+        await close_browser(self.browser)
 
 
 if __name__ == '__main__':
