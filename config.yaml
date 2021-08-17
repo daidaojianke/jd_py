@@ -28,7 +28,7 @@ notify:
   # TG用户ID
   tg_user_id: bbb
   # push+ token: https://pushplus.hxtrip.com/
-  push_p_token: null
+  push_plus_token: null
 
 # 是否开启京豆夺宝功能
 jd_bean_indiana: true
