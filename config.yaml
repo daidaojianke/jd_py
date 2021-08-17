@@ -31,4 +31,4 @@ notify:
   push_p_token: null
 
 # 是否开启京豆夺宝功能
-jd_bean_indiana: false
+jd_bean_indiana: true
