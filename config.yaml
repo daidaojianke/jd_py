@@ -24,9 +24,9 @@ jd_farm_retain_water: 80
 # 消息通知
 notify:
   # TG机器人Token
-  tg_bot_token: null
+  tg_bot_token: aaa
   # TG用户ID
-  tg_user_id: null
+  tg_user_id: bbb
   # push+ token: https://pushplus.hxtrip.com/
   push_p_token: null
 
