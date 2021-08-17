@@ -40,6 +40,7 @@ class JdSharkBean:
     red_packet_num = 0
     coupon_list = []
 
+    @logger.catch
     async def request(self, session, params=None, method='get'):
         """
         get 请求
@@ -65,6 +66,7 @@ class JdSharkBean:
         except Exception as e:
             logger.info(e.args)
 
+    @logger.catch
     async def get_index_data(self, session):
         """
         获取首页数据
@@ -81,6 +83,7 @@ class JdSharkBean:
         data = await self.request(session, params, self.METHOD_GET)
         return data
 
+    @logger.catch
     async def daily_sign(self, session):
         """
         每日签到
@@ -139,6 +142,7 @@ class JdSharkBean:
         else:
             println('{}, 签到失败!'.format(self.account))
 
+    @logger.catch
     async def do_tasks(self, session):
         """
         做任务
@@ -182,6 +186,7 @@ class JdSharkBean:
 
         println('{}, 完成浏览任务！'.format(self.account))
 
+    @logger.catch
     async def get_shark_times(self, session):
         """
         获取当前摇奖次数
@@ -197,6 +202,7 @@ class JdSharkBean:
                 shark_times = floor['floorData']['shakingBoxInfo']['remainLotteryTimes']
         return shark_times
 
+    @logger.catch
     async def do_shark(self, session, times=0):
         """
         摇盒子
@@ -241,6 +247,7 @@ class JdSharkBean:
     def message(self):
         return self.message
 
+    @logger.catch
     async def notify(self):
         """
         :return:

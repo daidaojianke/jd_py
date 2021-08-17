@@ -13,10 +13,11 @@ import aiohttp
 import asyncio
 from furl import furl
 from datetime import datetime
-from urllib.parse import unquote, urlencode
+from urllib.parse import urlencode
 from utils.jx_init import jx_init
 from utils.console import println
 from utils.process import get_code_list
+from utils.logger import logger
 from db.model import Code, CODE_JX_FACTORY_TUAN, CODE_JX_FACTORY_WORK
 
 
@@ -50,6 +51,7 @@ class JxFactory:
     commodity_dim_id = None
     production_name = None
 
+    @logger.catch
     async def request(self, session, path, params, method='GET'):
         """
         """
@@ -89,6 +91,7 @@ class JxFactory:
                 'msg': '请求服务器失败'
             }
 
+    @logger.catch
     async def get_user_info_by_pin(self, session, pin):
         """
         根据pin获取用户信息
@@ -112,6 +115,7 @@ class JxFactory:
             return None
         return data
 
+    @logger.catch
     async def get_user_info(self, session):
         """
         获取用户信息
@@ -132,6 +136,7 @@ class JxFactory:
             return None
         return data
 
+    @logger.catch
     async def query_friend_list(self, session):
         """
         查询好友列表
@@ -160,21 +165,18 @@ class JxFactory:
         println('{}, 成功获取{}个好友信息!'.format(self.account, len(res)))
         return res
 
+    @logger.catch
     async def help_friend(self, session):
         """
+        帮好友打工
         :param session:
         :return:
         """
-        path = 'dreamfactory/userinfo/GetUserInfo'
+        path = 'dreamfactory/friend/AssistFriend'
         body = {
             'zone': 'dream_factory',
-            'pin': '',
-            'sharePin': '',
-            'shareType': 2,
-            'materialTuanPin': '',
-            'materialTuanId': '',
-            'source': '',
-            '_stk': '_time,materialTuanId,materialTuanPin,pin,sharePin,shareType,source,zone'
+            'sharepin': '',
+            '_stk': '_time,sharepin,zone'
         }
         item_list = Code.get_code_list(CODE_JX_FACTORY_WORK)
         item_list.extend(get_code_list(CODE_JX_FACTORY_WORK))
@@ -182,11 +184,17 @@ class JxFactory:
             account, code = item.get('account'), item.get('code')
             if account == self.account:
                 continue
-            body['sharePin'] = code
+            body['sharepin'] = code
             res = await self.request(session, path, body)
-            msg = res.get('assistCondition', dict()).get('assistConditionMsg', '未知')
-            println('{}, 助力好友:{}, {}'.format(self.account, account, msg))
+            if res.get('ret', -1) != 0:
+                println('{}, 无法助力好友:{}, {}'.format(self.account, account, res.get('msg', '原因未知')))
+                if res.get('ret', -1) in [11009, 11005]:
+                    break
+            else:
+                println('{}, 成功助力好友:{}!'.format(self.account, account))
+            await asyncio.sleep(1)
 
+    @logger.catch
     async def collect_friend_electricity(self, session):
         """
         收取好友电量
@@ -216,6 +224,7 @@ class JxFactory:
                 return
             await asyncio.sleep(1)
 
+    @logger.catch
     async def collect_user_electricity(self, session, phone_id=None, factory_id=None,
                                        nickname=None, pin=None, double_flag=1):
         """
@@ -257,6 +266,7 @@ class JxFactory:
         else:
             println('{}, 成功收取用户:{}的电量:{}!'.format(self.account, nickname, data['CollectElectricity']))
 
+    @logger.catch
     async def query_user_electricity(self, session, factory_id=None, phone_id=None, nickname=None, pin=None):
         """
         查询当前用户发电机电量, 如果满了就收取电量
@@ -289,6 +299,7 @@ class JxFactory:
                                                          nickname, int(data['currentElectricityQuantity']),
                                                          data['maxElectricityQuantity']))
 
+    @logger.catch
     async def get_active_id(self, session):
         """
         获取每期拼团的活动ID
@@ -325,6 +336,7 @@ class JxFactory:
             println('{}, 获取拼团活动ID失败, {}!'.format(self.account, e.args))
             return ''
 
+    @logger.catch
     async def query_production_name(self, session):
         """
         查询商品名称
@@ -342,6 +354,7 @@ class JxFactory:
         else:
             self.production_name = res['commodityList'][0]['name']
 
+    @logger.catch
     async def init(self, session):
         """
         初始化
@@ -374,10 +387,14 @@ class JxFactory:
         self.nickname = user_info['user']['nickname']
 
         println('{}, 助力码:{}'.format(self.account, self.encrypt_pin))
+
         Code.insert_code(code_key=CODE_JX_FACTORY_WORK, code_val=self.encrypt_pin, sort=self.sort, account=self.account)
+
+        self.active_id = await self.get_active_id(session)
 
         return True
 
+    @logger.catch
     async def query_work_info(self, session):
         """
         查询招工/打工情况
@@ -401,6 +418,7 @@ class JxFactory:
 
         println('{}, 今日招工:{}/{}次!'.format(self.account, len(data['hireListToday']), data['hireNumMax']))
 
+    @logger.catch
     async def get_task_award(self, session, task):
         """
         领取任务奖励
@@ -423,6 +441,7 @@ class JxFactory:
         num = data['prizeInfo'].replace('\n', '')
         println('{}, 领取任务:《{}》奖励成功, 获得电力:{}!'.format(self.account, task['taskName'], num))
 
+    @logger.catch
     async def do_task_list(self, session):
         """
         获取任务列表
@@ -452,6 +471,7 @@ class JxFactory:
                 await self.do_task(session, task)
                 await asyncio.sleep(1)
 
+    @logger.catch
     async def do_task(self, session, task):
         """
         做任务
@@ -478,6 +498,7 @@ class JxFactory:
             await asyncio.sleep(1)
             await self.get_task_award(session, task)
 
+    @logger.catch
     async def query_tuan_info(self, session, active_id=None):
         """
         查询开团信息
@@ -497,11 +518,11 @@ class JxFactory:
             return []
         return data['userTuanInfo']
 
+    @logger.catch
     async def create_tuan(self, session):
         """
         :return:
         """
-        self.active_id = await self.get_active_id(session)
         tuan_info = await self.query_tuan_info(session)
         if tuan_info['isOpenTuan'] != 2:
             path = 'dreamfactory/tuan/CreateTuan'
@@ -526,6 +547,7 @@ class JxFactory:
 
         return tuan_id
 
+    @logger.catch
     async def join_tuan(self, session):
         """
         参团
@@ -536,9 +558,11 @@ class JxFactory:
         item_list.extend(CODE_JX_FACTORY_TUAN)
         path = 'dreamfactory/tuan/JoinTuan'
         for item in item_list:
-            account, code = item.get('account'), item.get('code')
+            if type(item) != dict:
+                continue
+            account, code = item.get('account', None), item.get('code', None)
 
-            if account == self.account:
+            if account == self.account or not account or not code:
                 continue
 
             params = {
@@ -556,11 +580,12 @@ class JxFactory:
                 println('{}, 已成功参与好友:{}的团!'.format(self.account, account))
             else:
                 println('{}, 无法参与好友:{}的团, {}'.format(self.account, account, data['msg']))
-                if data['ret'] in [10206, 10003]:
+                if data['ret'] in [10206, 10003, 10005]:
                     break
 
             await asyncio.sleep(1)
 
+    @logger.catch
     async def hire_award(self, session):
         """
         收取招工电量
@@ -593,6 +618,7 @@ class JxFactory:
 
             await asyncio.sleep(1)
 
+    @logger.catch
     async def invest_electric(self, session):
         """
         投入电量
@@ -607,11 +633,12 @@ class JxFactory:
         }
         res = await self.request(session, path, body)
 
-        if res.get('code', -1) == 0:
+        if res.get('ret', -1) == 0:
             println('{}, 投入电量成功!'.format(self.account))
         else:
-            println('{}, 投入电量失败, {}'.format(self.account, res.get('msg', '原因未知')))
+            println('{}, 投入电量失败!'.format(self.account))
 
+    @logger.catch
     async def run_help(self):
         """
         :return:
@@ -625,6 +652,7 @@ class JxFactory:
             await self.join_tuan(session)
             await self.help_friend(session)
 
+    @logger.catch
     async def open_box(self, session):
         """
         开盒子
@@ -640,6 +668,7 @@ class JxFactory:
         res = await self.request(session, path, body)
         println('{}, 开盒子结果:{}'.format(self.account, res.get('msg')))
 
+    @logger.catch
     async def set_notify_msg(self, session):
         """
         :return:
@@ -654,8 +683,8 @@ class JxFactory:
             self.message += '【生成进度】{}%\n'.format(self.production_stage_progress)
 
         self.message += '【活动入口】京喜APP-我的-京喜工厂'
-        println(self.message)
 
+    @logger.catch
     async def run(self):
         """
         程序入口
