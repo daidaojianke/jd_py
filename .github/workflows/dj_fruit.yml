@@ -35,5 +35,5 @@ jobs:
              mkdir conf 
              mv ./config.yaml ./conf/config.yaml        
              cat ./conf/config.yaml
-             python3 dj_fruit.py
+             python3 jd_bean_change.py
                   
