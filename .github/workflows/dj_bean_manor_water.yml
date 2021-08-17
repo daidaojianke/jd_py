@@ -32,7 +32,8 @@ jobs:
              sed -i "16c/${{ secrets.JD_COOKIE2 }}" ./config.yaml
              sed -i "17c/${{ secrets.JD_COOKIE3 }}" ./config.yaml
              sed -i "15,17s/^/  - /g" ./config.yaml
-             
+             sed -i "s/aaa/${{ secrets.TG_BOT_TOKEN }}" ./config.yaml
+             sed -i "s/bbb/${{ secrets.TG_USER_ID }}" ./config.yaml
              mkdir conf 
              mv ./config.yaml ./conf/config.yaml        
              
