@@ -85,5 +85,4 @@ async def close_browser(browser=None):
     """
     if browser:
         await browser.close()
-    os.system('pkill chrome')
-    os.system('pkill Chromium')
+    os.system('pkill chrome && pkill chromium')
