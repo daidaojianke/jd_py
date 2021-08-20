@@ -24,6 +24,6 @@ jobs:
              
              
              sed -i '15,17d' ./config.yaml
-             sed -i "15c/${{ secrets.JD_COOKIE }}" ./config.yaml
+             sed -i "15c/  - ${{ secrets.JD_COOKIE }}" ./config.yaml
              sed -i "s/&/  - \\n/g" ./config.yaml
              cat ./config.yaml
