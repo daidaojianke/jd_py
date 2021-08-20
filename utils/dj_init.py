@@ -137,7 +137,7 @@ async def get(self, session, function_id, body=None):
     :param body:
     :return:
     """
-    return await self.request(session, function_id, body, method='GET')
+    return await request(session, function_id, body, method='GET')
 
 
 async def post(self, session, function_id, body=None):
@@ -148,7 +148,7 @@ async def post(self, session, function_id, body=None):
         :param body:
         :return:
         """
-    return await self.request(session, function_id, body, method='POST')
+    return await request(session, function_id, body, method='POST')
 
 
 async def wx_request(self, session, function_id='', body=None, method='GET'):

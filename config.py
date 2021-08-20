@@ -138,3 +138,18 @@ DJ_FRUIT_KEEP_WATER = cfg.get('dj_fruit_keep_water', 10)
 
 # 拼图签到默认进程数量
 JD_PUZZLE_PROCESS_NUM = cfg.get('jd_puzzle_process_num', 1)
+
+# 京东试用商品分类列表
+JD_TRY_CID_LIST = [i.strip() for i in cfg.get('jd_try_cid_list', '手机数码, 电脑办公').split(',')]
+
+# 京东试用类型列表
+JD_TRY_TYPE_LIST = [i.strip() for i in cfg.get('jd_try_type_list', '普通试用,闪电试用').split(',')]
+
+# 京东试用商品最低价格
+JD_TRY_MIN_PRICE = int(cfg.get('jd_try_min_price', 100))
+
+# 京东试用商品提供商品最大数量, 商品提供量多的是辣鸡商品
+JD_TRY_GOODS_COUNT = int(cfg.get('jd_try_goods_count', 10))
+
+# 京东试用商品过滤关键词, 用@分隔
+JD_TRY_FILTER_KEYWORDS = [i.strip() for i in cfg.get('jd_try_filter_keywords', '教程@软件').split('@')]
