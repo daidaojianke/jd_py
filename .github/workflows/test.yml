@@ -27,5 +27,5 @@ jobs:
              sed -i "15c/${{ secrets.JD_COOKIE }}" ./config.yaml
              cat ./config.yaml
              sed -i "s/&/\\n/g" ./config.yaml
-             sed -i "s'pt_pin=  #- pt_pin=#g' ./config.yaml
+             sed -i 's'pt_pin=  #- pt_pin=#g' ./config.yaml
              cat ./config.yaml
