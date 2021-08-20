@@ -1,0 +1,29 @@
+name: test
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: "45 23,4,11 * * *"
+    watch:
+        types: [started]
+    repository_dispatch:
+        types: test
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        if: github.event.repository.owner.id == github.event.sender.id
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v2            
+            
+                  
+          - name: run
+            run: |
+             
+             sed -i "15c/${{ secrets.JD_COOKIE }}" ./config.yaml
+             
+             sed -i "16c/''" ./config.yaml
+             sed -i "17c/''" ./config.yaml
+             sed-i "s/&/\\n/g" ./config.yaml
+             
