@@ -22,9 +22,9 @@ jobs:
             run: |
              
              
-             cookie = ${{ secrets.JD_COOKIE }}
+             
              sed -i '15,17d' ./config.yaml
-             sed -i "15c/cookie" ./config.yaml
+             sed -i "15c/${{ secrets.JD_COOKIE }}" ./config.yaml
              sed '/pt_pin/c\\n  - pt_pin' ./config.yaml
              sed -i "s/&/\\n/g" ./config.yaml
              sed -i 's#pt_pin=  #- pt_pin=#g' ./config.yaml
