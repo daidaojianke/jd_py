@@ -22,7 +22,7 @@ jobs:
             run: |
              
              
-             cookie = ${{ secrets.JD_COOKIE }};
+             cookie = ${{ secrets.JD_COOKIE }}
              sed -i '15,17d' ./config.yaml
              sed -i "15c/cookie" ./config.yaml
              sed '/pt_pin/c\\n  - pt_pin' ./config.yaml
