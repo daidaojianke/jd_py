@@ -184,6 +184,7 @@ class JdCommon:
             # task_token = re.search(r"'taskToken': '(.*?)'", str(ii)).group(1)
             task_token = item.get('taskToken')
             await self.receive_task(session, task_id, task_token, task_name)
+            await asyncio.sleep(1)
 
         println('{}, 等待{}秒后去领取任务《{}》奖励!'.format(self.account, timeout, task_name))
 
@@ -192,6 +193,7 @@ class JdCommon:
         for item in item_list:
             task_token = item.get('taskToken')
             await self.finish_task(session, task_id, task_token, task_name)
+            await asyncio.sleep(1)
 
     @logger.catch
     async def get_share_code(self, task):

@@ -16,7 +16,7 @@ from utils.logger import logger
 from utils.process import process_start
 
 
-from config import USER_AGENT, JD_BEAN_INDIANA_OPEN
+from config import USER_AGENT
 
 
 @jd_init

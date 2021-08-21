@@ -35,6 +35,5 @@ async def check_cookies():
         notify(title=title, content=message)
 
 
-
 if __name__ == '__main__':
     asyncio.run(check_cookies())

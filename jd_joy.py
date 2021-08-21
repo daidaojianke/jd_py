@@ -6,7 +6,10 @@
 # @Cron    : 45 8,12,17 * * *
 # @Desc    : 京东APP->我的->宠汪汪
 import asyncio
+import hashlib
 import json
+import time
+
 import aiohttp
 import ujson
 from utils.console import println
@@ -16,6 +19,17 @@ from utils.browser import open_page, open_browser, close_browser
 from utils.logger import logger
 from utils.jd_init import jd_init
 from utils.validate import puzzle_validate_decorator
+
+
+def md5(value):
+    """
+    md5加密
+    :param value:
+    :return:
+    """
+    obj = hashlib.md5()
+    obj.update(value.encode())
+    return obj.hexdigest()
 
 
 @jd_init
@@ -33,13 +47,14 @@ class JdJoy:
         "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "zh-cn",
         "Connection": "keep-alive",
+        'lks': 'db0e24252b4d20349e3bf25eeef74e96',
         "Referer": "https://h5.m.jd.com/babelDiy/Zeus/2wuqXrZrhygTQzYA7VufBEpj4amH/index.html",
+        'origin': 'https://h5.m.jd.com',
         "User-Agent": USER_AGENT
     }
 
     browser = None  # 浏览器对象
     page = None  # 页面标签对象
-
 
     @logger.catch
     async def validate(self, validator_selector='#app > div > div > div > div.man-machine > div.man-machine-container'):
@@ -81,6 +96,11 @@ class JdJoy:
         :return:
         """
         try:
+            lkt = str(int(time.time()*1000))
+            lks = md5('ztmFUCxcPMNyUq0P' + lkt)
+            session.headers['lks'] = lks
+            session.headers['lkt'] = lkt
+
             default_params = {
                 'reqSource': 'h5',
                 'invokeKey': 'ztmFUCxcPMNyUq0P'
@@ -104,6 +124,7 @@ class JdJoy:
 
             text = await response.text()
             data = json.loads(text)
+
             if not data['errorCode']:
                 if 'data' in data:
                     return data['data']
@@ -266,7 +287,6 @@ class JdJoy:
         if not task_list:
             println('{}, 获取任务列表失败!'.format(self.account))
             return
-
         for task in task_list:
             if task['receiveStatus'] == 'unreceive':
                 await self.get_award(session, task)
