@@ -42,6 +42,9 @@ class JdCrazyJoy:
     async def request(self, session, function_id, body=None, method='GET'):
         """
         请求数据
+        :param method:
+        :param body:
+        :param function_id:
         :param session:
         :return:
         """
