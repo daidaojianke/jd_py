@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_shop.py
 # @Cron    : 1 0 * * *
-# @Desc    : 进店领豆
+# @Desc    : 京东APP首页->领京豆->进店领豆
 import asyncio
 import json
 import urllib.parse

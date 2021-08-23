@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_school_charging.py
 # @Cron    : 1 3 * * *
-# @Desc    : 开学充电站
+# @Desc    : 京东APP->我的->签到领豆->边玩边赚->开学充电站
 from utils.jd_common import JdCommon
 from config import USER_AGENT
 

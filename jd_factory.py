@@ -4,7 +4,7 @@
 # @File    : jd_factory.py
 # @Project : jd_scripts
 # @Cron    : 30 6-18/6 * * *
-# @Desc    : 京东APP->东东工厂
+# @Desc    : 京东APP->京东电器->东东工厂
 import asyncio
 import aiohttp
 import json

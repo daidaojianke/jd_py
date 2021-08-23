@@ -4,7 +4,7 @@
 # @File    : jd_factory_collect.py
 # @Project : jd_scripts
 # @Cron    : 10 */1 * * *
-# @Desc    : 东东工厂收电量
+# @Desc    : 京东APP->京东电器->东东工厂, 定时收电量
 import asyncio
 import aiohttp
 

@@ -4,7 +4,7 @@
 # @File    : dj_bean.py
 # @Project : jd_scripts
 # @Cron    : 45 7,12,19 * * *
-# @Desc    : 京东到家 签到赚鲜豆
+# @Desc    : 京东APP->京东到家->签到->所有任务
 import moment
 import aiohttp
 import asyncio

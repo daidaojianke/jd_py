@@ -4,7 +4,7 @@
 # @File    : jd_good_morning.py
 # @Project : jd_scripts
 # @Cron    : 30 6 * * *
-# @Desc    : 京东APP早起福利
+# @Desc    : 京东APP首页->领京豆->早起福利
 import aiohttp
 import json
 from utils.console import println

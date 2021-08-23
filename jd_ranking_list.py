@@ -4,7 +4,7 @@
 # @File    : jd_ranking_list.py
 # @Project : jd_scripts
 # @Cron    : 21 9 * * *
-# @Desc    : 京东排行榜
+# @Desc    : 今日王牌, 入口忘了在哪。
 import asyncio
 import json
 

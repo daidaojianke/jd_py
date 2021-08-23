@@ -4,7 +4,7 @@
 # @File    : jd_bean_indiana.py
 # @Project : jd_scripts
 # @Cron    :  10 9 * * *
-# @Desc    : 京豆APP->摇京豆->豆夺宝
+# @Desc    : 京豆APP首页->领京豆->摇京豆->左上角京豆夺宝
 
 import asyncio
 import aiohttp

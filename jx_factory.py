@@ -4,7 +4,7 @@
 # @File    : jx_factory.py
 # @Project : jd_scripts
 # @Cron    : 38 7,12,18 * * *
-# @Desc    : 京喜App->惊喜工厂
+# @Desc    : 京喜App->我的->京喜工厂
 import moment
 import time
 import re

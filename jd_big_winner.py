@@ -4,7 +4,7 @@
 # @File    : jd_big_winner.py
 # @Project : jd_scripts
 # @Cron    : 3 */1 * * *
-# @Desc    : 省钱大赢家翻翻乐
+# @Desc    : 京东急速版APP->我的->发财大赢家
 import asyncio
 import json
 import time

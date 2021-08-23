@@ -4,7 +4,7 @@
 # @File    : jr_pet_pig.py
 # @Project : jd_scripts
 # @Cron    : 23 0-23/8 * * *
-# @Desc    : 京东金融->养猪猪
+# @Desc    : 京东金融APP->我的->养猪猪
 import asyncio
 import aiohttp
 import json

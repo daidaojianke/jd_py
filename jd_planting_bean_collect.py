@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_planting_bean_collect.py
 # @Cron    : 40 */2 * * *
-# @Desc    : 种豆得豆收营养液
+# @Desc    : 京东APP->我的->签到领豆->种豆得豆, 定时收取营养液
 import aiohttp
 
 from utils.console import println

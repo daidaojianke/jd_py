@@ -4,7 +4,7 @@
 # @File    : jd_joy_exchange.py
 # @Project : jd_scripts
 # @Cron    : 56 7,15,23 * * *
-# @Desc    : 宠汪汪商品兑换
+# @Desc    : 京东APP->我的->宠汪汪, 兑换京豆, 优先兑换500, 兑换失败则兑换20.
 import random
 import time
 import asyncio

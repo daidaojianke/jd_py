@@ -4,7 +4,7 @@
 # @File    : jd_supermarket.py
 # @Project : jd_scripts
 # @Cron    : 7 7,20 * * *
-# @Desc    : 东东超市
+# @Desc    : 京东APP首页->京东超市->游戏
 import asyncio
 import json
 import time

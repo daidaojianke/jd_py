@@ -4,7 +4,7 @@
 # @File    : jd_farm.py
 # @Project : jd_scripts
 # @Cron    : 15 6-18/6 * * *
-# @Desc    : 京东APP-东东农场
+# @Desc    : 京东APP-我的->东东农场
 
 import asyncio
 import math

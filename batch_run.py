@@ -3,7 +3,7 @@
 # @Time    : 2021/7/30 3:37 下午
 # @File    : batch_run.py
 # @Project : jd_scripts
-# @Desc    : 批量运行脚本
+# @Desc    : 批量运行当前目录下的所有以jd, jr, jx, dj开头的活动脚本。
 import time
 import os
 import sys

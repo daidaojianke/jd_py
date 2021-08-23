@@ -4,7 +4,7 @@
 # @File    : jd_bean_change.py
 # @Project : jd_scripts
 # @Cron    : 15 */8 * * *
-# @Desc    : 资产变动通知
+# @Desc    : 京豆红包变动通知
 import aiohttp
 import asyncio
 import json

@@ -4,7 +4,7 @@
 # @File    : jd_planting_bean.py
 # @Project : jd_scripts
 # @Cron    : 10 3,15 * * *
-# @Desc    : 种豆得豆
+# @Desc    : 京东APP->我的->签到领豆->种豆得豆
 
 import asyncio
 import aiohttp

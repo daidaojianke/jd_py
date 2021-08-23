@@ -9,7 +9,7 @@ import asyncio
 import time
 import aiohttp
 import json
-from urllib.parse import quote, unquote, urlencode
+from urllib.parse import urlencode
 
 from utils.logger import logger
 from utils.console import println

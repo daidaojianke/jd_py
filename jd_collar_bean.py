@@ -4,7 +4,7 @@
 # @File    : jd_collar_bean.py
 # @Project : jd_scripts
 # @Cron : 6 1 * * *
-# @Desc    : 京东APP->领京豆
+# @Desc    : 京东APP首页->领京豆->升级赚京豆
 import json
 import math
 import random

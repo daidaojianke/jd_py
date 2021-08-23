@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_flash_sale_box.py
 # @Cron    : 15 5,23 * * *
-# @Desc    : 京东APP闪购盲盒
+# @Desc    : 京东APP->品牌闪购->闪购盲盒
 import asyncio
 import aiohttp
 import json

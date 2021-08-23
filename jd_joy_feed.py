@@ -4,7 +4,7 @@
 # @File    : jd_joy_feed.py
 # @Project : jd_scripts
 # @Cron    : 10 */3 * * *
-# @Desc    : 宠汪汪喂狗
+# @Desc    : 京东APP->我的->宠汪汪, 定时喂狗
 import aiohttp
 import ujson
 from utils.logger import logger

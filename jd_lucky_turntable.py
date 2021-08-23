@@ -4,7 +4,7 @@
 # @File    : jd_lucky_turntable.py
 # @Project : jd_scripts
 # @Cron    : 10 10,23 * * *
-# @Desc    : 幸运大转盘
+# @Desc    : 幸运大转盘, 入口忘了在哪
 import asyncio
 import json
 import re

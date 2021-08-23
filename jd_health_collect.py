@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_health_collect.py
 # @Cron    : 0 */30 * * *
-# @Desc    : 东东健康社区收能量
+# @Desc    : 京东APP->我的->签到领豆->边玩边赚->东东健康社区, 定时收能量
 import aiohttp
 
 from jd_health import JdHealth

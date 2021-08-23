@@ -4,8 +4,7 @@
 # @File    : jd_sign.py
 # @Project : jd_scripts
 # @Cron    : 0 3,19 * * *
-# @Desc    : 京东APP相关签到
-import asyncio
+# @Desc    : 京东签到合集
 import json
 import aiohttp
 import re

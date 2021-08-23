@@ -4,7 +4,7 @@
 # @File    : jr_money_tree.py
 # @Project : jd_scripts
 # @Cron    : 5 10,21 * * *
-# @Desc    : 金果摇钱树
+# @Desc    : 京东APP->我的->摇钱树
 import aiohttp
 import time
 import asyncio

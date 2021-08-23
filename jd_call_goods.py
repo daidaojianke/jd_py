@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_call_goods.py
 # @Cron    : 44 1,19 * * *
-# @Desc    : 来电好物季
+# @Desc    : 京东APP->我的->签到领豆->边玩边赚->来电好物季
 from utils.jd_common import JdCommon
 from config import USER_AGENT
 

@@ -3,7 +3,7 @@
 # @Time    : 2021/6/14 9:57
 # @File    : get_jd_cookies.py
 # @Project : jd_scripts
-# @Desc    : 京东扫描登录获取cookies
+# @Desc    : 京东APP扫码登录获取cookies
 import time
 import qrcode
 import requests

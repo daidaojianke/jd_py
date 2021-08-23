@@ -4,7 +4,7 @@
 # @File    : jd_wishing_pool.py
 # @Project : jd_scripts
 # @Cron    : 45 */12 * * *
-# @Desc    : 众筹许愿池,
+# @Desc    : 京东APP首页->京东众筹->众筹许愿池
 
 from utils.jd_common import JdCommon
 from config import USER_AGENT

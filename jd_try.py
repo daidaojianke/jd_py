@@ -3,8 +3,8 @@
 # @Time    : 2021/8/19 12:19 下午
 # @File    : jd_try.py
 # @Project : jd_scripts
-# @Desc    : 25 12 * * *
-# @Desc    : 京东试用
+# @Cron    : 25 12 * * *
+# @Desc    : 京东APP->我的->更多工具->新品试用
 import asyncio
 import time
 

@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_carnival_city.py
 # @Cron    : 1 1 * * *
-# @Desc    : 京东APP手机狂欢城
+# @Desc    : 京东APP首页->手机->手机嗨购日->一亿京豆悬浮窗
 import asyncio
 import json
 import time

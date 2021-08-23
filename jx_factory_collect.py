@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jx_factory_collect.py
 # @Cron    : 45 */1 * * *
-# @Desc    : 京喜工厂收电量
+# @Desc    : 京喜App->我的->京喜工厂, 定时收电量
 import aiohttp
 from jx_factory import JxFactory
 from utils.console import println

@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_puzzle_sign.py
 # @Cron    : 47 10,4 * * *
-# @Desc    : 京东拼图签到
+# @Desc    : 京东APP->拼图签到合集
 import asyncio
 from utils.console import println
 from utils.jd_init import jd_init

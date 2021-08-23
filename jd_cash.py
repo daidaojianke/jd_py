@@ -4,7 +4,7 @@
 # @File    : jd_cash.py
 # @Project : jd_scripts
 # @Cron    : 46 */12 * * *
-# @Desc    : 签到领现金
+# @Desc    : 京东APP->搜索领现金进入
 import aiohttp
 import asyncio
 

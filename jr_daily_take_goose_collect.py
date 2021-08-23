@@ -4,7 +4,7 @@
 # @File    : jr_daily_take_goose_collect.py.py
 # @Project : jd_scripts
 # @Cron    : 17 */1 * * *
-# @Desc    : 天天提额收鹅蛋
+# @Desc    : 京东金融APP->天天提鹅， 定时收鹅蛋
 import aiohttp
 from jr_daily_take_goose import JrDailyTakeGoose
 

@@ -4,7 +4,7 @@
 # @File    : dj_fruit_collect.py
 # @Project : jd_scripts
 # @Cron    : 42 */1 * * *
-# @Desc    : 到家果园收水滴
+# @Desc    : 京东APP->京东到家->免费水果, 定时领水滴/浇水
 import aiohttp
 from dj_fruit import DjFruit
 from utils.console import println

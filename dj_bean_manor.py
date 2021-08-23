@@ -4,7 +4,7 @@
 # @File    : dj_bean_manor.py
 # @Project : jd_scripts
 # @Cron    : 30 6,21 * * *
-# @Desc    : 京东到家->鲜豆庄园
+# @Desc    : 京东APP->京东到家->签到->鲜豆庄园
 import asyncio
 import aiohttp
 import random

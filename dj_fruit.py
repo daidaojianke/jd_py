@@ -4,7 +4,7 @@
 # @File    : dj_fruit.py
 # @Project : jd_scripts
 # @Cron    : 10 7,11,18 * * *
-# @Desc    : 京东APP->京东到家->领免费水果
+# @Desc    : 京东APP->京东到家->免费水果
 import aiohttp
 import json
 import asyncio

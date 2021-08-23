@@ -4,7 +4,7 @@
 # @File    : clean_log.py
 # @Project : jd_scripts
 # @Cron    : 30 23 * * *
-# @Desc    : 清除日志脚本
+# @Desc    : 清除日志, 默认保留三天, 可在配置中修改
 import re
 import os
 import moment

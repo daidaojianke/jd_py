@@ -4,7 +4,7 @@
 # @File    : dj_bean_manor_water.py
 # @Project : jd_scripts
 # @Cron    : */40 * * * *
-# @Desc    : 京东到家鲜豆庄园领水浇水
+# @Desc    : 京东APP->京东到家->签到->鲜豆庄园, 定时领水滴/浇水
 import asyncio
 import aiohttp
 

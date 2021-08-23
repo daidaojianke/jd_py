@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_earn.py
 # @Cron    : 10 10 * * *
-# @Desc    : 京东赚赚
+# @Desc    : 微信小程序->京东赚赚
 import asyncio
 from urllib.parse import urlencode
 import aiohttp

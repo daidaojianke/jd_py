@@ -4,7 +4,7 @@
 # @File    : jd_health.py
 # @Project : jd_scripts
 # @Cron    : 35 6,16 * * *
-# @Desc    : 东东健康社区
+# @Desc    : 京东APP->我的->签到领豆->边玩边赚->东东健康社区
 import asyncio
 import aiohttp
 import json

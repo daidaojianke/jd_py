@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_amusement_post.py
 # @Cron    : 45 8,15 * * *
-# @Desc    : 京小鸽游乐寄
+# @Desc    : 京东APP->签到领豆->边玩边赚->京小鸽游乐寄
 import asyncio
 import json
 

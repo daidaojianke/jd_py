@@ -4,7 +4,7 @@
 # @Project : jd_scripts
 # @File    : jd_second_coin.py
 # @Cron    : 12 11 * * *
-# @Desc    : 京东秒杀-秒秒币
+# @Desc    : 京东APP首页->京东秒杀->立即签到->赚秒秒币
 import asyncio
 import json
 import urllib.parse
