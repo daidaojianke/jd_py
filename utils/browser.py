@@ -7,7 +7,7 @@
 import platform
 import os
 from pyppeteer import launcher
-
+from config import CHROME_PATH
 launcher.DEFAULT_ARGS.remove("--enable-automation")
 from pyppeteer import launch
 
@@ -17,12 +17,8 @@ async def open_browser():
     打开浏览器
     :return:
     """
-    if platform.system() == 'Linux':
-        headless = True
-    else:
-        headless = True
-    browser = await launch({
-        'headless': headless,
+    args = {
+        'headless': True,
         'dumpio': False,
         #'slowMo': 10,
         #'devtools': True,
@@ -44,7 +40,10 @@ async def open_browser():
             '--disable-xss-auditor',
             '--ignore-certificate-errors',
         ]
-    })
+    }
+    if CHROME_PATH:
+        args['executablePath'] = CHROME_PATH
+    browser = await launch(args)
     return browser
 
 

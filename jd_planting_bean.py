@@ -393,7 +393,7 @@ class JdPlantingBean:
         :return:
         """
         item_list = Code.get_code_list(code_key=CODE_PLANTING_BEAN)
-        item_list.extend(CODE_PLANTING_BEAN)
+        item_list.extend(get_code_list(CODE_PLANTING_BEAN))
         for item in item_list:
             friend_account, friend_code = item.get('account'), item.get('code')
             if self.account == friend_account:

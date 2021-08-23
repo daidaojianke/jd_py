@@ -153,3 +153,7 @@ JD_TRY_GOODS_COUNT = int(cfg.get('jd_try_goods_count', 10))
 
 # 京东试用商品过滤关键词, 用@分隔
 JD_TRY_FILTER_KEYWORDS = [i.strip() for i in cfg.get('jd_try_filter_keywords', '教程@软件').split('@')]
+
+
+# chrome路径
+CHROME_PATH = cfg.get('chrome_path', None)

@@ -83,7 +83,7 @@ class JdShop:
             if task['taskStatus'] == 3:
                 println('{}, {}已拿到2京豆\n'.format(self.account, task.get('shopName')))
             else:
-                res = await self.request(session, 'takeTask',  {'taskId': task['taskId']})
+                res = await self.request(session, 'takeTask',  {'taskId': task['taskId']}, method='POST')
                 if res.get('code') == 0:
                     println('{}, 成功完成任务!'.format(self.account))
                 else:
