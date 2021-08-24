@@ -8,7 +8,6 @@ import time
 import qrcode
 import requests
 from rich.console import Console
-from config import USER_AGENT
 
 console = Console()
 
@@ -44,7 +43,8 @@ def get_headers():
         'Referer': 'https://plogin.m.jd.com/login/login?appid=300&returnurl=https://wq.jd.com/passport'
                    '/LoginRedirect?state={}&returnurl=https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc'
                    '=&/myJd/home.action&source=wq_passport'.format(get_timestamp()),
-        'User-Agent': USER_AGENT,
+        'User-Agent': 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, '
+                      'like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5 UCBrowser/13.4.2.1122',
         'Host': 'plogin.m.jd.com'
     }
     return headers
