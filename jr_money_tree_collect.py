@@ -4,7 +4,7 @@
 # @File    : jr_money_tree_collect.py
 # @Project : jd_scripts
 # @Cron    : 35  */1 * * *
-# @Desc    : 京东APP->我的->摇钱树
+# @Desc    : 京东APP->我的->摇钱树, 定时收金果
 import aiohttp
 from utils.console import println
 from jr_money_tree import JrMoneyTree
