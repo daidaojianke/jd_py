@@ -425,14 +425,14 @@ class JdFactory:
             elif task['taskType'] == 9:  # 活动日历
                 await self.view_event_calendar(session, task)
 
-            elif task['taskType'] == 15: # 浏览加购
+            elif task['taskType'] == 15:  # 浏览加购
                 await self.purchase_of_goods(session, task)
 
             elif task['taskType'] == 19:  # 跳过下单任务
                 println('{}, 跳过任务:{}!'.format(self.account, task['taskName']))
 
             else:
-                println(task)
+                println('{}, 任务:{}功能未实现!'.format(self.account, task['taskName']))
 
     @logger.catch
     async def notify_result(self, session):
@@ -459,6 +459,40 @@ class JdFactory:
         message += '【活动入口】京东APP->京东电器->东东工厂\n'
         self.message = message
 
+    @logger.catch
+    async def insert_electricity(self, session):
+        """
+        电量超过300万则加电一次, 满足兑换商品时全投
+        :return:
+        """
+        data = await self.request(session, 'jdfactory_getHomeData')
+        if not data or data['bizCode'] != 0:
+            println('{}, 无法获取电量数据!'.format(self.account))
+            return
+
+        # 当前存储的电量
+        cur_electricity = data['result']['factoryInfo']['remainScore']
+        total_electricity = data['result']['factoryInfo']['totalScore']  # 兑换商品总共需要电量
+        used_electricity = data['result']['factoryInfo']['useScore']  # 当前投入电量
+
+        if int(cur_electricity) >= 300 * 10000:  # 电量已存满，加电一次
+            data = await self.request(session, 'jdfactory_addEnergy')
+            if data or data['bizCode'] != 0:
+                println('{}, 成功失败!'.format(self.account))
+            else:
+                println('{}, 成功加电1次!'.format(self.account))
+
+        # 电量足够换到商品, 全加
+        if int(cur_electricity) + int(used_electricity) >= int(total_electricity):
+            while True:
+                data = await self.request(session, 'jdfactory_addEnergy')
+                if data or data['bizCode'] != 0:
+                    println('{}, 成功失败!'.format(self.account))
+                    break
+                else:
+                    println('{}, 成功加电1次!'.format(self.account))
+                await asyncio.sleep(2)
+
     async def run(self):
         """
         :return:
@@ -468,9 +502,11 @@ class JdFactory:
             if not is_success:
                 println('{}, 无法初始化数据, 退出程序!'.format(self.account))
                 return
+
             await self.collect_electricity(session)
             task_list = await self.get_task_list(session)
             await self.do_tasks(session, task_list)
+            await self.insert_electricity(session)
             await self.notify_result(session)
 
     async def run_help(self):

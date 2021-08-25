@@ -458,7 +458,7 @@ class JxPasture:
         if res.get('ret') == 0:
             println('{}, 成功领取白菜!'.format(self.account))
 
-    async def do_newcomer_task(self, session, cur_step):
+    async def do_newcomer_task(self, session, cur_step='A-1'):
         """
         :return:
         """
@@ -485,8 +485,6 @@ class JxPasture:
             if not await self.init(session):
                 println('{}, 无法初始化, 退出程序!'.format(self.account))
                 return
-
-
 
             if self.share_code:
                 println('{}, 助力码:{}'.format(self.account, self.share_code))
