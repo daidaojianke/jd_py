@@ -11,6 +11,7 @@ from utils.logger import logger
 from jd_joy import JdJoy
 from utils.console import println
 from utils.browser import close_browser
+from config import JOY_FEED_COUNT
 
 
 class JdJoyFeed(JdJoy):
@@ -34,9 +35,13 @@ class JdJoyFeed(JdJoy):
             println('{}, 喂狗失败!'.format(self.account))
 
     async def run(self):
+        """
+        喂食
+        :return:
+        """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies,
                                          json_serialize=ujson.dumps) as session:
-            await self.feed_food(session)
+            await self.feed_food(session, JOY_FEED_COUNT)
 
         await close_browser(self.browser)
 

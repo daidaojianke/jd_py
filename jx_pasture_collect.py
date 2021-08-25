@@ -23,6 +23,7 @@ class JxPastureCollect(JxPasture):
                 return
 
             await self.get_gold_from_bull(session)  # 收牛牛金币
+            await self.buy_food(session) # 买白菜
             await self.feed(session)  # 喂白菜
             await self.mowing(session, max_times=10)  # 割草
             await self.sweep_chicken_legs(session, max_times=10)  # 扫鸡腿

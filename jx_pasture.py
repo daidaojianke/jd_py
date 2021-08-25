@@ -36,7 +36,6 @@ def generate_str(length=16):
 
 @jx_init
 class JxPasture:
-
     headers = {
         'user-agent': USER_AGENT.replace('jdapp;', 'jdpingou;'),
         'referer': 'https://st.jingxi.com/'
@@ -51,6 +50,10 @@ class JxPasture:
     phone_id = None  # 设备ID
     egg_num = 0  # 金蛋数量
 
+    newcomer_task_step = ['A-1', 'A-2',  'A-3', 'A-4', 'A-5', 'A-6', 'A-7', 'A-8', 'A-9',
+                          'A-10', 'A-11', 'A-12', 'B-1', 'C-1', 'D-1', 'E-1', 'E-2', 'E-3', 'E-4', 'E-5',
+                          'F-1', 'F-2', 'G-1', 'G-2', 'G-3', 'G-4', 'G-5', 'G-6', 'G-7', 'G-8', 'G-9']
+
     async def request(self, session, path, body=None, method='GET'):
         """
         请求数据
@@ -64,7 +67,7 @@ class JxPasture:
         try:
             if not self.phone_id:
                 self.phone_id = generate_str()
-            timestamp = str(int(time.time()*1000))
+            timestamp = str(int(time.time() * 1000))
             js_token = md5(self.account + timestamp + self.phone_id + 'tPOamqCuk9NLgVPAljUyIHcPRmKlVxDy')
             time_ = datetime.now()
             params = {
@@ -172,18 +175,22 @@ class JxPasture:
             return False
 
         self.coins = home_data.get('coins', 0)
-
-        try:
-            self.food_num = home_data.get('materialinfo', list())[0]['value']
-        except Exception as e:
-            println('{}, 活动未开启/黑号, {}'.format(self.account, e.args))
-            return False
-
         self.active_id = home_data.get('activeid', '')
         self.pet_info_list = home_data.get('petinfo', [])
         self.share_code = home_data.get('sharekey')
         self.cow_info = home_data.get('cow')
         self.egg_num = home_data.get('eggcnt')
+
+        cur_task_step = home_data.get('finishedtaskId')
+
+        if cur_task_step in self.newcomer_task_step:
+            await self.do_newcomer_task(session, cur_task_step)
+
+        try:
+            self.food_num = home_data.get('materialinfo', list())[0]['value']
+        except Exception as e:
+            println('{}, 活动未开启!'.format(self.account, e.args))
+            await self.do_newcomer_task(session)
 
         return True
 
@@ -223,9 +230,9 @@ class JxPasture:
                 self.food_num = res['data']['newnum']
             elif res.get('ret') == 2020 and res['data']['maintaskId'] == 'pause':
                 res = await self.request(session, 'jxmc/operservice/GetSelfResult', {
-                        '_stk': 'channel,itemid,sceneid,type',
-                        'petid': self.pet_info_list[0]['petid'],
-                        'type': 11
+                    '_stk': 'channel,itemid,sceneid,type',
+                    'petid': self.pet_info_list[0]['petid'],
+                    'type': 11
                 })
                 if res.get('ret') == 0:
                     println('{}, 成功收取一枚金蛋, 当前金蛋:{}'.format(self.account, res['data']['newnum']))
@@ -264,7 +271,7 @@ class JxPasture:
                     println('{}, 获得割草奖励, {}'.format(self.account, award_res['data']['prizepool']))
 
             if i + 1 <= max_times:
-                println('{}, 2s后进行第{}次割草!'.format(self.account, i+1))
+                println('{}, 2s后进行第{}次割草!'.format(self.account, i + 1))
                 await asyncio.sleep(2)
 
     async def sweep_chicken_legs(self, session, max_times=10):
@@ -392,7 +399,7 @@ class JxPasture:
 
         url = 'https://m.jingxi.com/active/queryprizedetails?' + urlencode({
             'actives': ','.join(list(prize_pools.keys())),
-            '_': int(time.time()*1000),
+            '_': int(time.time() * 1000),
             'sceneval': 2,
             'g_login_type': 2,
             'g_ty': 'ls'
@@ -439,6 +446,36 @@ class JxPasture:
 
         self.message += '\n\n'
 
+    async def get_daily_food(self, session):
+        """
+        每天领白菜
+        :return:
+        """
+        res = await self.request(session, '/jxmc/operservice/GetVisitBackCabbage', {
+            'timestamp': int(time.time()*1000),
+            '_stk': 'activeid,activekey,channel,jxmc_jstoken,phoneid,sceneid,timestamp'
+        })
+        if res.get('ret') == 0:
+            println('{}, 成功领取白菜!'.format(self.account))
+
+    async def do_newcomer_task(self, session, cur_step):
+        """
+        :return:
+        """
+        flag = False
+        for step in self.newcomer_task_step:
+            if cur_step == step:
+                flag = True
+            if flag:
+                res = await self.request(session, '/jxmc/operservice/DoMainTask', {
+                    'step': step,
+                    'timestamp': int(time.time()*1000),
+                    '_stk': 'activeid,activekey,channel,jxmc_jstoken,phoneid,sceneid,step,timestamp'
+                })
+                if res.get('ret') == 0:
+                    println('{}, 完成新手任务:{}'.format(self.account, step))
+                await asyncio.sleep(2)
+
     async def run(self):
         """
         :return:
@@ -449,11 +486,14 @@ class JxPasture:
                 println('{}, 无法初始化, 退出程序!'.format(self.account))
                 return
 
+
+
             if self.share_code:
                 println('{}, 助力码:{}'.format(self.account, self.share_code))
                 Code.insert_code(code_key=CODE_JX_PASTURE, code_val=self.share_code, sort=self.sort,
                                  account=self.account)
 
+            await self.get_daily_food(session)
             await self.sign(session)  # 每日签到
             await self.get_gold_from_bull(session)  # 收牛牛金币
             await self.buy_food(session)  # 购买白菜
@@ -461,11 +501,8 @@ class JxPasture:
             await self.mowing(session, max_times=20)  # 割草20次
             await self.sweep_chicken_legs(session, max_times=20)  # 扫鸡腿20次
             await self.do_tasks(session)  # 做任务领奖励
-            await self.notify(session) # 通知
+            await self.notify(session)  # 通知
 
 
 if __name__ == '__main__':
-    # from config import JD_COOKIES
-    # app = JxPasture(**JD_COOKIES[2])
-    # asyncio.run(app.run_help())
     process_start(JxPasture, '京喜牧场', code_key=CODE_JX_PASTURE)
