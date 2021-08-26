@@ -56,19 +56,17 @@ CODE_JX_FACTORY_WORK = 'jx_factory_work'
 #  到家果园助力
 CODE_DJ_FRUIT = 'dj_fruit'
 
+# 手机狂欢城
+CODE_JD_CARNIVAL_CITY = 'jd_carnival_city'
 
-CODE_TITLE_MAP = {
-    CODE_AMUSEMENT_POST: '京小鸽游乐寄-助力码',
-    CODE_FLASH_SALE_BOX: '闪购盲盒-助力码',
-    CODE_SMASH_GOLDEN_EGG: '疯狂砸金蛋助力码',
-    CODE_MONEY_TREE: '金果摇钱树助力码',
-    CODE_PLANTING_BEAN: '种豆得豆助力码',
-    CODE_JD_FARM: '东东农场助力码',
-    CODE_JD_GRAB_BEAN: '抢京豆助力码',
-    CODE_JD_HEALTH: '东东健康社区助力码',
-    CODE_JX_FACTORY_TUAN: '京喜工厂团ID',
-    CODE_JX_FACTORY_WORK: '京喜工厂招工'
-}
+# 京喜牧场
+CODE_JX_PASTURE = 'jd_pasture'
+
+# 特务Z
+CODE_JD_SUPER_BRAND = 'jd_super_brand'
+
+# 5G盲盒助力码
+CODE_5G_BOX = 'jd_5g_box'
 
 
 class Code(Model):
