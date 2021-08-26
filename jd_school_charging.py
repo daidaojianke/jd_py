@@ -11,7 +11,7 @@ from config import USER_AGENT
 CODE_KEY = 'jd_school_charging'
 
 
-class JdCarLive(JdCommon):
+class JdSchoolCharging(JdCommon):
     """
     """
     code_key = CODE_KEY
@@ -28,4 +28,4 @@ class JdCarLive(JdCommon):
 
 if __name__ == '__main__':
     from utils.process import process_start
-    process_start(JdCarLive, '开学充电站', code_key=CODE_KEY)
+    process_start(JdSchoolCharging, '开学充电站', code_key=CODE_KEY)
