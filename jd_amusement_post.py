@@ -16,7 +16,10 @@ from utils.process import get_code_list
 from utils.jd_init import jd_init
 from utils.console import println
 from utils.logger import logger
-from db.model import Code, CODE_AMUSEMENT_POST
+from db.model import Code
+
+# 京小鸽游乐寄助力码
+CODE_AMUSEMENT_POST = 'amusement_post'
 
 
 @jd_init

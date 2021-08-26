@@ -12,7 +12,10 @@ from utils.console import println
 from utils.logger import logger
 from utils.dj_init import dj_init
 from config import DJ_FRUIT_KEEP_WATER
-from db.model import Code, CODE_DJ_FRUIT
+from db.model import Code
+
+#  到家果园助力
+CODE_DJ_FRUIT = 'dj_fruit'
 
 
 @dj_init

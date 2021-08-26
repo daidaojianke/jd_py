@@ -16,8 +16,11 @@ from config import USER_AGENT
 from utils.console import println
 from utils.logger import logger
 from utils.jd_init import jd_init
-from db.model import Code, CODE_5G_BOX
+from db.model import Code
 from utils.process import process_start, get_code_list
+
+# 5G盲盒助力码
+CODE_5G_BOX = 'jd_5g_box'
 
 
 @jd_init

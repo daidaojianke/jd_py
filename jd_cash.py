@@ -15,7 +15,10 @@ from utils.process import process_start
 from utils.jd_init import jd_init
 from utils.logger import logger
 from utils.process import get_code_list
-from db.model import Code, CODE_JD_CASH
+from db.model import Code
+
+# 领现金助力码
+CODE_JD_CASH = 'jd_cash'
 
 
 @jd_init

@@ -9,7 +9,7 @@ import asyncio
 import aiohttp
 import json
 
-from db.model import Code, CODE_JD_HEALTH
+from db.model import Code
 from urllib.parse import urlencode
 from utils.jd_init import jd_init
 from utils.console import println
@@ -17,6 +17,9 @@ from utils.process import process_start, get_code_list
 from config import USER_AGENT
 
 ERRCODE_DEFAULT = 9999
+
+# 东东健康社区
+CODE_JD_HEALTH = 'jd_health'
 
 
 @jd_init

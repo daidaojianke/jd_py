@@ -17,7 +17,10 @@ from utils.process import process_start, get_code_list
 from utils.console import println
 from utils.jd_init import jd_init
 from utils.logger import logger
-from db.model import Code, CODE_JD_CARNIVAL_CITY
+from db.model import Code
+
+# 手机狂欢城
+CODE_JD_CARNIVAL_CITY = 'jd_carnival_city'
 
 
 @jd_init

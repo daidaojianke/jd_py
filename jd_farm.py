@@ -18,7 +18,10 @@ from utils.logger import logger
 from utils.jd_init import jd_init
 from config import USER_AGENT, JD_FARM_BEAN_CARD, JD_FARM_RETAIN_WATER
 from utils.process import get_code_list
-from db.model import Code, CODE_JD_FARM
+from db.model import Code
+
+# 东东农场助力码
+CODE_JD_FARM = 'jd_farm'
 
 
 @jd_init
@@ -805,7 +808,6 @@ class JdFarm:
             await self.help_friend(session)  # 助力好友
             await self.lottery_help_friend(session)  # 天天抽奖助力好友
             await self.get_award_of_invite_friend(session)  # 领取邀请好友奖励
-    #
 
 
 if __name__ == '__main__':

@@ -15,8 +15,11 @@ from urllib.parse import urlencode
 from config import USER_AGENT
 from utils.jd_init import jd_init
 from utils.console import println
-from db.model import Code, CODE_JD_SUPER_BRAND
+from db.model import Code
 from utils.process import process_start, get_code_list
+
+# 特务Z
+CODE_JD_SUPER_BRAND = 'jd_super_brand'
 
 
 @jd_init

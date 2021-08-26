@@ -21,7 +21,11 @@ from utils.logger import logger
 from utils.console import println
 from utils.jx_pasture_token import get_token
 from utils.process import process_start, get_code_list
-from db.model import Code, CODE_JX_PASTURE
+from db.model import Code
+
+
+# 京喜牧场
+CODE_JX_PASTURE = 'jd_pasture'
 
 
 def generate_str(length=16):

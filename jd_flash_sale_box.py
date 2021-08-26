@@ -13,8 +13,11 @@ from utils.console import println
 from utils.process import process_start, get_code_list
 from utils.logger import logger
 from utils.jd_init import jd_init
-from db.model import Code, CODE_FLASH_SALE_BOX
+from db.model import Code
 from config import USER_AGENT
+
+# 闪购盲盒助力码
+CODE_FLASH_SALE_BOX = 'flash_sale_box'
 
 
 @jd_init

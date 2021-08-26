@@ -18,7 +18,14 @@ from utils.jx_init import jx_init
 from utils.console import println
 from utils.process import get_code_list
 from utils.logger import logger
-from db.model import Code, CODE_JX_FACTORY_TUAN, CODE_JX_FACTORY_WORK
+from db.model import Code
+
+
+# 京喜工厂开团
+CODE_JX_FACTORY_TUAN = 'jx_factory_tuan'
+
+# 惊喜工厂招工
+CODE_JX_FACTORY_WORK = 'jx_factory_work'
 
 
 @jx_init

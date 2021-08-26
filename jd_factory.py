@@ -16,7 +16,10 @@ from utils.jd_init import jd_init
 from utils.logger import logger
 from utils.process import get_code_list
 from config import USER_AGENT
-from db.model import Code, CODE_JD_FACTORY
+from db.model import Code
+
+# 东东工厂助力码
+CODE_JD_FACTORY = 'jd_factory'
 
 
 @jd_init

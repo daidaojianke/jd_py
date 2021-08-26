@@ -15,7 +15,10 @@ from utils.logger import logger
 from utils.console import println
 from utils.process import process_start, get_code_list
 from utils.jd_init import jd_init
-from db.model import Code, CODE_CUT_PET
+from db.model import Code
+
+# 东东萌宠助力码
+CODE_CUT_PET = 'cut_pet'
 
 
 @jd_init

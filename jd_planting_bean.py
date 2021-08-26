@@ -20,8 +20,11 @@ from utils.logger import logger
 from utils.process import process_start, get_code_list
 from utils.jd_init import jd_init
 
-from db.model import Code, CODE_PLANTING_BEAN
+from db.model import Code
 from config import USER_AGENT
+
+# 种豆得豆助力码
+CODE_PLANTING_BEAN = 'planting_bean'
 
 
 def println_task(func=None):

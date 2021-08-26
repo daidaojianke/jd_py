@@ -17,7 +17,10 @@ from utils.console import println
 from utils.process import process_start, get_code_list
 from utils.jd_init import jd_init
 from utils.logger import logger
-from db.model import Code, CODE_MONEY_TREE
+from db.model import Code
+
+# 金果摇钱树助力码
+CODE_MONEY_TREE = 'money_tree'
 
 
 @jd_init
@@ -193,7 +196,7 @@ class JrMoneyTree:
             return
 
         url = furl(work['url'])
-        read_time = int(url.args.get('readTime'))
+        read_time = int(url.args.get('readTime', '0'))
 
         # 执行任务
         println('{}, 开始执行任务《{}》, 需要等待{}秒!'.format(self.account, work['workName'], read_time))
