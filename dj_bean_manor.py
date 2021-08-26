@@ -6,12 +6,19 @@
 # @Cron    : 30 6,21 * * *
 # @Desc    : 京东APP->京东到家->签到->鲜豆庄园
 import asyncio
+import time
+
 import aiohttp
 import random
 
 from utils.console import println
 from utils.dj_init import dj_init
 from utils.logger import logger
+from db.model import Code
+from utils.process import get_code_list
+
+# 鲜豆庄园助力码
+CODE_DJ_BEAN_MANOR = 'dj_bean_manor'
 
 
 @dj_init
@@ -103,6 +110,26 @@ class DjBeanManor:
         else:
             println('{}, 浇水失败, {}!'.format(self.account, res['msg']))
 
+    async def click_tree(self, session):
+        """
+        点树苗
+        :return:
+        """
+        for i in range(15):
+            res = await self.post(session, 'plantBeans/beansLottery', {"activityId": self.activity_id})
+            if res.get('code') == '0':
+                result = res['result']
+                if 'text' in result:
+                    text = result['text']
+                elif 'title' in result:
+                    text = result['title']
+                else:
+                    text = '结果未知'
+                println('{}, 点击树苗, {}'.format(self.account, text))
+            else:
+                break
+            await asyncio.sleep(1)
+
     @logger.catch
     async def do_task(self, session):
         """
@@ -138,6 +165,62 @@ class DjBeanManor:
             else:
                 await self.receive_task(session, task)
 
+    @logger.catch
+    async def get_share_code(self, session):
+        """
+        获取助力码
+        :return:
+        """
+        res = await self.get(session, 'signin/carveUp/carveUpInfo', {"groupId": "", "type": 2})
+        if res.get('code') != '0':
+            println('{}, 获取组队数据失败!'.format(self.account))
+            return
+        if 'groupId' not in res['result']:
+            println('{}, 开启队伍!'.format(self.account))
+            res = await self.get(session, 'signin/carveUp/openCarveUp', {"nickName": "",
+                                                                         "nickHeadUrl": "",
+                                                                         "wcUnionId": "",
+                                                                         "openId": "",
+                                                                         "formId": "",
+                                                                         "type": 2,
+                                                                         "traceId": int(time.time()*1000)})
+        code = res['result']['groupId']
+        println('{}, 助力码:{}'.format(self.account, code))
+        Code.insert_code(code_key=CODE_DJ_BEAN_MANOR, code_val=code, account=self.account, sort=self.sort)
+
+    @logger.catch
+    async def run_help(self):
+        """
+        组队
+        :return:
+        """
+        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
+            dj_cookies = await self.login(session)
+            if not dj_cookies:
+                return
+            println('{}, 登录成功...'.format(self.account))
+
+        async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
+            activity_info = await self.get_activity_info(session)
+            if not activity_info:
+                println('{}, 获取活动ID失败, 退出程序!'.format(self.account))
+                return
+            item_list = Code.get_code_list(CODE_DJ_BEAN_MANOR)
+            item_list.extend(get_code_list(CODE_DJ_BEAN_MANOR))
+
+            for item in item_list:
+                account, code = item.get('account'), item.get('code')
+                # 参数加密了
+                res = await self.get(session, 'signin/carveUp/joinCarveUp', {"groupId": code, "type": 2})
+                println(res)
+                if res.get('code') != '0':
+                    println('{}, 无法加入好友:{}的队伍!'.format(self.account, account))
+                else:
+                    println(res)
+                    println('{}, 加入好友:{}队伍结果, {}'.format(self.account, account, res['result']['title']))
+                    if '上限' in res['result']['title']:
+                        break
+
     async def run(self):
         """
         程序入口
@@ -155,9 +238,10 @@ class DjBeanManor:
                 println('{}, 获取活动ID失败, 退出程序!'.format(self.account))
                 return
             await self.do_task(session)
+            await self.click_tree(session)
+            # await self.get_share_code(session)
 
 
 if __name__ == '__main__':
     from utils.process import process_start
-
     process_start(DjBeanManor, '鲜豆庄园任务')
