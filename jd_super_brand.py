@@ -102,7 +102,7 @@ class JdSuperBrand:
         """
         data = await self.request(session, 'superBrandTaskList', {
             "source": "secondfloor",
-            "activityId": 1000046,
+            "activityId": self.activity_id,
             "assistInfoFlag": 1})
         if data.get('code') != 0:
             println('{}, 获取任务列表数据失败!'.format(self.account))
