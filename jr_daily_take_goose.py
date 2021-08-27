@@ -214,7 +214,8 @@ class JrDailyTakeGoose:
             return
 
         await asyncio.sleep(1)
-        if not data['grassEggTotal'] < 1:  # 篮子装满了再提取，避免频繁提取!
+
+        if data['grassEggTotal'] < 1:  # 篮子装满了再提取，避免频繁提取!
             println('{}, 当前篮子鹅蛋小于1个, 无法提取...'.format(self.account))
             return
 

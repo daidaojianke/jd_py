@@ -11,7 +11,7 @@ from utils.process import process_start
 
 class JdWomenBox(JdAnmp):
     """
-    清凉一夏
+    女装盲盒
     """
     url = 'https://anmp.jd.com/babelDiy/Zeus/3bMo2AgbRYYfZt83qHLZ3ruVtrtG/index.html'
 
