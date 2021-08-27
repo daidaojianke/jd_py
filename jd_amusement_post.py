@@ -213,7 +213,9 @@ class JdAmusementPost:
 
             for item in data:
                 if item['status'] == 11:
-                    await self.get_card(session, item['getRewardNos'][0])
+                    for no in item['getRewardNos']:
+                        await self.get_card(session, no)
+                        await asyncio.sleep(1)
 
             await self.synthesis(session)
 

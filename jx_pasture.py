@@ -416,7 +416,7 @@ class JxPasture:
         res = json.loads(text)
 
         if res.get('retcode') != 0:
-            println('{}, 获取可兑换奖品列表失败!')
+            println('{}, 获取可兑换奖品列表失败!'.format(self.account))
             return awards
 
         for item in res['result']:

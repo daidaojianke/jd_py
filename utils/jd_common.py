@@ -240,5 +240,6 @@ class JdCommon:
         """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
             task_list = await self.get_task_list(session)
-            await self.do_tasks(session, task_list)
+            if task_list:
+                await self.do_tasks(session, task_list)
             await self.lottery(session)
