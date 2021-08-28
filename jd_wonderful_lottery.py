@@ -7,9 +7,11 @@
 # @Desc    : 京东APP->签到领豆->边玩边赚->每日抽奖
 import asyncio
 import json
+import random
+import re
 
 import aiohttp
-
+from urllib.parse import urlencode
 from utils.jd_init import jd_init
 from utils.console import println
 from config import USER_AGENT
@@ -17,6 +19,14 @@ from db.model import Code
 from utils.process import process_start, get_code_list
 
 CODE_KEY = 'jd_wonderful_lottery'
+
+
+def random_uuid():
+    """
+    :return:
+    """
+    s = '01234567890123456789'
+    return ''.join(random.sample(s, 16)) + '-' + ''.join(random.sample(s, 16))
 
 
 @jd_init
@@ -30,11 +40,11 @@ class JdWonderfulLottery:
         'lop-dn': 'jingcai.jd.com',
         'accept': 'application/json, text/plain, */*',
         'appparams': '{"appid":158,"ticket_type":"m"}',
-        'content-type': 'application/json',
+        'content-type': 'application/x-www-form-urlencoded',
         'referer': 'https://jingcai-h5.jd.com/index.html'
     }
 
-    activityCode = "1419494729103441920"
+    activity_code = "1419494729103441920"
 
     async def request(self, session, path, body=None, method='POST'):
         """
@@ -67,7 +77,7 @@ class JdWonderfulLottery:
         """
         res = await self.request(session, '/luckdraw/queryMissionList', [{
             "userNo": "$cooMrdGatewayUid$",
-            "activityCode": self.activityCode
+            "activity_code": self.activity_code
         }])
         if not res.get('success'):
             println('{}, 获取任务列表失败!'.format(self.account))
@@ -82,7 +92,7 @@ class JdWonderfulLottery:
             if task['status'] == 11:
                 for no in task['getRewardNos']:
                     body = [{
-                        "activityCode": self.activityCode,
+                        "activity_code": self.activity_code,
                         "userNo": "$cooMrdGatewayUid$",
                         "getCode": no
                     }]
@@ -100,7 +110,7 @@ class JdWonderfulLottery:
 
             for i in range(task['completeNum'], task['totalNum']):
                 body = [{
-                    "activityCode": self.activityCode,
+                    "activity_code": self.activity_code,
                     "userNo": "$cooMrdGatewayUid$",
                     "missionNo": task['missionNo'],
                     "params": task['params']
@@ -139,7 +149,7 @@ class JdWonderfulLottery:
         while True:
             res = await self.request(session, '/luckdraw/draw', [{
                 "userNo": "$cooMrdGatewayUid$",
-                "activityCode": self.activityCode
+                "activity_code": self.activity_code
             }])
             if res.get('success'):
                 println('{}, 抽奖成功'.format(self.account))
@@ -147,11 +157,49 @@ class JdWonderfulLottery:
                 break
             await asyncio.sleep(1)
 
+    async def get_activate_code(self, session):
+        """
+        :return:
+        """
+        try:
+            params = {
+                'functionId': 'qryCompositeMaterials',
+                'body': json.dumps({"qryParam": "[{\"type\":\"advertGroup\",\"id\":\"03744379\","
+                                                "\"mapTo\":\"moreActivity\"},{\"type\":\"advertGroup\","
+                                                "\"id\":\"04039687\",\"mapTo\":\"atmosphere\"},"
+                                                "{\"type\":\"advertGroup\",\"id\":\"04030152\","
+                                                "\"mapTo\":\"promotion\"},{\"type\":\"advertGroup\","
+                                                "\"id\":\"04395256\",\"mapTo\":\"temporary\"}]",
+                                    "activityId": "00360210", "pageId": "666370", "previewTime": "", "reqSrc": ""}),
+                'client': 'wh5',
+                'clientVersion': '1.0.0',
+                'uuid': random_uuid()
+            }
+            url = 'https://api.m.jd.com/client.action?' + urlencode(params)
+            response = await session.post(url=url)
+            text = await response.text()
+            data = json.loads(text)
+            if data.get('code') != '0':
+                return None
+            item_list = data['data']['moreActivity']['list']
+            for item in item_list:
+                if '每日抽奖' in item['name']:
+                    code = re.search('activityCode=(.*)&', item['link']).group(1)
+                    return code
+            return None
+        except Exception as e:
+            println('{}, 获取活动ID失败, {}'.format(self.account, e.args))
+            return None
+
     async def run(self):
         """
         :return:
         """
         async with aiohttp.ClientSession(headers=self.headers, cookies=self.cookies) as session:
+            self.activity_code = await self.get_activate_code(session)
+            if not self.activity_code:
+                println('{}, 获取活动ID失败, 退出程序!'.format(self.account))
+                return
             await self.do_tasks(session)  # 做任务
             await self.lottery(session)  # 抽奖
 

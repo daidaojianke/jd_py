@@ -90,7 +90,7 @@ class JdSupermarket:
             println('{}, 查询签到数据失败!'.format(self.account))
             return
 
-        if res.get('result', dict()).get('hadSigned', 0):
+        if res.get('result', dict()).get('hadSigned', 0) == 1:
             println('{}, 今日已签到, 无需再次签到!'.format(self.account))
             return
 
@@ -177,6 +177,37 @@ class JdSupermarket:
         return res['result']
 
     @logger.catch
+    async def upgrade(self, session):
+        """
+        升级货架
+        :param session:
+        :return:
+        """
+        res = await self.request(session, 'smtg_shopIndex')
+        if res.get('bizCode') != 0:
+            println('{}, 获取店铺数据失败!'.format(self.account))
+            return
+        data = res['result']
+        shop_id = data['shopId']
+        shelf_list = data['shelfList']
+        shelf_id = None
+        shelf_level = 0
+        shelf_name = None
+
+        for shelf in shelf_list:
+            if shelf['status'] == 1:
+                shelf_id = shelf['id']
+                shelf_level = shelf['level'] + 1
+                shelf_name = shelf['name']
+                break
+
+        if shelf_id:  # 有可以升级的货架
+            res = await self.request(session, 'smtg_shelfUpgrade', {
+                "shopId": shop_id, "shelfId": shelf_id, "targetLevel": shelf_level})
+            if res.get('bizCode') == 0:
+                println('{}, 成功升级:{}, 当前等级:{}!'.format(self.account, shelf_name, shelf_level))
+
+    @logger.catch
     async def get_upgrade_award(self, session):
         """
         获取店铺升级奖励
@@ -198,6 +229,17 @@ class JdSupermarket:
                 println('{}, 成功收取:{}蓝币!'.format(self.account, item['blueCoins']))
             await asyncio.sleep(1)
 
+    async def receive_coin(self, session, coin_type=2):
+        """
+        收顾客头上的蓝币
+        :param session:
+        :param coin_type:
+        :return:
+        """
+        res = await self.request(session, 'smtg_receiveCoin', {"type": coin_type, "channel": "1"})
+        if res.get('bizCode') == 0:
+            println('{}, 成功收取蓝币:{}!'.format(self.account, res['result']['receivedBlue']))
+
     @logger.catch
     async def run(self):
         async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
@@ -206,6 +248,8 @@ class JdSupermarket:
                 println('{}, 由于无法获取首页数据, 退出程序...'.format(self.account))
                 return
             await self.sign(session)
+            await self.upgrade(session)
+            await self.receive_coin(session)
             await self.receive_money(session)
             await self.get_upgrade_award(session)
             await self.do_tasks(session)
@@ -213,7 +257,7 @@ class JdSupermarket:
 
 if __name__ == '__main__':
     # from config import JD_COOKIES
-    # app = JdSupermarket(**JD_COOKIES[0])
+    # app = JdSupermarket(**JD_COOKIES[6])
     # asyncio.run(app.run())
     from utils.process import process_start
     process_start(JdSupermarket, '东东超市')
