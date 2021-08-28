@@ -36,8 +36,11 @@ class JdJoyExchange(JdJoy):
             return
 
         # 23~6点运行兑换8点场
-        if datetime.now().hour >= 23 or 0 <= datetime.now().hour < 7:  # 0点场
+        if datetime.now().hour >= 23:  # 0点场
             start_time = datetime.strftime((datetime.now() + relativedelta(days=1)), "%Y-%m-%d 00:00:00")
+            key = 'beanConfigs0'
+        elif 0 <= datetime.now().hour < 7:
+            start_time = datetime.strftime((datetime.now()), "%Y-%m-%d 00:00:00")
             key = 'beanConfigs0'
         # 7~15点运行兑换8点场
         elif 7 <= datetime.now().hour < 15:  # 8点场
@@ -94,10 +97,17 @@ class JdJoyExchange(JdJoy):
                 if seconds < 5:
                     timeout = millisecond / 1000
                 else:
+                    if seconds > 60:  # 尝试触发验证码
+                        t = int(time.time())
+                        await self.get_friend_list(session)  # 尝试触发验证码
+                        seconds = seconds - (int(time.time()) - t)
+
                     if millisecond - seconds * 1000 > 0:
                         timeout = seconds
                     else:
-                        timeout = seconds - 1 + delay
+                        timeout = int(seconds / 2) + delay
+
+                    await asyncio.sleep(timeout)
 
                 println('{}, 当前时间小于兑换时间, 等待{}秒!'.format(self.account, timeout))
                 await asyncio.sleep(timeout)
@@ -133,7 +143,7 @@ class JdJoyExchange(JdJoy):
                     break
                 else:
                     println('{}, 兑换请求结果: {}'.format(self.account, data))
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.2)
 
             if exchange_finish:
                 break
