@@ -17,6 +17,7 @@ from config import USER_AGENT
 from utils.jx_init import jx_init
 from utils.console import println
 from utils.process import process_start
+from utils.logger import logger
 from db.model import Code
 
 
@@ -31,6 +32,7 @@ class JxSign:
         'referer': 'https://st.jingxi.com/'
     }
 
+    @logger.catch
     async def request(self, session, path, body=None, method='GET'):
         """
         请求数据
@@ -67,17 +69,21 @@ class JxSign:
                 response = await session.post(url=url)
 
             text = await response.text()
-            text = re.search('\((.*)\);', text, re.S)
-            if not text:
-                return None
-            text = text.group(1)
-            data = json.loads(text)
-            return data
+            try:
+                return json.loads(text)
+            except:
+                text = re.search('\((.*)\);', text, re.S)
+                if not text:
+                    return None
+                text = text.group(1)
+                data = json.loads(text)
+                return data
 
         except Exception as e:
             println('{}, 请求服务器数据失败, {}'.format(self.account, e.args))
             return None
 
+    @logger.catch
     async def do_tasks(self, session):
         """
         做任务
@@ -95,7 +101,7 @@ class JxSign:
             'smp': smp,
             '_stk': 'ispp,signhb_source,smp,tk,type'
         })
-        if not res:
+        if not res or res.get('ret') != 0:
             println('{}, 获取任务列表失败!'.format(self.account))
             return
 
@@ -116,8 +122,9 @@ class JxSign:
                 println('{}, 完成任务:《{}》, 获得红包:{}'.format(self.account, task['taskname'], res['sendhb']))
             else:
                 println('{}, 无法完成任务:《{}》!'.format(self.account, task['taskname']))
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
 
+    @logger.catch
     async def open_box(self, session):
         """
         开宝箱
@@ -130,6 +137,7 @@ class JxSign:
                 println('{}, 开宝箱成功, 获得红包:{}'.format(self.account, res['sendhb']))
             else:
                 break
+            await asyncio.sleep(3)
 
     async def run(self):
         """

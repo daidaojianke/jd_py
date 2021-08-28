@@ -97,13 +97,13 @@ class JdJoy:
         """
         try:
             lkt = str(int(time.time()*1000))
-            lks = md5('ztmFUCxcPMNyUq0P' + lkt)
+            lks = md5('RtKLB8euDo7KwsO0' + lkt)
             session.headers['lks'] = lks
             session.headers['lkt'] = lkt
 
             default_params = {
                 'reqSource': 'h5',
-                'invokeKey': 'ztmFUCxcPMNyUq0P'
+                'invokeKey': 'RtKLB8euDo7KwsO0'
             }
             if method == 'GET' and body:
                 default_params.update(body)
