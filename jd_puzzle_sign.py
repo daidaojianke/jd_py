@@ -39,16 +39,20 @@ class JdPuzzleSign:
         except Exception as e:
             println('{}, 无法加载签到按钮, {}'.format(self.account, e.args))
 
-        sign_button_element = await page.querySelector(sign_button_selector)
-        sign_button_text = await (await sign_button_element.getProperty("textContent")).jsonValue()
+        try:
+            sign_button_element = await page.querySelector(sign_button_selector)
+            sign_button_text = await (await sign_button_element.getProperty("textContent")).jsonValue()
+        except Exception as e:
+            println('{}, {}查找签到按钮失败, {}'.format(self.account, name, e))
+            return
         if sign_button_text.strip() != '立即翻牌':
             println('{}, {}今日已签到!'.format(self.account, name))
             return
 
         println('{}, 点击立即翻牌, 进行签到！'.format(self.account))
-        await sign_button_element.click()
-
-        await asyncio.sleep(1)
+        for i in range(10):  # 报系统频繁需要点击多次
+            await sign_button_element.click()
+            await asyncio.sleep(1)
         await page.evaluate(('''() => {
                                 document.getElementsByClassName('man-machine-container')[0].style.cssText += 'width:400px;height:299px';
                                                 }'''))
@@ -146,6 +150,16 @@ class JdPuzzleSign:
         name = '京东电器'
         await self.sign(browser, url, name)
 
+    async def plus(self, browser):
+        """
+        plus会员店
+        :param browser:
+        :return:
+        """
+        url = 'https://prodev.m.jd.com/mall/active/3bhgbFe5HZcFCjEZf2jzp3umx4ZR/index.html'
+        name = 'plus天天领京豆'
+        await self.sign(browser, url, name)
+
     @logger.catch
     async def run(self):
         """
@@ -182,6 +196,8 @@ class JdPuzzleSign:
         await self.personal_care_sign(browser)  # 个护馆签到
         await asyncio.sleep(1)
         await self.purifying_sign(browser)  # 清洁馆
+        await asyncio.sleep(1)
+        await self.plus(browser)  # plus会员
         await asyncio.sleep(1)
 
         await close_browser(browser)

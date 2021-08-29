@@ -111,10 +111,8 @@ class JdSuperBrand:
         task_list = data['result']['taskList']
 
         for task in task_list:
-            if '抽奖' in task['assignmentName']:
-                continue
 
-            if '助力' in task['assignmentName']:
+            if '助力' in task['assignmentName'] or '邀请' in task['assignmentName'] :
                 code_val = task['encryptAssignmentId'] + '@' + task['ext']['assistTaskDetail']['itemId']
                 println('{}, 助力码:{}'.format(self.account, code_val))
                 Code.insert_code(code_key=CODE_JD_SUPER_BRAND, code_val=code_val, sort=self.sort, account=self.account)
@@ -127,6 +125,8 @@ class JdSuperBrand:
                     item_id = task['ext']['followShop'][0]['itemId']
                 elif 'assistTaskDetail' in task['ext']:
                     item_id = task['ext']['assistTaskDetail']['itemId']
+                elif 'brandMemberList' in task['ext']:
+                    item_id = task['ext']['brandMemberList'][0]['itemId']
                 else:
                     item_id = 'null'
 
