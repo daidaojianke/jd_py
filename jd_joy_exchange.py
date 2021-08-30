@@ -128,6 +128,7 @@ class JdJoyExchange(JdJoy):
             for i in range(10):
                 println('{}, 正在尝试第{}次兑换!'.format(self.account, i+1))
                 data = await self.request(session, exchange_path, exchange_params, method='POST')
+                println('{}, 兑换:{}, 返回数据:{}'.format(self.account, gift_name, data))
                 if data and data['errorCode'] and 'success' in data['errorCode']:
                     exchange_success = True
                     exchange_name = gift_name

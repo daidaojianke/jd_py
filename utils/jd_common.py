@@ -215,15 +215,18 @@ class JdCommon:
         :return:
         """
         for task in task_list:
+
             task_type, task_name, status = task['taskType'], task['taskName'], task['status']
+
+            if task_type == 14:  # 邀请好友助力
+                await self.get_share_code(task)
+
             if task_type in [3, 27] and task_type == 3:
                 await self.lottery(session, task['taskId'])
             if status >= 2:
                 println('{}, 任务:《{}》今日已做完!'.format(self.account, task_name))
                 continue
 
-            if task_type == 14:  # 邀请好友助力
-                await self.get_share_code(task)
             elif task_type in [13, 12]:  # 签到
                 task_id = task['taskId']
                 task_token = re.search(r"'taskToken': '(.*?)'", str(task)).group(1)

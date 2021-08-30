@@ -295,8 +295,8 @@ class JxPasture:
             println('{}, 第{}次扫鸡腿成功, 获得金币:{}'.format(self.account, i, res['data']['addcoins']))
 
             if i + 1 <= max_times:
-                println('{}, 2s后进行第{}次扫鸡腿!'.format(self.account, i + 1))
-                await asyncio.sleep(2)
+                println('{}, 5s后进行第{}次扫鸡腿!'.format(self.account, i + 1))
+                await asyncio.sleep(5)
 
     async def do_tasks(self, session, max_times=10):
         """
@@ -348,6 +348,8 @@ class JxPasture:
                     })
                     if res.get('ret') == 0:
                         println('{}, 成功完成任务:{}'.format(self.account, task_name))
+
+                await asyncio.sleep(2)
             if break_flag:
                 break
 
@@ -374,7 +376,7 @@ class JxPasture:
                     println('{}, 成功助力好友:{}'.format(self.account, account))
                 else:
                     println('{}, 助力好友:{}失败, {}'.format(self.account, account, res.get('message')))
-                await asyncio.sleep(2)
+                await asyncio.sleep(3)
 
     async def get_can_exchange_goods(self, session):
         """

@@ -195,6 +195,7 @@ class JdAmusementPost:
             if not data:
                 println('{}, 无法获取活动首页数据, 退出!'.format(self.account))
                 return
+            await self.get_share_code(session)
             for item in data:
                 if item['status'] == 10:
                     println('{}, 今日已领取过《{}》的卡片!'.format(self.account, item['name']))
@@ -206,8 +207,6 @@ class JdAmusementPost:
                 elif jump_type == 31:
                     await self.sign(session)
                     await asyncio.sleep(1)
-                elif jump_type == 1:
-                    await self.get_share_code(session)
 
             data = await self.get_index_data(session)
 
