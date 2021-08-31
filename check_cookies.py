@@ -23,7 +23,9 @@ async def check_cookies():
     message = ''
     need_notify = False
     for cookies in JD_COOKIES:
-        account = unquote(cookies['pt_pin'])
+        account = cookies.pop('remark')
+        if not account:
+            account = unquote(cookies['pt_pin'])
         ok = await async_check_cookie(cookies)
         if not ok:
             message += ' ' * 6 + account + '\n'

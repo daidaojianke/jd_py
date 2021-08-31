@@ -167,7 +167,8 @@ def notify(title, content):
     wecom_app(title, content)
     # TG通知
     tg_bot_notify(title, content)
-    push_server(title, content)
+    push_server(title.replace("\n", ""), content.replace("\n", "\n\n"))
+
 
 def push_server(title, content):
     if not SERVER_SEND_KEY:
