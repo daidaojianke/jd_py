@@ -187,13 +187,14 @@ async def wx_request(self, session, function_id='', body=None, method='GET'):
             'lng': self.lng,
             'lat': self.lat,
             'isNeedDealError': 'true',
-            'signKeyV1': ''
         }
         if method == 'GET':
+            params['signKeyV1'] = dj_sign(params)
             url = 'https://daojia.jd.com/client?' + urlencode(params)
             response = await session.get(url=url)
         else:
             params['method'] = 'POST'
+            params['signKeyV1'] = dj_sign(params)
             url = 'https://daojia.jd.com/client?' + urlencode(params)
             response = await session.post(url=url)
 

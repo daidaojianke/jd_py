@@ -130,9 +130,7 @@ class DjFruit:
         if res['code'] != '0' or 'result' not in res:
             println('{}, 查询浇水红包信息失败!'.format(self.account))
             return
-
-        rest_progress = float(res['result']['restProgress'])
-
+        rest_progress = float(res.get('result', dict()).get('restProgress', '10'))
         if rest_progress > 0.0:
             println('{}, 浇水红包差{}可以打开!'.format(self.account, rest_progress))
             return
@@ -332,7 +330,7 @@ class DjFruit:
         message += '【奖品名称】{}\n'.format(active_info['fruitName'])
         message += '【{}进度】{}/{}\n'.format(
             active_info['stageName'],
-            round(float(active_info['curStageTotalProcess']) - float(active_info['curStageLeftProcess'])),
+            round(float(active_info['curStageTotalProcess']) - float(active_info['curStageLeftProcess']), 2),
             active_info['curStageTotalProcess'])
         if active_info['ifMaxProcess']:
             message += '【温馨提示】奖品可领取，请前往京东APP-京东到家-领免费水果领取, 并种植新一轮奖品!'
@@ -359,7 +357,7 @@ class DjFruit:
             await self.receive_water_red_packet(session)  # 领取浇水红包
             await self.receive_water_bottle(session)  # 领取水瓶
             await self.receive_water_wheel(session)  # 领取水车
-            await self.watering(session, batch=True, keep_water=DJ_FRUIT_KEEP_WATER)
+            await self.watering(session, batch=False, keep_water=DJ_FRUIT_KEEP_WATER)
             await self.set_notify_message(session)
 
     async def run_help(self):
@@ -377,8 +375,8 @@ class DjFruit:
 
 
 if __name__ == '__main__':
-    from utils.process import process_start
-    process_start(DjFruit, '到家果园', code_key=CODE_DJ_FRUIT)
     # from config import JD_COOKIES
     # app = DjFruit(**JD_COOKIES[0])
     # asyncio.run(app.run())
+    from utils.process import process_start
+    process_start(DjFruit, '到家果园', code_key=CODE_DJ_FRUIT)
