@@ -126,6 +126,8 @@ JD_FARM_RETAIN_WATER = cfg.get('jd_farm_retain_water') if cfg.get('jd_farm_retai
 TG_USER_ID = cfg.get('notify', dict()).get('tg_user_id', None)
 # TG 机器人Token
 TG_BOT_TOKEN = cfg.get('notify', dict()).get('tg_bot_token', None)
+# TG 代理
+TG_BOT_API = cfg.get('notify', dict()).get('tg_bot_api', None)
 # server酱sendkey
 SERVER_SEND_KEY = cfg.get('notify', dict()).get('server_send_key', None)
 # push+ token配置

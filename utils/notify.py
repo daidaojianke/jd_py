@@ -8,7 +8,7 @@ import requests
 import telegram
 import os, re
 import json
-from config import TG_BOT_TOKEN, TG_USER_ID, PUSH_PLUS_TOKEN, PUSH_PLUS_GROUP, QYWX_AM,SERVER_SEND_KEY
+from config import TG_BOT_TOKEN, TG_USER_ID, PUSH_PLUS_TOKEN, PUSH_PLUS_GROUP, QYWX_AM,SERVER_SEND_KEY,TG_BOT_API
 from utils.console import println
 
 
@@ -142,7 +142,10 @@ def tg_bot_notify(title, message):
     message = '\n'.join([title, message])
     if TG_BOT_TOKEN and TG_USER_ID:
         try:
-            bot = telegram.Bot(TG_BOT_TOKEN)
+            if TG_BOT_API:
+                bot = telegram.Bot(token=TG_BOT_TOKEN, base_url=TG_BOT_API)
+            else:
+                bot = telegram.Bot(token=TG_BOT_TOKEN)
             bot.send_message(TG_USER_ID, message)
             println('\n成功推送消息到TG!')
         except Exception as e:
