@@ -8,7 +8,7 @@ import requests
 import telegram
 import os, re
 import json
-from config import TG_BOT_TOKEN, TG_USER_ID, PUSH_PLUS_TOKEN, PUSH_PLUS_GROUP,  QYWX_AM
+from config import TG_BOT_TOKEN, TG_USER_ID, PUSH_PLUS_TOKEN, PUSH_PLUS_GROUP, QYWX_AM,SERVER_SEND_KEY
 from utils.console import println
 
 
@@ -164,4 +164,19 @@ def notify(title, content):
     wecom_app(title, content)
     # TG通知
     tg_bot_notify(title, content)
+    push_server(title, content)
 
+def push_server(title, content):
+    if not SERVER_SEND_KEY:
+        println("\n未配置SERVER_SEND_KEY, 不推送server酱消息...")
+        return
+    try:
+        url = "https://sc.ftqq.com/%s.send" % (SERVER_SEND_KEY)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36'}
+
+        payload = {'text': title, 'desp': content}
+        requests.post(url, params=payload, headers=headers)
+        println('\n成功推送消息到server酱!')
+    except Exception as e:
+        println('\nserver酱消息通知异常:{}'.format(e.args))
