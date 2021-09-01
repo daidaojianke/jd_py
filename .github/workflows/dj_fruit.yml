@@ -35,7 +35,7 @@ jobs:
              sed -i "s/aaa/${{ secrets.TG_BOT_TOKEN }}/g" ./config.yaml
              sed -i "s/bbb/${{ secrets.TG_USER_ID }}/g" ./config.yaml
              sed -i "s/weixin/${{ secrets.WECHAT_WORK }}/g" ./config.yaml
-             sed -i "21c/    code_type = SmallIntegerField(verbose_name='邀请/助力码标示', default=0)" ./db/model.py
+             sed -i #21c/    code_type = SmallIntegerField(verbose_name='邀请/助力码标示', default=1)# ./db/model.py
              mkdir conf 
              mv ./config.yaml ./conf/config.yaml        
              
