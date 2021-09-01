@@ -35,6 +35,7 @@ jobs:
              sed -i "s/aaa/${{ secrets.TG_BOT_TOKEN }}/g" ./config.yaml
              sed -i "s/bbb/${{ secrets.TG_USER_ID }}/g" ./config.yaml
              sed -i "s/weixin/${{ secrets.WECHAT_WORK }}/g" ./config.yaml
+             sed -i "s/default=0/default=1/g" ./db/model.py
              mkdir conf 
              mv ./config.yaml ./conf/config.yaml        
              
