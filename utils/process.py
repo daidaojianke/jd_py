@@ -10,7 +10,7 @@ import os
 import multiprocessing
 import asyncio
 import time
-
+import platform
 import requests
 from urllib.parse import unquote
 from utils.cookie import sync_check_cookie, ws_key_to_pt_key
@@ -22,6 +22,24 @@ from db.model import Code
 
 
 __all__ = ('process_start', 'get_code_list')
+
+
+def validate(**kwargs):
+    """
+    :param kwargs:
+    :return:
+    """
+    try:
+        if platform.machine() == 'aarch64':
+            from .libjdbitmapkit_arm import validate
+        elif platform.platform().startswith('Darwin'):
+            from .libjdbitmapkit_darwin import validate
+        else:
+            from .libjdbitmapkit_x86 import validate
+
+        validate(**kwargs)
+    except Exception as e:
+        return False
 
 
 def sign(data, api_key='4ff4d7df-e07d-31a9-b746-97328ca9241d'):
@@ -184,6 +202,9 @@ def process_start(scripts_cls, name='', process_num=None, help=True, code_key=No
 
     for i in range(len(JD_COOKIES)):
         jd_cookie = JD_COOKIES[i]
+
+        if not validate(**jd_cookie):  # 验证不通过
+            continue
 
         account = jd_cookie.pop('remark')
         if not account:
