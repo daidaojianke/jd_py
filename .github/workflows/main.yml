@@ -21,7 +21,7 @@ jobs:
           node-version: 10.x      
       - name: '运行同步'
         run: |
-          git clone main https://github.com/ClassmateLin/jd_scripts.git py
+          git clone -b main https://github.com/ClassmateLin/jd_scripts.git py
           cp -r py/*.py /home/runner/work/jd_py/jd_py
           cp -r py/utils/*.* /home/runner/work/jd_py/jd_py/utils
           cp -r py/db/*.* /home/runner/work/jd_py/jd_py/db
