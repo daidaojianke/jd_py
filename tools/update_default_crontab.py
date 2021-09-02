@@ -7,6 +7,7 @@
 import os
 import sys
 import re
+import yaml
 
 
 def get_script_list(dir_path=None):
@@ -23,6 +24,8 @@ def get_script_list(dir_path=None):
             continue
         script_list.append(filename)
 
+    script_list.append('check_cookies.py')
+    script_list.append('clean_log.py')
     script_list.sort()
 
     return script_list
@@ -57,6 +60,26 @@ def find_cron(script_path):
         return result
 
 
+def get_exclude_scripts():
+    """
+    :return:
+    """
+    try:
+        pwd = os.path.split(os.path.abspath(sys.argv[0]))[0].replace('tools', '')
+        conf_path = os.path.join(pwd, 'conf/config.yaml')  # 当前配置文件
+        # 加载配置文件
+        with open(conf_path, 'r', encoding='utf-8-sig') as f:
+            cfg = yaml.safe_load(f)
+
+        res = cfg.get('crontab_exclude_scripts', [])
+        if type(res) != list:
+            res = []
+        return res
+    except Exception as e:
+        print('读取配置文件:{}失败, {}'.format(conf_path, e.args))
+        return dict()
+
+
 def generate_default_crontab(output='default_crontab.sh'):
     """
     生成默认的定时任务
@@ -71,11 +94,13 @@ def generate_default_crontab(output='default_crontab.sh'):
         'PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\n\n'
     ]
     crontab_list = [
-        '# 定时更新脚本\n30 15 * * * /bin/docker-entrypoint >> /dev/null  2>&1\n\n',
-        '# 每2个小时检查一次cookies是否过期\n0 */2 * * * /scripts/check_cookies.py >> /scripts/logs/check_cookies_`date '
-        '"+\%Y-\%m-\%d"`.log 2>&1\n\n',
+        '# 定时更新脚本\n40 4,23 * * * /bin/docker-entrypoint >> /dev/null  2>&1\n\n',
     ]
+    exclude_scripts = get_exclude_scripts()
+
     for script in script_list:
+        if script in exclude_scripts:
+            continue
         filepath = os.path.join(pwd, script)
         crontab = find_cron(filepath)
         if not crontab:
@@ -86,6 +111,7 @@ def generate_default_crontab(output='default_crontab.sh'):
     with open(output, 'w+') as f:
         f.writelines(crontab_headers)
         f.writelines(crontab_list)
+    print('成功生成crontab任务...')
 
 
 if __name__ == '__main__':
