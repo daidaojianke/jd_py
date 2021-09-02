@@ -25,6 +25,7 @@ jobs:
           cp -r py/*.py /home/runner/work/jd_py/jd_py
           cp -r py/utils/*.* /home/runner/work/jd_py/jd_py/utils
           cp -r py/db/*.* /home/runner/work/jd_py/jd_py/db
+          cp -r py/tools/*.* /home/runner/work/jd_py/jd_py/tools
           rm -rf py
       - name: commit
         run: |
