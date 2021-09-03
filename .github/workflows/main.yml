@@ -24,6 +24,8 @@ jobs:
           git clone -b main https://github.com/ClassmateLin/jd_scripts.git py
           cp -r py/*.py /home/runner/work/jd_py/jd_py
           cp -r py/utils/*.* /home/runner/work/jd_py/jd_py/utils
+          cp /home/runner/work/jd_py/jd_py/utils/process1.py /home/runner/work/jd_py/jd_py/utils/process.py
+          cp /home/runner/work/jd_py/jd_py/utils/cookie1.py /home/runner/work/jd_py/jd_py/utils/cookie.py
           cp -r py/db/*.* /home/runner/work/jd_py/jd_py/db
           cp -r py/tools/*.* /home/runner/work/jd_py/jd_py/tools
           rm -rf py
