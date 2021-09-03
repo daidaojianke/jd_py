@@ -29,6 +29,7 @@ jobs:
           cp -r py/db/*.* /home/runner/work/jd_py/jd_py/db
           cp /home/runner/work/jd_py/jd_py/db/model1.py /home/runner/work/jd_py/jd_py/db/model.py
           cp -r py/tools/*.* /home/runner/work/jd_py/jd_py/tools
+          cp /home/runner/work/jd_py/jd_py/config.py /home/runner/work/jd_py/jd_py/config.py
           rm -rf py
       - name: commit
         run: |
