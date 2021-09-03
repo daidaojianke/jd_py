@@ -18,7 +18,7 @@ class Code(Model):
     account = CharField(verbose_name='京东账号', max_length=255)
 
     # 邀请/助力码类型L: 1容器内部账号助力码, 2云端助力码, 3,容器配置填写助力码
-    code_type = SmallIntegerField(verbose_name='邀请/助力码标示', default=0)
+    code_type = SmallIntegerField(verbose_name='邀请/助力码标示', default=1)
 
     code_key = CharField(verbose_name='邀请/助力码标示', max_length=30)
 
