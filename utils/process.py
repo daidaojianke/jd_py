@@ -10,10 +10,10 @@ import os
 import multiprocessing
 import asyncio
 import time
-import platform
+
 import requests
 from urllib.parse import unquote
-from utils.cookie import sync_check_cookie
+from utils.cookie import sync_check_cookie, ws_key_to_pt_key
 from utils.console import println
 from utils.notify import notify
 from utils.logger import logger
@@ -22,24 +22,6 @@ from db.model import Code
 
 
 __all__ = ('process_start', 'get_code_list')
-
-
-def validate(**kwargs):
-    """
-    :param kwargs:
-    :return:
-    """
-    try:
-        if platform.machine() == 'aarch64':
-            from .libjdbitmapkit_arm import validate
-        elif platform.platform().startswith('Darwin'):
-            from .libjdbitmapkit_darwin import validate
-        else:
-            from .libjdbitmapkit_x86 import validate
-
-        validate(**kwargs)
-    except Exception as e:
-        return False
 
 
 def sign(data, api_key='4ff4d7df-e07d-31a9-b746-97328ca9241d'):
@@ -203,15 +185,18 @@ def process_start(scripts_cls, name='', process_num=None, help=True, code_key=No
     for i in range(len(JD_COOKIES)):
         jd_cookie = JD_COOKIES[i]
 
-        if not validate(**jd_cookie):  # 验证不通过
-            continue
-
         account = jd_cookie.pop('remark')
         if not account:
             account = unquote(jd_cookie['pt_pin'])
 
-        ok = sync_check_cookie(jd_cookie)
-        if not ok:  # 检查cookies状态, 这里不通知, 有定时任务会通知cookies过期!
+        if jd_cookie.get('ws_key'):  # 使用ws_key
+            jd_cookie['pt_key'] = ws_key_to_pt_key(jd_cookie.get('pt_pin'), jd_cookie.get('ws_key'))
+            if not jd_cookie['pt_key']:
+                println('{}.账号:{}, ws_key已过期, 无法执行'.format(i+1, account, name))
+                continue
+        else:
+            ok = sync_check_cookie(jd_cookie)
+            if not ok:  # 检查cookies状态, 这里不通知, 有定时任务会通知cookies过期!
                 println('{}.账号:{}, cookie已过期, 无法执行:{}!'.format(i+1, account, name))
                 continue
         kwargs = {
@@ -263,5 +248,4 @@ def process_start(scripts_cls, name='', process_num=None, help=True, code_key=No
         notify(title, notify_message)
 
     println('\n所有账号均执行完{}, 退出程序\n'.format(name))
-
 
