@@ -1,4 +1,4 @@
-name: dj_bean
+name: jd_puzzle_sign
 
 on:
     workflow_dispatch:
