@@ -3,7 +3,7 @@ name: jd_joy_exchange.py
 on:
     workflow_dispatch:
     schedule:
-        - cron: "59 7,15,23 * * *"
+        - cron: "59 15 * * *"
     watch:
         types: [started]
     repository_dispatch:
