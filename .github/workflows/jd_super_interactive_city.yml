@@ -3,7 +3,7 @@ name: jd_super_interactive_city
 on:
     workflow_dispatch:
     schedule:
-        - cron: "8 18 * * *"
+        - cron: "8 18,23 * * *"
     watch:
         types: [started]
     repository_dispatch:
