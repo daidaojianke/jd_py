@@ -31,7 +31,7 @@ jobs:
           cp /home/runner/work/jd_py/jd_py/config1.py /home/runner/work/jd_py/jd_py/config.py
           rm -rf py
           cp /home/runner/work/jd_py/jd_py/utils/process1.py /home/runner/work/jd_py/jd_py/utils/process.py
-          #cp /home/runner/work/jd_py/jd_py/utils/cookie1.py /home/runner/work/jd_py/jd_py/utils/cookie.py
+          cp /home/runner/work/jd_py/jd_py/utils/cookie1.py /home/runner/work/jd_py/jd_py/utils/cookie.py
           
       - name: commit
         run: |
