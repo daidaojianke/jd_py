@@ -1,6 +1,6 @@
 # conf/config.yaml
 # 默认为True, 控制台打印消息
-debug: false
+debug: true
 
 # 日志保留天数
 log_days: 3
