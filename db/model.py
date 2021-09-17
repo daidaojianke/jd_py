@@ -21,8 +21,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 db = SqliteDatabase(DB_PATH)
 
-CODE_TYPE_INTERNAL = 1  # 容器内部账号助力码
-CODE_TYPE_AUTHOR = 0  # 作者助力码
+CODE_TYPE_INTERNAL = 0  # 容器内部账号助力码
+CODE_TYPE_AUTHOR = 1  # 作者助力码
 CODE_TYPE_POOL = 2  # 助力池助力码
 
 FLAG_TYPE_POST = 1  # 是否已提交助力码
