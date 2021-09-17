@@ -101,4 +101,3 @@ def sync_check_cookie(cookies):
     except Exception as e:
         print(e.args)
         return False
-
