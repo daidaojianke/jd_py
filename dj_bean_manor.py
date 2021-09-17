@@ -15,7 +15,7 @@ from utils.console import println
 from utils.dj_init import dj_init
 from utils.logger import logger
 from db.model import Code
-from utils.process import get_code_list
+
 
 # 鲜豆庄园助力码
 CODE_DJ_BEAN_MANOR = 'dj_bean_manor'
@@ -188,38 +188,37 @@ class DjBeanManor:
         println('{}, 助力码:{}'.format(self.account, code))
         Code.insert_code(code_key=CODE_DJ_BEAN_MANOR, code_val=code, account=self.account, sort=self.sort)
 
-    @logger.catch
-    async def run_help(self):
-        """
-        组队
-        :return:
-        """
-        async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
-            dj_cookies = await self.login(session)
-            if not dj_cookies:
-                return
-            println('{}, 登录成功...'.format(self.account))
-
-        async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
-            activity_info = await self.get_activity_info(session)
-            if not activity_info:
-                println('{}, 获取活动ID失败, 退出程序!'.format(self.account))
-                return
-            item_list = Code.get_code_list(CODE_DJ_BEAN_MANOR)
-            item_list.extend(get_code_list(CODE_DJ_BEAN_MANOR))
-
-            for item in item_list:
-                account, code = item.get('account'), item.get('code')
-                # 参数加密了
-                res = await self.get(session, 'signin/carveUp/joinCarveUp', {"groupId": code, "type": 2})
-                println(res)
-                if res.get('code') != '0':
-                    println('{}, 无法加入好友:{}的队伍!'.format(self.account, account))
-                else:
-                    println(res)
-                    println('{}, 加入好友:{}队伍结果, {}'.format(self.account, account, res['result']['title']))
-                    if '上限' in res['result']['title']:
-                        break
+    # @logger.catch
+    # async def run_help(self):
+    #     """
+    #     组队
+    #     :return:
+    #     """
+    #     async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
+    #         dj_cookies = await self.login(session)
+    #         if not dj_cookies:
+    #             return
+    #         println('{}, 登录成功...'.format(self.account))
+    #
+    #     async with aiohttp.ClientSession(cookies=dj_cookies, headers=self.headers) as session:
+    #         activity_info = await self.get_activity_info(session)
+    #         if not activity_info:
+    #             println('{}, 获取活动ID失败, 退出程序!'.format(self.account))
+    #             return
+    #         item_list = Code.get_code_list(CODE_DJ_BEAN_MANOR)
+    #
+    #         for item in item_list:
+    #             account, code = item.get('account'), item.get('code')
+    #             # 参数加密了
+    #             res = await self.get(session, 'signin/carveUp/joinCarveUp', {"groupId": code, "type": 2})
+    #             println(res)
+    #             if res.get('code') != '0':
+    #                 println('{}, 无法加入好友:{}的队伍!'.format(self.account, account))
+    #             else:
+    #                 println(res)
+    #                 println('{}, 加入好友:{}队伍结果, {}'.format(self.account, account, res['result']['title']))
+    #                 if '上限' in res['result']['title']:
+    #                     break
 
     async def run(self):
         """

@@ -54,7 +54,8 @@ class Config:
         'chrome_path': 'chromium路径, 默认不需要修改，除非你是本地运行或者进行开发。',
         'joy_feed_count': '宠汪汪喂食狗粮克数',
         'server_send_key': 'server酱通知key',
-        'tg_bot_api': 'TG代理'
+        'tg_bot_api': 'TG代理',
+        'joy_exchange_num': '宠汪汪兑换京豆数, 选项, 20, 500, 默认20'
     }
 
     def __init__(self):

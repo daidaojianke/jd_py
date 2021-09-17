@@ -197,7 +197,7 @@ class DjBean:
                 page += 1
 
         message = '\n【活动名称】赚鲜豆\n【活动入口】京东APP>京东到家->签到\n'
-        message += '【京东账号】{}\n【活动昵称】{}\n'.format(self.account, self.nickname)
+        message += '【京东账号】{}\n'.format(self.account)
         message += '【连续签到】{}天\n'.format(self.already_sign_days)
         message += '【鲜豆总数】{}\n【今日收入】{}\n【今日支出】{}\n'.format(total_bean, today_income, today_used)
         message += '【昨日收入】{}\n【昨天支出】{}\n'.format(yesterday_income, yesterday_used)

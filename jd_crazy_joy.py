@@ -25,7 +25,7 @@ def get_uts(t):
     :return:
     """
     t = str(int(time.time() * 1000))
-    e = '1670115333'
+    e = '1' * 10
     e = t[-8:] + e + t
     return e
 

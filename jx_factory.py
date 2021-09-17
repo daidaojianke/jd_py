@@ -16,7 +16,6 @@ from datetime import datetime
 from urllib.parse import urlencode
 from utils.jx_init import jx_init
 from utils.console import println
-from utils.process import get_code_list
 from utils.logger import logger
 from db.model import Code
 
@@ -186,7 +185,6 @@ class JxFactory:
             '_stk': '_time,sharepin,zone'
         }
         item_list = Code.get_code_list(CODE_JX_FACTORY_WORK)
-        item_list.extend(get_code_list(CODE_JX_FACTORY_WORK))
         for item in item_list:
             account, code = item.get('account'), item.get('code')
             if account == self.account:
@@ -562,7 +560,6 @@ class JxFactory:
         :return:
         """
         item_list = Code.get_code_list(CODE_JX_FACTORY_TUAN)
-        item_list.extend(CODE_JX_FACTORY_TUAN)
         path = 'dreamfactory/tuan/JoinTuan'
         for item in item_list:
             if type(item) != dict:

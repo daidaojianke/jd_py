@@ -11,7 +11,7 @@ import random
 import asyncio
 import aiohttp
 
-from urllib.parse import unquote, quote
+from urllib.parse import quote
 from utils.console import println
 from utils.logger import logger
 from utils.jd_init import jd_init

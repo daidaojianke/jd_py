@@ -3,7 +3,7 @@
 # @Time    : 2021/8/23 下午6:54
 # @Project : jd_scripts
 # @File    : jx_pasture.py
-# @Cron    : 35 6,16 * * *
+# @Cron    : 35 7,16 * * *
 # @Desc    : 京喜APP->京喜牧场->日常任务
 import json
 import random
@@ -20,7 +20,7 @@ from utils.jx_init import jx_init, md5
 from utils.logger import logger
 from utils.console import println
 from utils.jx_pasture_token import get_token
-from utils.process import process_start, get_code_list
+from utils.process import process_start
 from db.model import Code
 
 
@@ -275,8 +275,8 @@ class JxPasture:
                     println('{}, 获得割草奖励, {}'.format(self.account, award_res['data']['prizepool']))
 
             if i + 1 <= max_times:
-                println('{}, 2s后进行第{}次割草!'.format(self.account, i + 1))
-                await asyncio.sleep(2)
+                println('{}, 3s后进行第{}次割草!'.format(self.account, i + 1))
+                await asyncio.sleep(3)
 
     async def sweep_chicken_legs(self, session, max_times=10):
         """
@@ -363,7 +363,6 @@ class JxPasture:
                 println('{}, 无法初始化, 退出程序!'.format(self.account))
                 return
             item_list = Code.get_code_list(code_key=CODE_JX_PASTURE)
-            item_list.extend(get_code_list(CODE_JX_PASTURE))
             for item in item_list:
                 account, code = item.get('account'), item.get('code')
                 if account == self.account:

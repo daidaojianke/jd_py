@@ -348,7 +348,7 @@ class JrPetPig:
             await self.open_box(session)
             await self.lottery(session)
             await self.add_food(session)
-            await self.notify(session)
+            #await self.notify(session)
 
     async def notify(self, session):
         """

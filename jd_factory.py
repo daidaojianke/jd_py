@@ -14,7 +14,6 @@ from utils.console import println
 from utils.process import process_start
 from utils.jd_init import jd_init
 from utils.logger import logger
-from utils.process import get_code_list
 from config import USER_AGENT
 from db.model import Code
 
@@ -132,7 +131,6 @@ class JdFactory:
         :return:
         """
         item_list = Code.get_code_list(CODE_JD_FACTORY)
-        item_list.extend(get_code_list(CODE_JD_FACTORY))
         for item in item_list:
             friend_account, friend_code = item.get('account'), item.get('code')
             if friend_account == self.account:

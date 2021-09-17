@@ -15,7 +15,6 @@ import aiohttp
 from db.model import Code
 from utils.jd_init import jd_init
 from utils.console import println
-from utils.process import get_code_list
 from utils.logger import logger
 
 
@@ -136,7 +135,7 @@ class JdCommon:
         """
         async with aiohttp.ClientSession(cookies=self.cookies, headers=self.headers) as session:
             item_list = Code.get_code_list(self.code_key)
-            item_list.extend(get_code_list(self.code_key))
+
             for item in item_list:
                 friend_account, friend_code = item.get('account'), item.get('code')
                 if friend_account == self.account:
