@@ -4,18 +4,109 @@
 # @File    : process.py
 # @Project : jd_scripts
 # @Desc    : 多进程执行脚本
+import random
+import hashlib
+import os
 import multiprocessing
 import asyncio
+import time
+
+import requests
 from urllib.parse import unquote
 from utils.cookie import sync_check_cookie, ws_key_to_pt_key
 from utils.console import println
 from utils.notify import notify
 from utils.logger import logger
-from config import JD_COOKIES, PROCESS_NUM
-from db.model import Code, CodeFlag
+from config import JD_COOKIES, PROCESS_NUM, USER_AGENT
+from db.model import Code
 
 
-__all__ = ('process_start', )
+__all__ = ('process_start', 'get_code_list')
+
+
+def sign(data, api_key='4ff4d7df-e07d-31a9-b746-97328ca9241d'):
+    """
+    :param api_key:
+    :param data:
+    :return:
+    """
+    if "sign" in data:
+        data.pop('sign')
+    data_list = []
+    for key in sorted(data):
+        if data[key]:
+            data_list.append("%s=%s" % (key, data[key]))
+    data = "&".join(data_list).strip() + api_key.strip()
+    md5 = hashlib.md5()
+    md5.update(data.encode(encoding='UTF-8'))
+    return md5.hexdigest()
+
+
+def post_code_list(code_key):
+    """
+    提交助力码
+    :return:
+    """
+    code_list = []
+    item_list = Code.get_codes(code_key)
+
+    for item in item_list:
+        code_list.append({
+            'account': item.account,
+            'code_key': item.code_key,
+            'code_val': item.code_val,
+        })
+
+    if len(code_list) < 1:
+        return
+
+    url = 'http://service-ex55qwbk-1258942535.gz.apigw.tencentcs.com/release/'
+    params = {
+        'items': code_list,
+        'os': os.getenv('HOSTNAME', '')
+    }
+    params['sign'] = sign(params)
+
+    try:
+        headers = {
+            'user-agent': USER_AGENT,
+            'Content-Type': 'application/json'
+        }
+        response = requests.post(url, json=params, verify=False, timeout=20, headers=headers)
+        if response.json().get('code') == 0:
+            println('成功提交助力码!')
+        else:
+            println('提交助力码失败!')
+    except Exception as e:
+        println('提交助力码失败, {}'.format(e.args))
+
+
+def get_code_list(code_key, count=15):
+    """
+    获取助力码列表
+    :param count:
+    :param code_key:
+    :return:
+    """
+    try:
+        url = 'http://service-ex55qwbk-1258942535.gz.apigw.tencentcs.com/release/'
+        headers = {
+            'user-agent': USER_AGENT,
+            'content-type': 'application/json'
+        }
+        params = {
+            'count': count,
+            'code_key': code_key
+        }
+        params['sign'] = sign(params)
+        response = requests.get(url=url, json=params, timeout=20, verify=False, headers=headers)
+        items = response.json()['data']
+        if not items:
+            return []
+        return items
+    except Exception as e:
+        println('获取随机助力列表失败, {}'.format(e.args))
+        return []
 
 
 def start(script_cls, **kwargs):
@@ -94,9 +185,6 @@ def process_start(scripts_cls, name='', process_num=None, help=True, code_key=No
     for i in range(len(JD_COOKIES)):
         jd_cookie = JD_COOKIES[i]
 
-        # if not validate(**jd_cookie):  # 验证不通过
-        #     continue
-
         account = jd_cookie.pop('remark')
         if not account:
             account = unquote(jd_cookie['pt_pin'])
@@ -137,14 +225,15 @@ def process_start(scripts_cls, name='', process_num=None, help=True, code_key=No
         notify_message += message + '\n'
 
     if code_key:
+        timeout = random.random() * 10
+        println('正在提交助力码, 随机等待{}秒!'.format(timeout))
+        time.sleep(timeout)
         if type(code_key) == list:
             for key in code_key:
-                Code.post_code_list(key)
+                post_code_list(key)
+                time.sleep(random.random())
         else:
-            Code.post_code_list(code_key)
-
-    if code_key:
-        Code.pull_code_list(code_key=code_key)
+            post_code_list(code_key)
 
     if hasattr(scripts_cls, 'run_help') and help:
         pool = multiprocessing.Pool(process_count)  # 进程池
@@ -159,11 +248,4 @@ def process_start(scripts_cls, name='', process_num=None, help=True, code_key=No
         notify(title, notify_message)
 
     println('\n所有账号均执行完{}, 退出程序\n'.format(name))
-
-    if code_key:
-        if type(code_key) == list:
-            for key in code_key:
-                CodeFlag.del_pull_codes(key)
-        else:
-            CodeFlag.del_pull_codes(code_key)
 
