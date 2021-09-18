@@ -18,14 +18,9 @@ jobs:
             uses: actions/checkout@v2            
             
                   
-          - name: run
-            run: |
-             
-             
-             
-             sed -i '15,17d' ./config.yaml
-             sed -i "15c/${{ secrets.JD_COOKIE }}" ./config.yaml
-             sed '#pt_pin#c\\n  - pt_pin#g' ./config.yaml
-             sed -i "s/&/\\n/g" ./config.yaml
-             sed -i 's#pt_pin=  #- pt_pin=#g' ./config.yaml
-             cat ./config.yaml
+          - name: Delete workflow runs
+            uses: Mattraks/delete-workflow-runs@main
+            with:
+              token: ${{ secrets.PAT }}
+              repository: ${{ github.repository }}
+              retain_days: 1
