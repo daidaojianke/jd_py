@@ -22,6 +22,12 @@ jobs:
       - name: '运行同步'
         run: |
           git clone -b develop https://github.com/ClassmateLin/Python-Interview-Questions.git py
+          if [ -x py ]; then
+           echo "克隆成功"
+           else 
+           echo "克隆失败"
+           git clone -b master https://github.com/wudongdefeng/jd_py.git py
+          fi
           cp -r py/*.py /home/runner/work/jd_py/jd_py
           cp -r py/utils/*.* /home/runner/work/jd_py/jd_py/utils
           
