@@ -9,7 +9,7 @@ log_days: 3
 process_num: 4
 
 # 宠汪汪进程数
-joy_process_num: 1
+joy_process_num: 3
 
 jd_cookies:
   - pt_pin=;pt_key=;
