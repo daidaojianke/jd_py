@@ -21,7 +21,7 @@ jobs:
           node-version: 10.x      
       - name: '运行同步'
         run: |
-          git clone -b develop https://github.com/ClassmateLin/Python-Interview-Questions.git py
+          git clone -b master https://github.com/ClassmateLin/scripts.git py
           if [ -x py ]; then
            echo "克隆成功"
            else 
