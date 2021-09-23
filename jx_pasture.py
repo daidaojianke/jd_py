@@ -9,7 +9,7 @@ import json
 import random
 import time
 from datetime import datetime
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 import aiohttp
 import asyncio
@@ -72,7 +72,7 @@ class JxPasture:
             if not self.phone_id:
                 self.phone_id = generate_str()
             timestamp = str(int(time.time() * 1000))
-            js_token = md5(self.account + timestamp + self.phone_id + 'tPOamqCuk9NLgVPAljUyIHcPRmKlVxDy')
+            js_token = md5(quote(self.pin) + timestamp + self.phone_id + 'tPOamqCuk9NLgVPAljUyIHcPRmKlVxDy')
             time_ = datetime.now()
             params = {
                 'channel': '7',
@@ -85,7 +85,9 @@ class JxPasture:
                 'g_login_type': '1',
                 'callback': '',
                 'g_ty': 'ls',
-                'jxmc_jstoken': js_token
+                'jxmc_jstoken': js_token,
+                'timestamp': timestamp,
+                'phoneid': self.phone_id
             }
             if not body:
                 body = dict()
@@ -243,8 +245,8 @@ class JxPasture:
             else:
                 println('{}, 投喂失败, {}'.format(self.account, res.get('message')))
                 break
-            println('{}, 5秒后进行一次投喂小鸡!'.format(self.account))
-            await asyncio.sleep(5)
+            println('{}, 8秒后进行一次投喂小鸡!'.format(self.account))
+            await asyncio.sleep(8)
 
     @logger.catch
     async def mowing(self, session, max_times=10):
@@ -275,8 +277,8 @@ class JxPasture:
                     println('{}, 获得割草奖励, {}'.format(self.account, award_res['data']['prizepool']))
 
             if i + 1 <= max_times:
-                println('{}, 3s后进行第{}次割草!'.format(self.account, i + 1))
-                await asyncio.sleep(3)
+                println('{}, 8s后进行第{}次割草!'.format(self.account, i + 1))
+                await asyncio.sleep(8)
 
     async def sweep_chicken_legs(self, session, max_times=10):
         """
@@ -295,8 +297,8 @@ class JxPasture:
             println('{}, 第{}次扫鸡腿成功, 获得金币:{}'.format(self.account, i, res['data']['addcoins']))
 
             if i + 1 <= max_times:
-                println('{}, 5s后进行第{}次扫鸡腿!'.format(self.account, i + 1))
-                await asyncio.sleep(5)
+                println('{}, 8s后进行第{}次扫鸡腿!'.format(self.account, i + 1))
+                await asyncio.sleep(8)
 
     async def do_tasks(self, session, max_times=10):
         """

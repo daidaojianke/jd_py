@@ -174,6 +174,8 @@ class Jd5GBox:
                     println('{}, 成功助力好友:{}'.format(self.account, account))
                 else:
                     println('{}, 无法助力好友:{}, {}'.format(self.account, account, res.get('msg')))
+                    if res.get('code') == 2005:
+                        break
 
                 await asyncio.sleep(1)
 

@@ -508,7 +508,7 @@ class JdFactory:
             task_list = await self.get_task_list(session)
             await self.do_tasks(session, task_list)
             await self.insert_electricity(session)
-            await self.notify_result(session)
+            #await self.notify_result(session)
 
     async def run_help(self):
         """

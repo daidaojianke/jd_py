@@ -71,7 +71,7 @@ class CodeFlag(Model):
         是否已提交助力码
         """
         try:
-            res = cls.get(cls.code_key == code_key, cls.flag_type == FLAG_TYPE_POST)
+            res = cls.get(cls.code_key == code_key, cls.flag_type == FLAG_TYPE_POST, cls.created_at == datetime.now().date())
             if res and res.done:
                 return True
             else:
@@ -85,7 +85,8 @@ class CodeFlag(Model):
         是否已拉取助力码
         """
         try:
-            res = cls.get(cls.code_key == code_key, cls.flag_type == FLAG_TYPE_GET)
+            res = cls.get(cls.code_key == code_key, cls.flag_type == FLAG_TYPE_GET, cls.created_at ==
+                          datetime.now().date())
             if res and res.done:
                 return True
             else:

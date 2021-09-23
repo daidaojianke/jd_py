@@ -12,6 +12,7 @@ from urllib.parse import quote
 
 import aiohttp
 
+from config import USER_AGENT
 from db.model import Code
 from utils.jd_init import jd_init
 from utils.console import println
@@ -20,6 +21,11 @@ from utils.logger import logger
 
 @jd_init
 class JdCommon:
+    # 请求头
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': USER_AGENT
+    }
 
     @logger.catch
     async def request(self, session, function_id, body=None):

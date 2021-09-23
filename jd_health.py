@@ -31,7 +31,7 @@ class JdHealth:
     energy = 0  # 当前能量
 
     headers = {
-        'user-agent': 'jdapp;' + USER_AGENT,
+        'user-agent': USER_AGENT,
         'content-type': 'application/x-www-form-urlencoded',
         'origin': 'https://h5.m.jd.com',
         'referer': 'https://h5.m.jd.com/',
@@ -54,7 +54,7 @@ class JdHealth:
                 'client': 'wh5',
                 'body': json.dumps(body),
                 'clientVersion': '1.0.0',
-                'uuid': '0'
+                'uuid': ''
             }
             url = 'https://api.m.jd.com/?' + urlencode(params)
             if method == 'POST':

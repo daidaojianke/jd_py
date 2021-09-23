@@ -429,7 +429,7 @@ class JdCutePet:
             await self.feed_food_again(session)  # 再次喂食
             await self.collect_energy(session)
             await self.get_friend_help_award(session)
-            self.message += '【活动入口】京东APP->我的->东东萌宠\n'
+            self.message = None
 
     async def run_help(self):
         """

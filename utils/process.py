@@ -144,15 +144,19 @@ def process_start(scripts_cls, name='', process_num=None, help=True, code_key=No
             Code.post_code_list(code_key)
 
     if code_key:
-        Code.pull_code_list(code_key=code_key)
+        if type(code_key) == list:
+            for key in code_key:
+                Code.pull_code_list(key)
+        else:
+            Code.pull_code_list(code_key)
 
     if hasattr(scripts_cls, 'run_help') and help:
         pool = multiprocessing.Pool(process_count)  # 进程池
         for kwargs in kwargs_list:
             pool.apply_async(start_help, args=(scripts_cls,), kwds=kwargs)
 
-        pool.close()
-        pool.join()  # 等待进程结束
+    pool.close()
+    pool.join()  # 等待进程结束
 
     if notify_message != '':
         title = '\n======📣{}📣======\n'.format(name)

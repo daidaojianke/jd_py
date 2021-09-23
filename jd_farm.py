@@ -165,7 +165,7 @@ class JdFarm:
                 'channel': 1
             })
             if res['helpResult']['code'] == '0' or res['helpResult']['code'] == '20':
-                println('{}, 接受邀请成功, 已成为{}的好友!'.format(self.account, res['helpResult']['masterUserInfo']['nickName']))
+                println('{}, 接受邀请成功, 已成为{}的好友!'.format(self.account, friend_account))
             else:
                 println('{}, 接受好友邀请失败, {}'.format(self.account, res['helpResult']))
 
@@ -788,7 +788,7 @@ class JdFarm:
             await self.click_duck(session)  # 点鸭子任务
             await self.do_ten_water_again(session)  # 再次浇水
             await self.got_water(session)  # 领水滴
-            await self.notify_result(session)  # 结果通知
+            #await self.notify_result(session)  # 结果通知
 
     async def run_help(self):
         """

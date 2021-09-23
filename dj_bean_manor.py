@@ -44,6 +44,17 @@ class DjBeanManor:
         self.activity_id = activity_info['activityId']
         self.water_num = activity_info['water']
         self.level = activity_info['level']
+
+        try:
+            pre_data = res['result']['pre']
+            if pre_data['status'] == 2:
+                res = await self.post(session, 'plantBeans/getPoints', {
+                    'activityId': pre_data['activityId']
+                })
+                if res.get('code') == '0':
+                    println('{}, 领取上期鲜豆奖励结果: {}'.format(self.account, res['result'].get('title', '未知')))
+        except Exception as e:
+            pass
         return activity_info
 
     @logger.catch
