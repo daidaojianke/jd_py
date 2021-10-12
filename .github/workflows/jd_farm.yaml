@@ -1,4 +1,4 @@
-name: dj_bean
+name: jd_farm
 
 on:
     workflow_dispatch:
@@ -7,7 +7,7 @@ on:
     watch:
         types: [started]
     repository_dispatch:
-        types: dj_bean
+        types: jd_farm
 
 jobs:
     build:
