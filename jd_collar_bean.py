@@ -76,17 +76,19 @@ class JdCollarBean:
         :return:
         """
         data = await self.request(session, 'beanTaskList', {"viewChannel": "AppHome"})
-        if data['code'] != '0':
-            println('{}, 获取任务失败!'.format(self.account))
+        if data['code'] != '0' or not data.get('data', dict()):
+            println('{}, 获取任务列表失败!'.format(self.account))
             return
         data = data['data']
-        if not data['viewAppHome']['takenTask']:
-            await self.request(session, 'beanHomeIconDoTask', {"flag": "0", "viewChannel": "AppHome"})
-            await asyncio.sleep(1)
 
-        if not data['viewAppHome']['doneTask']:
-            await self.request(session, 'beanHomeIconDoTask', {"flag": "1", "viewChannel": "AppHome"})
-            await asyncio.sleep(1)
+        # return
+        # if not data['viewAppHome']['takenTask']:
+        #     await self.request(session, 'beanHomeIconDoTask', {"flag": "0", "viewChannel": "AppHome"})
+        #     await asyncio.sleep(1)
+        #
+        # if not data['viewAppHome']['doneTask']:
+        #     await self.request(session, 'beanHomeIconDoTask', {"flag": "1", "viewChannel": "AppHome"})
+        #     await asyncio.sleep(1)
 
         for task in data['taskInfos']:
             task_name = task['taskName']

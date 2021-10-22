@@ -3,7 +3,7 @@
 # @Time    : 2021/9/22 11:49 上午
 # @File    : jd_dd_world.py
 # @Project : jd_scripts
-# @Cron    : 2 8,13 * * *
+# @Cron    : 18 0,13 * * *
 # @Desc    : 东东世界
 import asyncio
 import json
@@ -225,6 +225,31 @@ class JdDdWorld:
                 println('{}, 完成任务, {}'.format(self.account, res))
                 await asyncio.sleep(1)
 
+    async def exchange(self, session):
+        """
+        兑换京豆
+        """
+        res = await self.request(session, 'get_task')
+        score = int(float(res.get('result', dict()).get('userScore', '0.0')))
+        if score < 200:
+            println('{}, 当前金币:{}, 小于200, 无法兑换!'.format(self.account, score))
+            return
+
+        award_list = await self.request(session, 'get_exchange')
+        for award in award_list:
+            if award['stock'] == 0:  # 无库存
+                continue
+            if award['exchange_total'] == award['times_limit']:  # 兑换上限
+                continue
+            if score > award['coins']:
+                res = await self.request(session, 'do_exchange', 'id={}'.format(award['id']))
+                println('{}, 兑换:{}, 结果:{}'.format(self.account, award['name'], res))
+                await self.exchange(session)
+
+        println('{}, 暂无可兑换奖品!'.format(self.account))
+
+
+
     async def run(self):
         """
         程序入口
@@ -233,6 +258,7 @@ class JdDdWorld:
         headers = await self.get_headers()
         async with aiohttp.ClientSession(headers=headers, cookies=self.cookies) as session:
             await self.do_tasks(session)
+            await self.exchange(session)
 
     @logger.catch
     async def run_help(self):

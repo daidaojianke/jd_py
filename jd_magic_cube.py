@@ -1,10 +1,10 @@
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
-# @Time    : 2021/8/23 上午10:59
-# @Project : jd_scripts
-# @File    : jd_second_coin.py
-# @Cron    : 12 11 * * *
-# @Desc    : 京东APP首页->京东秒杀->立即签到->赚秒秒币
+# @Time    : 2021/10/15 2:23 下午
+# @File    : jd_magic_cube.py
+# @Project : scripts
+# @Cron    : 37 5,22 * * *
+# @Desc    : 京东首页->新品首发->魔方
 import asyncio
 import json
 import urllib.parse
@@ -19,7 +19,7 @@ from utils.jd_init import jd_init
 
 
 @jd_init
-class JdSecondCoin:
+class JdMagicCube:
     """
     京东秒杀-秒秒币
     """
@@ -60,22 +60,32 @@ class JdSecondCoin:
         except Exception as e:
             println('{}, 请求数据失败, {}'.format(self.account, e.args))
 
+    async def exchange(self, session):
+        """
+        兑换
+        :return:
+        """
+        params = {
+            'functionId': 'doInteractiveAssignment',
+            'body': {"encryptProjectId": "3pp3mvzmgcFm7mvU3S1wZihNKi1H",
+                     "encryptAssignmentId": "2qZXV5kAqBJjkJmYi8C2874WyHxj", "sourceCode": "acexinpin0823", "itemId": "",
+                     "actionType": "", "completionFlag": "", "ext": {"exchangeNum": 1}},
+            'appid': 'content_ecology',
+        }
+        res = await self.request(session, params)
+        println(res)
+
     async def get_encrypt_project_id(self, session):
         """
         :return:
         """
         res = await self.request(session, {
-            'functionId': 'assignmentList',
-            'appid': 'jwsp'
+            'functionId': 'getInteractionHomeInfo',
+            'body': {"sign": "u6vtLQ7ztxgykLEr"},
+            'appid': 'content_ecology',
         })
-        if res.get('code') != 200:
-            return None
 
-        await asyncio.sleep(0.5)
-
-        encrypt_project_id = res['result']['assignmentResult']['encryptProjectId']
-
-        return encrypt_project_id
+        return res.get('result', dict()).get('taskConfig', dict()).get('projectId', '3WaFbpr4LR1fdhGxqi4Gkg2JirSZ')
 
     async def get_tasks(self, session):
         """
@@ -126,13 +136,13 @@ class JdSecondCoin:
                     item = task['ext'][extra_type][i]
                     println('{}, 去做任务:《{}》, {}/{}.'.format(self.account, task_name, i + 1, times_limit))
                     body = {
-                            'encryptAssignmentId': task['encryptAssignmentId'],
-                            'encryptProjectId': self.encrypt_project_id,
-                            'itemId': item['itemId'],
-                            'actionType': 1,
-                            "sourceCode": self.source_code,
-                            "completionFlag": "",
-                            "ext": {}
+                        'encryptAssignmentId': task['encryptAssignmentId'],
+                        'encryptProjectId': self.encrypt_project_id,
+                        'itemId': item['itemId'],
+                        'actionType': 1,
+                        "sourceCode": self.source_code,
+                        "completionFlag": "",
+                        "ext": {}
                     }
                     params = {
                         'functionId': 'doInteractiveAssignment',
@@ -140,14 +150,14 @@ class JdSecondCoin:
                         'client': 'wh5',
                         'clientVersion': '1.0.0'
                     }
-                    await self.request(session,  params)
+                    await self.request(session, params)
                     timeout = ext['waitDuration']
                     println('{}, 等待{}秒后, 去领取任务:《{}》奖励...'.format(self.account, timeout, task_name))
                     await asyncio.sleep(timeout)
                     body['actionType'] = 0
                     params['body'] = json.dumps(body)
                     res = await self.request(session, params)
-                    println('{}, {}:{}/{}, {}'.format(self.account, task_name, i+1, times_limit, res.get('msg')))
+                    println('{}, {}:{}/{}, {}'.format(self.account, task_name, i + 1, times_limit, res.get('msg')))
 
             elif task_type == 0:
                 for i in range(cur_cnt, times_limit):
@@ -168,10 +178,10 @@ class JdSecondCoin:
                         'clientVersion': '1.0.0'
                     }
                     res = await self.request(session, params)
-                    println('{}, {}:{}/{},{}'.format(self.account, task_name, i+1, times_limit, res.get('msg')))
+                    println('{}, {}:{}/{},{}'.format(self.account, task_name, i + 1, times_limit, res.get('msg')))
                     await asyncio.sleep(1)
             elif task_type == 3:
-                for i in range(cur_cnt, times_limit+1):
+                for i in range(cur_cnt, times_limit + 1):
                     body = {
                         "encryptAssignmentId": task['encryptAssignmentId'],
                         "itemId": task['ext'][task['ext']['extraType']][i]['itemId'],
@@ -188,7 +198,7 @@ class JdSecondCoin:
                         'clientVersion': '1.0.0'
                     }
                     res = await self.request(session, params)
-                    println('{}, {}:{}/{},{}'.format(self.account, task_name, i+1, times_limit, res.get('msg')))
+                    println('{}, {}:{}/{},{}'.format(self.account, task_name, i + 1, times_limit, res.get('msg')))
 
     async def run(self):
         """
@@ -200,10 +210,11 @@ class JdSecondCoin:
                 println('{}, 无法获取任务列表, 退出程序!'.format(self.account))
                 return
             await self.do_tasks(session, task_list)
+            await self.exchange(session)
 
 
 if __name__ == '__main__':
     # from config import JD_COOKIES
     # app = JdSecondCoin(**JD_COOKIES[0])
     # asyncio.run(app.run())
-    process_start(JdSecondCoin, '京东秒杀-秒秒币')
+    process_start(JdMagicCube, '京东APP-魔方')

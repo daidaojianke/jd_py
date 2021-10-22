@@ -32,6 +32,14 @@ class JdPuzzleSign:
             println('{}, 打开{}页面失败, 无法签到!'.format(self.account, name))
             return
 
+        skip_button_selector = 'body'
+        try:
+            await page.waitForSelector(skip_button_selector, timeout=50000)
+            skip_button_ele = await page.querySelector(skip_button_selector)
+            await skip_button_ele.click()
+        except:
+            pass
+
         sign_button_selector = 'div.sign_btn'
 
         try:
@@ -111,7 +119,7 @@ class JdPuzzleSign:
         :param browser:
         :return:
         """
-        url = 'https://prodev.m.jd.com/mall/active/2tZssTgnQsiUqhmg5ooLSHY9XSeN/index.html?collectionId=294'
+        url = 'https://pro.m.jd.com/mall/active/2tZssTgnQsiUqhmg5ooLSHY9XSeN/index.html?collectionId=294'
         name = '个护馆'
         await self.sign(browser, url, name)
 
@@ -134,7 +142,7 @@ class JdPuzzleSign:
         :param browser:
         :return:
         """
-        url = 'https://prodev.m.jd.com/mall/active/4SWjnZSCTHPYjE5T7j35rxxuMTb6/index.html?babelChannel=ttt5' \
+        url = 'https://pro.m.jd.com/mall/active/4SWjnZSCTHPYjE5T7j35rxxuMTb6/index.html?babelChannel=ttt5' \
               '&collectionId=450&tttparams=u4jfb2vfeyJnTGF0IjoiMjMuMDE1NDExIiwiZ0xuZyI6IjExMy4zODgwOTIifQ8%3D%3D'
         name = '数码3C'
         await self.sign(browser, url, name)
@@ -146,7 +154,7 @@ class JdPuzzleSign:
         :param browser:
         :return:
         """
-        url = 'https://prodev.m.jd.com/mall/active/4SWjnZSCTHPYjE5T7j35rxxuMTb6/index.html'
+        url = 'https://pro.m.jd.com/mall/active/4SWjnZSCTHPYjE5T7j35rxxuMTb6/index.html'
         name = '京东电器'
         await self.sign(browser, url, name)
 
@@ -156,7 +164,7 @@ class JdPuzzleSign:
         :param browser:
         :return:
         """
-        url = 'https://prodev.m.jd.com/mall/active/3bhgbFe5HZcFCjEZf2jzp3umx4ZR/index.html'
+        url = 'https://pro.m.jd.com/mall/active/N9MpLQdxZgiczZaMx2SzmSfZSvF/index.html'
         name = 'plus天天领京豆'
         await self.sign(browser, url, name)
 
@@ -181,10 +189,10 @@ class JdPuzzleSign:
         println('{}, 正在打开浏览器...'.format(self.account))
         browser = await open_browser()
 
-        await self.undies_sign(browser)  # 京东内衣
-        await asyncio.sleep(1)
-        await self.children_clothing_sign(browser)  # 京东童装
-        await asyncio.sleep(1)
+        # await self.undies_sign(browser)  # 京东内衣
+        # await asyncio.sleep(1)
+        # await self.children_clothing_sign(browser)  # 京东童装
+        # await asyncio.sleep(1)
         await self.baby_sign(browser)  # 母婴馆
         await asyncio.sleep(1)
         await self.digital_3C(browser)

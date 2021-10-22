@@ -401,7 +401,7 @@ class JdNotification:
             if '本期' in item['dateDesc']:
                 growth = item['growth']
             if '上期' in item['dateDesc']:
-                last_award_beans = item['awardBeans']
+                last_award_beans = item.get('awardBeans', 0)
 
         return f'【种豆得豆】本期成长值:{growth}, 上期兑换京豆:{last_award_beans}'
 
@@ -468,6 +468,8 @@ class JdNotification:
         try:
             res = await self.request(url)
             data = res['resultData']['resultData']
+            if not data.get('cote', dict()).get('pig', None):
+                return f'【金融养猪】未开启活动'
             curr_level_count = data['cote']['pig']['currLevelCount']  # 当前等级需要喂养的次数
             curr_count = data['cote']['pig']['currCount']  # 当前等级已喂猪的次数
             curr_level = data['cote']['pig']['curLevel']
