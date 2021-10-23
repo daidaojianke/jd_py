@@ -1,4 +1,4 @@
-name: jd_super_interactive_city
+name: jd_temporty
 
 on:
     workflow_dispatch:
@@ -7,7 +7,7 @@ on:
     watch:
         types: [started]
     repository_dispatch:
-        types: jd_super_interactive_city
+        types: jd_temporty
 
 jobs:
     build:
@@ -37,4 +37,4 @@ jobs:
              mkdir conf 
              mv ./config.yaml ./conf/config.yaml        
              
-             python3 jd_super_interactive_city.py
+             python3 jd_collar_bean.py
