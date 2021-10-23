@@ -42,8 +42,8 @@ jobs:
           
       - name: commit
         run: |
-          git config --global user.email ${{ secrets.EMAIL }}
-          git config --global user.name ${{ secrets.USER_NAME }}
+          git config user.email 'github-actions-bot@google.com'
+          git config --global user.name "actions-bot"
           git add .
           git commit -m "update by Action" -a || echo "Nothing to update"
       - name: Push changes
