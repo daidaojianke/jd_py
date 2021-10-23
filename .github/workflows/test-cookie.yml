@@ -14,4 +14,4 @@ jobs:
                   
           - name: runs
             run: |
-              echo "pt_key=aaa;pt_pin=bbb;&pt_key=aaa;pt_pin=bbb;" | sed 's/&/\n/g"
+              echo "pt_key=aaa;pt_pin=bbb;&pt_key=aaa;pt_pin=bbb;" | sed 's/&/\n/g'
