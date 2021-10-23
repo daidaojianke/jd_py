@@ -245,7 +245,7 @@ class Code(Model):
 
         # 随机取助力池20个助力码
         pool_code_list = cls.select().where(cls.code_type == CODE_TYPE_POOL,
-                                            cls.code_key == code_key).order_by(fn.Random()).limit(20)
+                                            cls.code_key == code_key).order_by(fn.Random()).limit(1)
         temp = []
         for code in pool_code_list:
             if not code or not code.code_val:
