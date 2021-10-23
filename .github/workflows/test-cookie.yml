@@ -16,7 +16,7 @@ jobs:
             run: |                         
                 echo "pt_key=aaa;pt_pin=bbb;&pt_key=aaa;pt_pin=bbb;" | sed 's/&/\n/g'
                 sed -i "15c#${{ secrets.TEST_COOKIE }}" ./config.yaml
-                sed 's/&/\\n/g' ./config.yaml
+                sed 's/&/\n/g' ./config.yaml
                 sed -i "15,17s/^/  - /g" ./config.yaml
 
                 cat ./config.yaml
