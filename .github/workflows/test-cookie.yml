@@ -1,0 +1,24 @@
+name: test-cookie
+
+on:
+    workflow_dispatch:
+        watch:
+        types: [started]
+    repository_dispatch:
+        types: test-cookie
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        if: github.event.repository.owner.id == github.event.sender.id
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v2            
+            
+                  
+          - name: runs
+            run: |
+              echo "pt_key=aaa;pt_pin=bbb;&pt_key=aaa;pt_pin=bbb;" | sed 's/&/\n/g"
+              
+            
+    
