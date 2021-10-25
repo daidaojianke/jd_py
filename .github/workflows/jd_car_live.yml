@@ -28,7 +28,7 @@ jobs:
                   
           - name: run
             run: |     
-             sed -i -e '/pt/{2;d;}' ./config.yaml
+             sed -i -e '/pt/{2;d}' ./config.yaml
              sed -i "15c${{ secrets.TEST_COOKIE }}" ./config.yaml
              sed 's/&/\n/g' ./config.yaml
              sed -i "/pt/^/  - /g" ./config.yaml
